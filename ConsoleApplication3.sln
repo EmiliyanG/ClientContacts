@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientContactViews", "ClientContactViews\ClientContactViews.csproj", "{1B8AB1F8-34E8-482C-8568-10A53F1DEA3A}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ClientContacts", "ClientContacts\ClientContacts.fsproj", "{CB82E9CA-BC1B-4C4A-AF9C-46F52763BC86}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1B8AB1F8-34E8-482C-8568-10A53F1DEA3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B8AB1F8-34E8-482C-8568-10A53F1DEA3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B8AB1F8-34E8-482C-8568-10A53F1DEA3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B8AB1F8-34E8-482C-8568-10A53F1DEA3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB82E9CA-BC1B-4C4A-AF9C-46F52763BC86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB82E9CA-BC1B-4C4A-AF9C-46F52763BC86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB82E9CA-BC1B-4C4A-AF9C-46F52763BC86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB82E9CA-BC1B-4C4A-AF9C-46F52763BC86}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0FB72984-CFD7-41D0-B5DF-DF52B0C240C8}
+	EndGlobalSection
+EndGlobal

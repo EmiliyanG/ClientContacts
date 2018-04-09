@@ -1,0 +1,46 @@
+﻿<UserControl x:Class="ClientContactViews.ContactList"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ClientContactViews"
+             xmlns:b="clr-namespace:ClientContactViews"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.InputBindings>
+        <!--<KeyBinding Key="Enter" Command="{Binding EnterCommand}"/>-->
+    </UserControl.InputBindings>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+
+        <TextBox x:Name="SearchBar" Grid.Row="0" Text="{Binding Path=SearchBar, UpdateSourceTrigger=PropertyChanged}"
+                  >
+            <!--:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"-->
+            <!--UpdateSourceTrigger=PropertyChanged-->
+
+
+        </TextBox>
+        <ListView Grid.Row="1"  x:Name="ListView" ItemsSource="{Binding ContactItems}">
+            <!---->
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            
+            <!---->
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <local:Contact/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</UserControl>
