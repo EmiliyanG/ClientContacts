@@ -16,14 +16,13 @@ using System.Windows.Shapes;
 namespace ClientContactViews
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for ContactInfoBox.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class ContactInfoBox : UserControl
     {
-        public MainWindow()
+        public ContactInfoBox()
         {
             InitializeComponent();
-            
         }
     }
 }

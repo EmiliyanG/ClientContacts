@@ -39,6 +39,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -53,7 +55,15 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="AnimatedBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Contact.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ContactInfoBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -65,8 +75,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="AnimatedBar.xaml.cs">
+      <DependentUpon>AnimatedBar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Contact.xaml.cs">
       <DependentUpon>Contact.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ContactInfoBox.xaml.cs">
+      <DependentUpon>ContactInfoBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="ContactList.xaml.cs">
       <DependentUpon>ContactList.xaml</DependentUpon>
@@ -108,6 +124,17 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="res\admin-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="res\admin.png" />
+    <Resource Include="res\comment.png" />
+    <Resource Include="res\email.png" />
+    <Resource Include="res\organisation.png" />
+    <Resource Include="res\phone.png" />
+    <Resource Include="res\user locked.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="res\user.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

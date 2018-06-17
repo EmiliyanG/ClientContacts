@@ -9,7 +9,9 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.InputBindings>
         <!--<KeyBinding Key="Enter" Command="{Binding EnterCommand}"/>-->
+        
     </UserControl.InputBindings>
+   
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -27,18 +29,21 @@
 
 
         </TextBox>
-        <ListView Grid.Row="1"  x:Name="ListView" ItemsSource="{Binding ContactItems}">
+        <ListView Grid.Row="1"  x:Name="ListView" ItemsSource="{Binding ContactItems}" >
             <!---->
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    
                 </Style>
             </ListView.ItemContainerStyle>
             
             <!---->
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <local:Contact/>
+                    
+                    <local:Contact Content="{Binding UpdateContactInfo}" />
+                    
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

@@ -1,0 +1,69 @@
+﻿<UserControl x:Class="ClientContactViews.ContactInfoBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ClientContactViews"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" Background="White" d:DesignWidth="400">
+    
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <Style x:Key="textBox" TargetType="{x:Type TextBox}">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Height" Value="Auto"/>
+            <Setter Property="Width" Value="Auto"/>
+            <Setter Property="Grid.ColumnSpan" Value="5"/>
+            <Setter Property="Grid.Column" Value="1"/>
+        </Style>
+        <Style x:Key="textBoxLabels" TargetType="{x:Type Label}">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="Grid.ColumnSpan" Value="2"/>
+            <Setter Property="Grid.Column" Value="0"/>
+        </Style>
+        <Style TargetType="Image">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Stretch" Value="Uniform"/>
+            <Setter Property="Margin" Value="3"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="40" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <local:AnimatedBar Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="6" Visibility="{Binding loading , Converter={StaticResource BooleanToVisibilityConverter} }"/>
+        <Image  Grid.Column="0" Grid.Row="1" ToolTip="Organisation" Source=".\res\organisation.png"/>
+        <Image  Grid.Column="0" Grid.Row="2" ToolTip="Contact Name" Source=".\res\user.png"/>
+        <Image  Grid.Column="0" Grid.Row="3" ToolTip="Phone Number" Source=".\res\phone.png"/>
+        <Image  Grid.Column="0" Grid.Row="4" ToolTip="Email Address" Source=".\res\email.png"/>
+        <Image  Grid.Column="0" Grid.Row="5" ToolTip="Additional Notes Or Comments" Source=".\res\comment.png"/>
+        <TextBox Grid.Row="1" Style="{StaticResource textBox}"/>
+        <TextBox Grid.Row="2" Style="{StaticResource textBox}"/>
+        <TextBox Grid.Row="3" Style="{StaticResource textBox}"/>
+        <TextBox Grid.Row="4" Style="{StaticResource textBox}"/>
+        <TextBox Grid.Row="5" Grid.RowSpan="2" Style="{StaticResource textBox}"/>
+
+    </Grid>
+    
+    
+</UserControl>

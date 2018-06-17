@@ -13,26 +13,27 @@
         <Style TargetType="Image">
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Height" Value="75"/>
-            <Setter Property="Width" Value="75"/>
+            <Setter Property="Stretch" Value="UniformToFill"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Width" Value="50"/>
         </Style>
     </UserControl.Resources>
-    
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="60" />
+            <ColumnDefinition Width="60" />
         </Grid.ColumnDefinitions>
 
-        <Label  Grid.Column="0" Content="{Binding ContactName}"/>
-        
-        <Image  Grid.Column="1" Source=".\res\disabled-icon.png" 
+        <Button  Grid.Column="0" Content="{Binding ContactName}" Command="{Binding Path=DataContext.UpdateContactInfo, ElementName=ListView}" CommandParameter="{Binding id}"/>
+
+        <Image  Grid.Column="1" Source=".\res\user locked.png" ToolTip="The contact's user account is disabled."
                 Visibility="{Binding IsDisabled ,  
                             Converter={StaticResource BooleanToVisibilityConverter} }"
                 />
 
-        <Image  Grid.Column="2" Source=".\res\admin-icon.png" 
+        <Image  Grid.Column="2" Source=".\res\admin.png" ToolTip="This contact has admin access"
                 Visibility="{Binding IsAdmin, 
                             Converter={StaticResource BooleanToVisibilityConverter} }"
                 />

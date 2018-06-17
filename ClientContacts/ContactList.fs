@@ -6,42 +6,25 @@ module ContactList =
     open System
     open MySQLConnection
     open System.Threading
+    open ElmishUtils
     
 
     type Msg = 
         |SearchContacts of string
         |UpdateContacts of Contact.Model list * DateTime
         |SearchFailure
+        |UpdateContactInfo of int 
         //|UpdateContact of Guid * Contact.Msg
 
     type Model = {search: string; latestRequest: DateTime option; cancelSource: CancellationTokenSource option; contactList: Contact.Model list}
 
     let init() = { search = ""; latestRequest = None; cancelSource = None;  contactList = [Contact.init()] }
 
-    let newDate() = DateTime.Now
-
-    let ofAsync (task: Async<_>)
-            (cToken:CancellationToken)
-            (ofSuccess: _ -> 'msg)
-            (ofError: _ -> 'msg) : Cmd<'msg> =
-        
-        let buildAsync (c:CancellationToken) a = 
-            Async.Start(a,c)
-        
-        let bind dispatch =
-            async {
-                let! r = task |> Async.Catch
-                dispatch (match r with
-                            | Choice1Of2 x -> ofSuccess x
-                            | Choice2Of2 x -> ofError x)
-            }
-        [bind >> buildAsync cToken]
-        
+ 
         //generate task -> getListOfContacts searchString dateTriggered
         //UpdateContacts (r ,dateTriggered)
 
 
-    
     let update (msg:Msg) (model:Model) = 
         match msg with
         | SearchContacts s -> 
@@ -64,12 +47,17 @@ module ContactList =
             | _ -> model, Cmd.none
 
         | SearchFailure ->  model, Cmd.none
+        | UpdateContactInfo (id) -> 
+            model, Cmd.none
         
             
-    let counterListViewBindings = 
+    let contactsListViewBindings = 
         
         ["ContactItems" |> Binding.oneWay (fun m -> m.contactList)
          "SearchBar" |> Binding.twoWay (fun m -> m.search) (fun s m -> SearchContacts(s))
+         "UpdateContactInfo" |> Binding.cmd (fun p m -> 
+                                let i = p :?> int //downcast the p object to Guid
+                                UpdateContactInfo(i))
         ]
 
 
