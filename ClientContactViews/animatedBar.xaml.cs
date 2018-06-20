@@ -24,21 +24,7 @@ namespace ClientContactViews
         public AnimatedBar()
         {
             InitializeComponent();
-            //actualWidth and actualHeight are set to 0 until Measure() and Arrange() are called
-            //to get arround this wait until the control is loaded
-            Loaded += delegate
-            {
-                // access ActualWidth and ActualHeight here
-                ScreenGlintRect.Width = this.ActualWidth;
-                ScreenGlintRect.Height = this.ActualHeight;
-                var animation = new DoubleAnimation()
-                {
-                    Duration = new Duration(TimeSpan.FromSeconds(2)),
-                    From = (-ActualWidth),
-                    To = ActualWidth * 2
-                };
-                ScreenGlintRect.BeginAnimation(Canvas.LeftProperty, animation);
-            };
+
         }
     }
 }

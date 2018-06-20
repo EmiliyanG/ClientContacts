@@ -15,8 +15,8 @@ module SQLQueries =
     
     [<Literal>]
     let ContactInfoQuery = 
+        //WAITFOR DELAY '00:00:10';
         """
-        WAITFOR DELAY '00:00:10';
         Select c.id, ContactName, IsDisabled, IsAdmin, email, telephone, o.name as organisationName, comments
         from Contact c 
         inner join Organisation o on c.organisationId = o.id

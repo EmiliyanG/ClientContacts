@@ -7,38 +7,42 @@
              xmlns:b="clr-namespace:ClientContactViews"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <UserControl.InputBindings>
-        <!--<KeyBinding Key="Enter" Command="{Binding EnterCommand}"/>-->
-        
-    </UserControl.InputBindings>
-   
+
+    <UserControl.Resources>
+
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+    </UserControl.Resources>
+
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <Grid Grid.Row="0" Height="30">
+            
+            <TextBlock VerticalAlignment="Center" Margin="5,0,0,0" MinWidth="50" Text="Search Contacts..." 
+                   Foreground="#897BAF" Visibility="{Binding ElementName=SearchBar, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
-        <TextBox x:Name="SearchBar" Grid.Row="0" Text="{Binding Path=SearchBar, UpdateSourceTrigger=PropertyChanged}"
-                  >
-            <!--:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text"-->
-            <!--UpdateSourceTrigger=PropertyChanged-->
+            <TextBox MinWidth="50" VerticalContentAlignment="Center" Name="SearchBar" Text="{Binding Path=SearchBar, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" />
+        </Grid>
 
 
-        </TextBox>
-        <ListView Grid.Row="1"  x:Name="ListView" ItemsSource="{Binding ContactItems}" >
-            <!---->
+        <ListView Grid.Row="1"  x:Name="ListView" ItemsSource="{Binding ContactItems}" Background="Transparent">
+            
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    
+                    <Style.Triggers>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter Property="IsSelected" Value="True"/>
+                        </Trigger>
+                    </Style.Triggers>
                 </Style>
             </ListView.ItemContainerStyle>
             
-            <!---->
             <ListView.ItemTemplate>
                 <DataTemplate>
                     

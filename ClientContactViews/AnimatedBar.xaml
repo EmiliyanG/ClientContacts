@@ -5,36 +5,56 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ClientContactViews"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300" Background="DarkBlue">
+             d:DesignHeight="50" d:DesignWidth="300">
     <UserControl.Resources>
-        <Color x:Key="EmptyStateLightgray">#FEFEFF</Color>
-        <Color x:Key="EmptyStatebackground">#FEFEFF</Color>
-        <SolidColorBrush x:Key="EmptyStateColorBrush" Color="{StaticResource EmptyStateLightgray}" />
+        <SolidColorBrush x:Key="Brush1" Color="#FFD8B6B6"/>
+        <Storyboard x:Key="Storyboard3" RepeatBehavior="Forever">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(TextElement.Foreground).(GradientBrush.GradientStops)[1].(GradientStop.Offset)" Storyboard.TargetName="progressBar">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:2" Value="0.388"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:3" Value="0.978"/>
+            </DoubleAnimationUsingKeyFrames>
+            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(TextElement.Foreground).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="progressBar">
+                <EasingColorKeyFrame KeyTime="0" Value="#897BAF"/>
+                <EasingColorKeyFrame KeyTime="0:0:3" Value="#897BAF"/>
+                <EasingColorKeyFrame KeyTime="0:0:4" Value="Transparent"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(TextElement.Foreground).(GradientBrush.GradientStops)[0].(GradientStop.Offset)" Storyboard.TargetName="progressBar">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0.004"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="0.527"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:2" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(TextElement.Foreground).(GradientBrush.GradientStops)[2].(GradientStop.Color)" Storyboard.TargetName="progressBar">
+                <EasingColorKeyFrame KeyTime="0:0:1" Value="#897BAF"/>
+                <EasingColorKeyFrame KeyTime="0:0:2" Value="Transparent"/>
+            </ColorAnimationUsingKeyFrames>
+        </Storyboard>
+
     </UserControl.Resources>
 
-    <Grid x:Name="LayoutRoot">
 
-        <Canvas Panel.ZIndex="1" >
-            <Rectangle x:Name="ScreenGlintRect" Opacity="0.6">
-                <Rectangle.Triggers>
-                    <EventTrigger RoutedEvent="Rectangle.Loaded">
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimation Storyboard.TargetName="ScreenGlintRect" Storyboard.TargetProperty="(Canvas.Left)"
-                    From="-500" To="1000" Duration="0:0:4" RepeatBehavior="Forever"  />
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger>
-                </Rectangle.Triggers>
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+            <BeginStoryboard Storyboard="{StaticResource Storyboard3}"/>
+        </EventTrigger>
+    </UserControl.Triggers>
+    <Grid>
 
-                <Rectangle.Fill>
-                    <LinearGradientBrush StartPoint="0,1" EndPoint="1,1">
-                        <GradientStop Color="Transparent" Offset="0.0" />
-                        <GradientStop x:Name="GlintColor" Color="{StaticResource EmptyStatebackground}" Offset="0.50" />
-                        <GradientStop Color="Transparent" Offset="1" />
-                    </LinearGradientBrush>
-                </Rectangle.Fill>
-            </Rectangle>
-        </Canvas>
+        <ProgressBar x:Name="progressBar" 
+                     HorizontalAlignment="Stretch"  
+                     VerticalAlignment="Stretch" 
+                     Value="10" IsEnabled="False" 
+                     Maximum="10" SmallChange="1" 
+                     Background="#FEFEFF">
+            <ProgressBar.Foreground>
+                <LinearGradientBrush EndPoint="1.008,1" StartPoint="-0.003,1">
+                    <GradientStop Color="Transparent" Offset="0.648"/>
+                    <GradientStop Color="Transparent" Offset="0.059"/>
+                    <GradientStop Color="#897BAF" Offset="0.007"/>
+                </LinearGradientBrush>
+            </ProgressBar.Foreground>
+        </ProgressBar>
+
     </Grid>
 </UserControl>
