@@ -11,10 +11,11 @@ module MainWindow =
         |ContactList of ContactList.Msg 
         |ContactInfoBoxMsg of ContactInfoBox.Msg
 
-    type Model = {Contacts: ContactList.Model ; ContactInfoBox: ContactInfoBox.Model}
+    type Model = {Contacts: ContactList.Model ; ContactInfoBox: ContactInfoBox.Model; IsAddressBookVisible: bool}
 
-    let init() = { Contacts = ContactList.init(); ContactInfoBox=ContactInfoBox.init() }, Cmd.none
-
+    let init() = { Contacts = ContactList.init(); ContactInfoBox=ContactInfoBox.init(); IsAddressBookVisible = true }, 
+                  Cmd.ofMsg (ContactList( ContactList.Msg.SearchContacts(""))) //load list of contacts when window is loaded
+                
 
 
     let update (msg:Msg) (model:Model) = 
@@ -22,7 +23,7 @@ module MainWindow =
         | ContactList x -> 
             match x with 
             | ContactList.Msg.UpdateContactInfo i -> 
-                model, Cmd.ofMsg (ContactInfoBoxMsg(ContactInfoBox.Msg.LoadContact(i)))
+                {model with IsAddressBookVisible = false}, Cmd.ofMsg (ContactInfoBoxMsg(ContactInfoBox.Msg.LoadContact(i)))
             | _ -> 
                 let mapContactList (model, cmd) = model, cmd |> Cmd.map ContactList
                 let m, ms = ContactList.update x (model.Contacts) |> mapContactList
@@ -39,7 +40,7 @@ module MainWindow =
         //"Clock" |> Binding.model (fun m -> m.Clock) clockViewBinding ClockMsg
         ["ContactList" |> Binding.model (fun m -> m.Contacts) (ContactList.contactsListViewBindings) ContactList
          "ContactInfoBox" |> Binding.model (fun m -> m.ContactInfoBox) (ContactInfoBox.ContactInfoBoxViewBindings) ContactInfoBoxMsg
-        
+         "AddressBook" |> Binding.oneWay (fun m -> m.IsAddressBookVisible)
         ]
 
 

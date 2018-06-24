@@ -71,6 +71,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="InfoBoxLoading.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ListLoading.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -87,7 +95,13 @@
     <Compile Include="ContactList.xaml.cs">
       <DependentUpon>ContactList.xaml</DependentUpon>
     </Compile>
+    <Compile Include="InfoBoxLoading.xaml.cs">
+      <DependentUpon>InfoBoxLoading.xaml</DependentUpon>
+    </Compile>
     <Compile Include="InputBindingManager.cs" />
+    <Compile Include="ListLoading.xaml.cs">
+      <DependentUpon>ListLoading.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -131,10 +145,18 @@
     <Resource Include="res\email.png" />
     <Resource Include="res\organisation.png" />
     <Resource Include="res\phone.png" />
-    <Resource Include="res\user locked.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="res\user.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="res\user locked.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="res\address-book.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="res\search.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

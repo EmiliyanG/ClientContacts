@@ -6,6 +6,9 @@
         xmlns:local="clr-namespace:ClientContactViews"
         mc:Ignorable="d"
         Title="Client Contacts" Height="350" MinWidth="560" MinHeight="400" Background="#FEFEFF">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
         </Grid.RowDefinitions>
@@ -18,5 +21,9 @@
          <local:ContactList DataContext="{Binding ContactList}" Grid.Column="0"/>
         <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="#14073A" />
         <local:ContactInfoBox DataContext="{Binding ContactInfoBox}" Grid.Column="2" VerticalAlignment="Top"/>
+        <Image  Grid.Column="2" Grid.Row="5" Visibility="{Binding AddressBook ,  
+                                Converter={StaticResource BooleanToVisibilityConverter} }"
+                MaxWidth="200" Source=".\res\address-book.png"/>
+
     </Grid>
 </Window>

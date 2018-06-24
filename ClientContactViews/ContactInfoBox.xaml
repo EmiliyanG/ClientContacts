@@ -7,29 +7,24 @@
              xmlns:local="clr-namespace:ClientContactViews"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="400">
-    
+
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        
+
         <Style x:Key="textBox" TargetType="{x:Type TextBox}">
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="VerticalAlignment" Value="Stretch"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="Height" Value="Auto"/>
             <Setter Property="Width" Value="Auto"/>
-            <Setter Property="Grid.ColumnSpan" Value="5"/>
+            <Setter Property="Grid.ColumnSpan" Value="6"/>
             <Setter Property="Grid.Column" Value="1"/>
-            <Setter Property="Visibility" Value="{Binding loaded , Converter={StaticResource BooleanToVisibilityConverter} }" />
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="Margin" Value="0,2,2,2" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
-        
-        <Style x:Key="textBoxLabels" TargetType="{x:Type Label}">
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="VerticalAlignment" Value="Stretch"/>
-            <Setter Property="Grid.ColumnSpan" Value="2"/>
-            <Setter Property="Grid.Column" Value="0"/>
-        </Style>
-        
-        
+
+
         <Style x:Key="image" TargetType="Image">
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -38,66 +33,66 @@
             <Setter Property="Margin" Value="5"/>
             <Setter Property="Visibility" Value="{Binding loaded , Converter={StaticResource BooleanToVisibilityConverter} }" />
         </Style>
-        
-        
-        <Style x:Key="loadingTextBox" TargetType="{x:Type local:AnimatedBar}">
+
+        <Style x:Key="banner" TargetType="Image">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Stretch" Value="UniformToFill"/>
             <Setter Property="Margin" Value="5"/>
-            <Setter Property="Grid.Column" Value="1" />
-            <Setter Property="Visibility" Value="{Binding loading , Converter={StaticResource BooleanToVisibilityConverter} }"/>
-        </Style>
-        
-        <Style x:Key="loadingImage" TargetType="local:AnimatedBar">
-            <Setter Property="Margin" Value="5,5,2,5"/>
-            <Setter Property="Grid.Column" Value="0" />
-            <Setter Property="Visibility" Value="{Binding loading , Converter={StaticResource BooleanToVisibilityConverter} }"/>
         </Style>
 
     </UserControl.Resources>
-    
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="40" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="40" />
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        
-        <Image  Grid.Column="0" Grid.Row="1" Style="{StaticResource image}" ToolTip="Organisation" Source=".\res\organisation.png"/>
-        <Image  Grid.Column="0" Grid.Row="2" Style="{StaticResource image}" ToolTip="Contact Name" Source=".\res\user.png"/>
-        <Image  Grid.Column="0" Grid.Row="3" Style="{StaticResource image}" ToolTip="Phone Number" Source=".\res\phone.png"/>
-        <Image  Grid.Column="0" Grid.Row="4" Style="{StaticResource image}" ToolTip="Email Address" Source=".\res\email.png"/>
-        <Image  Grid.Column="0" Grid.Row="5" Style="{StaticResource image}" ToolTip="Additional Notes Or Comments" Source=".\res\comment.png"/>
-        <TextBox Grid.Row="1" Text="{Binding organisation}" Style="{StaticResource textBox}"/>
-        <TextBox Grid.Row="2" Text="{Binding contactName}" Style="{StaticResource textBox}"/>
-        <TextBox Grid.Row="3" Text="{Binding phone}" Style="{StaticResource textBox}"/>
-        <TextBox Grid.Row="4" Text="{Binding email}" Style="{StaticResource textBox}"/>
-        <ScrollViewer Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="5" Grid.RowSpan="2" MinHeight="100">
-            <TextBox  AcceptsReturn="True" TextWrapping="Wrap" SpellCheck.IsEnabled="True"  Style="{StaticResource textBox}"/>
-        </ScrollViewer>
-        
+        <local:InfoBoxLoading Visibility="{Binding loading , Converter={StaticResource BooleanToVisibilityConverter} }"/>
+        <Grid Visibility="{Binding loaded , Converter={StaticResource BooleanToVisibilityConverter} }">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40" />
+                <ColumnDefinition Width="40" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="40" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-        <local:AnimatedBar Grid.Row="0" Style="{StaticResource loadingTextBox}" Grid.ColumnSpan="4" />
-        <local:AnimatedBar Grid.Row="1" Style="{StaticResource loadingTextBox}" Grid.ColumnSpan="3"/>
-        <local:AnimatedBar Grid.Row="2" Style="{StaticResource loadingTextBox}" Grid.ColumnSpan="4"/>
-        <local:AnimatedBar Grid.Row="3" Style="{StaticResource loadingTextBox}" Grid.ColumnSpan="2"/>
+            <StackPanel  Grid.Row="0" Grid.ColumnSpan="7" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Image  Style="{StaticResource banner}" Source=".\res\user locked.png" ToolTip="The contact's user account is disabled."
+                    Visibility="{Binding IsDisabled ,  
+                                Converter={StaticResource BooleanToVisibilityConverter} }"
+                    />
 
-        <local:AnimatedBar Grid.Column="0" Style="{StaticResource loadingImage}" Grid.Row="0" />
-        <local:AnimatedBar Grid.Column="0" Style="{StaticResource loadingImage}" Grid.Row="1" />
-        <local:AnimatedBar Grid.Column="0" Style="{StaticResource loadingImage}" Grid.Row="2" />
-        <local:AnimatedBar Grid.Column="0" Style="{StaticResource loadingImage}" Grid.Row="3" />
+                <Image  Style="{StaticResource banner}" Source=".\res\admin.png" ToolTip="This contact has admin access"
+                    Visibility="{Binding IsAdmin, 
+                                Converter={StaticResource BooleanToVisibilityConverter} }"
+                    />
+            </StackPanel>
 
+            <Image  Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="0"
+                    Grid.RowSpan="2" Width="60" Style="{StaticResource image}" ToolTip="Contact Name" Source=".\res\user.png"/>
+            <Image  Grid.Column="0" Grid.Row="2" Style="{StaticResource image}" ToolTip="Organisation" Source=".\res\organisation.png"/>
+            <Image  Grid.Column="0" Grid.Row="3" Style="{StaticResource image}" ToolTip="Phone Number" Source=".\res\phone.png"/>
+            <Image  Grid.Column="0" Grid.Row="4" Style="{StaticResource image}" ToolTip="Email Address" Source=".\res\email.png"/>
+            <Image  Grid.Column="0" Grid.Row="5" Style="{StaticResource image}" ToolTip="Additional Notes Or Comments" Source=".\res\comment.png"/>
+            <TextBox Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="5" Text="{Binding contactName}" Style="{StaticResource textBox}"/>
+            <TextBox Grid.Row="2" Text="{Binding organisation}" Style="{StaticResource textBox}"/>
+            <TextBox Grid.Row="3" Text="{Binding phone}" Style="{StaticResource textBox}"/>
+            <TextBox Grid.Row="4" Text="{Binding email}" Style="{StaticResource textBox}"/>
+            <ScrollViewer Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="6" Grid.RowSpan="2" MinHeight="100"
+                          VerticalScrollBarVisibility="Auto" Margin="0,1,1,1">
+                <TextBox  AcceptsReturn="True" TextWrapping="Wrap" SpellCheck.IsEnabled="True" Margin="0" VerticalContentAlignment="Top" Style="{StaticResource textBox}"/>
+            </ScrollViewer>
+
+
+
+        </Grid>
     </Grid>
-    
-    
+
 </UserControl>

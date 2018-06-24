@@ -16,12 +16,12 @@ module ContactInfoBox =
         |LoadFailure
         //|UpdateContact of Guid * Contact.Msg
 
-    type Model = { id: int option; loading: bool; loaded:bool; organisation: string; name: string; phone: string; 
-                   email: string; comments: string; cancelSource: CancellationTokenSource option; 
-                   latestRequest: DateTime option;}
+    type Model = { id: int; loading: bool; loaded:bool; organisation: string; name: string; phone: string option; 
+                   email: string option; comments: string option; cancelSource: CancellationTokenSource option; 
+                   latestRequest: DateTime option; IsDisabled: bool; IsAdmin: bool}
 
-    let init() = { id= None; loading= true; loaded=false; organisation = ""; name = ""; phone = ""; email = "";  
-                   comments = ""; cancelSource=None; latestRequest = None }
+    let init() = { id= 0; loading= false; loaded=false; organisation = ""; name = ""; phone = None; email = None;  
+                   comments = None; cancelSource=None; latestRequest = None; IsDisabled = false; IsAdmin = false }
     
  
         
@@ -52,13 +52,10 @@ module ContactInfoBox =
             
                 match q with 
                 |Some info -> 
-                    let stringFromOption opt = 
-                        match opt with
-                        | Some o -> o
-                        | None -> ""
+                    
                     {model with loading = false; loaded = true; name = info.ContactName; 
-                                phone = stringFromOption info.telephone; email = stringFromOption info.email;
-                                organisation = info.organisationName}, Cmd.none
+                                phone = info.telephone; email = info.email;
+                                organisation = info.organisationName; IsAdmin= info.IsAdmin; IsDisabled=info.IsDisabled}, Cmd.none
                 |_ ->
                     {model with loading = false; loaded = true}, Cmd.none
             | _ -> model, Cmd.none
@@ -67,13 +64,18 @@ module ContactInfoBox =
         
             
     let ContactInfoBoxViewBindings: ViewBinding<Model, Msg> list = 
-        
+        let stringFromOption opt = 
+            match opt with
+            | Some o -> o
+            | None -> ""
         ["loading" |> Binding.oneWay (fun m -> m.loading)
          "loaded" |> Binding.oneWay (fun m -> m.loaded)
          "organisation" |> Binding.oneWay (fun m -> m.organisation)
          "contactName" |> Binding.oneWay (fun m -> m.name)
-         "phone" |> Binding.oneWay (fun m -> m.phone)
-         "email" |> Binding.oneWay (fun m -> m.email)
+         "phone" |> Binding.oneWay (fun m -> stringFromOption m.phone)
+         "email" |> Binding.oneWay (fun m -> stringFromOption m.email)
+         "IsDisabled" |> Binding.oneWay (fun m -> m.IsDisabled)
+         "IsAdmin" |> Binding.oneWay (fun m -> m.IsAdmin)
         ]
 
 
