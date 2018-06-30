@@ -82,19 +82,19 @@ module MySQLConnection =
         
     let getContacts (conn:SqlConnection) search (l:Limit) (o:Offset) = 
         conn.Query<Contact> (ListContacts, ({searchPattern = search; Limit= l.getData; Offset=o.getData}) )
-        |> Seq.groupBy(fun c -> c.organisationId)
-
-        |> Seq.map (
-            fun (org,contactList) -> 
-                
-
-                { OrganisationName="Organisation";
-                OrganisationContacts = 
-                    (contactList 
-                    |> Seq.map( fun c -> {id = c.id ; ContactName = c.ContactName; IsDisabled = c.IsDisabled; IsAdmin=c.IsAdmin; organisationId=c.organisationId} )
-                    |> List.ofSeq)
-                }
-                )
+        //|> Seq.groupBy(fun c -> c.organisationId)
+        |> Seq.map( fun c -> {id = c.id ; ContactName = c.ContactName; IsDisabled = c.IsDisabled; IsAdmin=c.IsAdmin; organisationId=c.organisationId} )
+        //|> Seq.map (
+        //    fun (org,contactList) -> 
+        //        
+        //
+        //        { OrganisationName="Organisation";
+        //        OrganisationContacts = 
+        //            (contactList 
+        //            |> Seq.map( fun c -> {id = c.id ; ContactName = c.ContactName; IsDisabled = c.IsDisabled; IsAdmin=c.IsAdmin; organisationId=c.organisationId} )
+        //            |> List.ofSeq)
+        //        }
+        //        )
         |> List.ofSeq
         
     ///return Async task to load contact info for given contact id

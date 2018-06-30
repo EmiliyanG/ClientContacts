@@ -10,8 +10,9 @@
 
     <UserControl.Resources>
 
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
+
+        <ResourceDictionary Source="Styles.xaml"/>
     </UserControl.Resources>
 
     <Grid>
@@ -31,8 +32,57 @@
 
 
         <ListBox Grid.Row="1"  x:Name="ListView" Visibility="{Binding loaded ,  
-                            Converter={StaticResource BooleanToVisibilityConverter} }" ItemsSource="{Binding ContactItems}" Background="Transparent">
+                            Converter={StaticResource BooleanToVisibilityConverter} }" 
+                 ItemsSource="{Binding Source={StaticResource listSource}}" Background="Transparent">
+            <!--ItemsSource="{Binding ContactItems}"--> 
+            <ListBox.GroupStyle>
+            <GroupStyle>
+                <GroupStyle.ContainerStyle>
+                    <Style TargetType="{x:Type GroupItem}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate>
+                                        <Expander Header="{Binding Name}" IsExpanded="True">
+                                            <Expander.Template>
+                                                <ControlTemplate TargetType="Expander">
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Name="ContentRow" Height="0"/>
+                                                        </Grid.RowDefinitions>
 
+                                                        <Border Background="{StaticResource lighter}">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                    <ColumnDefinition Width="*" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <Button Style="{StaticResource expanderButton}"/>
+                                                                <ToggleButton IsChecked="{Binding Path=IsExpanded,Mode=TwoWay,
+                                    RelativeSource={RelativeSource TemplatedParent}}" Style="{StaticResource btn1}"/>
+
+                                                            </Grid>
+                                                        </Border>
+                                                        <ContentPresenter Grid.Row="1"/>
+                                                    </Grid>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsExpanded" Value="True">
+                                                            <Setter TargetName="ContentRow" Property="Height"
+                        Value="Auto" />
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Expander.Template>
+                                            <ItemsPresenter />
+                                    </Expander>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </GroupStyle.ContainerStyle>
+            </GroupStyle>
+        </ListBox.GroupStyle>
+            
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -47,7 +97,7 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     
-                    <local:OrganisationExpander  />
+                    <local:Contact  />
                     
                 </DataTemplate>
             </ListBox.ItemTemplate>

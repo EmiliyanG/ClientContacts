@@ -7,33 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="100" d:DesignWidth="300">
     <UserControl.Resources>
-
-        <SolidColorBrush x:Key="lighter" Color="#FEFEFF"/>
-        <SolidColorBrush x:Key="light" Color="#897BAF"/>
-        <SolidColorBrush x:Key="medium" Color="#423075"/>
-        <SolidColorBrush x:Key="dark" Color="#14073A"/>
-        <SolidColorBrush x:Key="darker" Color="#000000"/>
-
-        <Style x:Key="expanderButton" TargetType="Button" >
-            <Setter Property="Content" Value="content"/>
-            <Setter Property="Grid.ColumnSpan" Value="2"/>
-            <Setter Property="Background" Value="{StaticResource lighter}"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Left" Margin="30,0,0,0" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource light}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+        <ResourceDictionary Source="Styles.xaml"/>
     </UserControl.Resources>
     
     <Grid>
@@ -54,41 +28,8 @@
                                 </Grid.ColumnDefinitions>
                                 <Button Style="{StaticResource expanderButton}"/>
                                 <ToggleButton IsChecked="{Binding Path=IsExpanded,Mode=TwoWay,
-                                    RelativeSource={RelativeSource TemplatedParent}}">
-                                    <ToggleButton.Template>
-                                        <ControlTemplate TargetType="ToggleButton">
-                                            <Border Padding="6,4" Background="Transparent">
-                                                <Path Name="Arrow"
-                                            Fill="{StaticResource dark}"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            Data="M 0 0 L 8 8 L 16 0 Z"/>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="ToggleButton.IsMouseOver" Value="true">
-                                                    <Setter TargetName="Arrow" Property="Fill"
-                                                Value="{StaticResource light}" />
-                                                </Trigger>
-                                                <Trigger Property="IsPressed" Value="true">
-                                                    <Setter TargetName="Arrow" Property="Fill"
-                                                Value="{StaticResource medium}" />
-                                                </Trigger>
-                                                <Trigger Property="IsChecked" Value="true">
-                                                    <Setter TargetName="Arrow" Property="Data"
-                                                Value="M 0 8 L 8 0 L 16 8 Z" />
-                                                </Trigger>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter TargetName="Arrow" Property="Opacity"
-                                                Value="0.5" />
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </ToggleButton.Template>
-                                </ToggleButton>
-                                <ContentPresenter Grid.Column="1"
-                                        Margin="4" 
-                                        ContentSource="Header" 
-                                        />
+                                    RelativeSource={RelativeSource TemplatedParent}}" Style="{StaticResource btn1}"/>
+
                             </Grid>
                         </Border>
                         <ContentPresenter Grid.Row="1"/>

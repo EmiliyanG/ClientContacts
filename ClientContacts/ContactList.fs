@@ -17,13 +17,13 @@ module ContactList =
 
     type Msg = 
         |SearchContacts of string
-        |UpdateContacts of OrganisationExpander.Model list * DateTime
+        |UpdateContacts of Contact.Model list * DateTime
         |SearchFailure
         |UpdateContactInfo of int 
         //|UpdateContact of Guid * Contact.Msg
 
     type Model = {status: SearchResult; search: string; latestRequest: DateTime option; 
-                  cancelSource: CancellationTokenSource option; contactList: OrganisationExpander.Model list}
+                  cancelSource: CancellationTokenSource option; contactList: Contact.Model list}
 
     let init() = { status= Loading;  search = ""; latestRequest = None; cancelSource = None;  contactList = [] }
 
