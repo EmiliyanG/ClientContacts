@@ -65,7 +65,7 @@
     <CollectionViewSource x:Key="listSource" Source="{Binding ContactItems}" >
 
         <CollectionViewSource.GroupDescriptions>
-            <PropertyGroupDescription  PropertyName="organisationId"/>
+            <PropertyGroupDescription  PropertyName="organisationName"/>
         </CollectionViewSource.GroupDescriptions>
     </CollectionViewSource>
 </ResourceDictionary>

@@ -24,7 +24,7 @@
 
         <Grid Grid.Row="0" Height="30">
             
-            <TextBlock VerticalAlignment="Center" Margin="5,0,0,0" MinWidth="50" Text="Search Contacts..." 
+            <TextBlock VerticalAlignment="Center" Margin="5,0,0,0" MinWidth="50" Text="Search Contacts or Organisations..." 
                    Foreground="#897BAF" Visibility="{Binding ElementName=SearchBar, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
             <TextBox MinWidth="50" VerticalContentAlignment="Center" Name="SearchBar" Text="{Binding Path=SearchBar, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" />

@@ -9,9 +9,11 @@ module SQLQueries =
     let ListContacts = 
         //WAITFOR DELAY '00:00:10';
         """
-        Select id, ContactName, IsDisabled, IsAdmin,organisationId from Contact 
-        where ContactName like '%'+@searchPattern+'%'
-        order by ContactName OFFSET @offset ROWS fetch NEXT @limit ROWS ONLY"""
+        Select c.id, ContactName, IsDisabled, IsAdmin, o.name as organisationName 
+        from Contact c
+        inner join Organisation o on o.id = c.organisationId
+        where ContactName like '%'+@searchPattern+'%' or o.name like '%'+@searchPattern+'%'
+        order by o.name, ContactName OFFSET @offset ROWS fetch NEXT @limit ROWS ONLY"""
     
     [<Literal>]
     let ContactInfoQuery = 
@@ -23,7 +25,7 @@ module SQLQueries =
         where c.id = @id"""
 
 module SQLTypes = 
-    type Contact = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool; organisationId: int}
+    type Contact = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool; organisationName: string}
     type ListContactsParams = {searchPattern: string; Limit: int; Offset: int}
     
     type ContactInfo = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool; email: string option; 
@@ -82,19 +84,9 @@ module MySQLConnection =
         
     let getContacts (conn:SqlConnection) search (l:Limit) (o:Offset) = 
         conn.Query<Contact> (ListContacts, ({searchPattern = search; Limit= l.getData; Offset=o.getData}) )
-        //|> Seq.groupBy(fun c -> c.organisationId)
-        |> Seq.map( fun c -> {id = c.id ; ContactName = c.ContactName; IsDisabled = c.IsDisabled; IsAdmin=c.IsAdmin; organisationId=c.organisationId} )
-        //|> Seq.map (
-        //    fun (org,contactList) -> 
-        //        
-        //
-        //        { OrganisationName="Organisation";
-        //        OrganisationContacts = 
-        //            (contactList 
-        //            |> Seq.map( fun c -> {id = c.id ; ContactName = c.ContactName; IsDisabled = c.IsDisabled; IsAdmin=c.IsAdmin; organisationId=c.organisationId} )
-        //            |> List.ofSeq)
-        //        }
-        //        )
+        
+        |> Seq.map( fun c -> {id = c.id ; ContactName = c.ContactName; IsDisabled = c.IsDisabled; IsAdmin=c.IsAdmin; organisationName=c.organisationName} )
+       
         |> List.ofSeq
         
     ///return Async task to load contact info for given contact id
