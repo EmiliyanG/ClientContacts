@@ -30,11 +30,11 @@
         </Grid>
 
 
-        <ListView Grid.Row="1"  x:Name="ListView" Visibility="{Binding loaded ,  
+        <ListBox Grid.Row="1"  x:Name="ListView" Visibility="{Binding loaded ,  
                             Converter={StaticResource BooleanToVisibilityConverter} }" ItemsSource="{Binding ContactItems}" Background="Transparent">
-            
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
+
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                     <Style.Triggers>
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
@@ -42,16 +42,16 @@
                         </Trigger>
                     </Style.Triggers>
                 </Style>
-            </ListView.ItemContainerStyle>
-            
-            <ListView.ItemTemplate>
+            </ListBox.ItemContainerStyle>
+
+            <ListBox.ItemTemplate>
                 <DataTemplate>
                     
-                    <local:Contact  />
+                    <local:OrganisationExpander  />
                     
                 </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+            </ListBox.ItemTemplate>
+        </ListBox>
 
         <local:ListLoading Grid.Row="1" Visibility="{Binding loading ,  
                             Converter={StaticResource BooleanToVisibilityConverter} }"/>

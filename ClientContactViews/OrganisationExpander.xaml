@@ -1,0 +1,145 @@
+﻿<UserControl x:Class="ClientContactViews.OrganisationExpander"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ClientContactViews"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="300">
+    <UserControl.Resources>
+
+        <SolidColorBrush x:Key="lighter" Color="#FEFEFF"/>
+        <SolidColorBrush x:Key="light" Color="#897BAF"/>
+        <SolidColorBrush x:Key="medium" Color="#423075"/>
+        <SolidColorBrush x:Key="dark" Color="#14073A"/>
+        <SolidColorBrush x:Key="darker" Color="#000000"/>
+
+        <Style x:Key="expanderButton" TargetType="Button" >
+            <Setter Property="Content" Value="content"/>
+            <Setter Property="Grid.ColumnSpan" Value="2"/>
+            <Setter Property="Background" Value="{StaticResource lighter}"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Left" Margin="30,0,0,0" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource light}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Expander Name="e" HorizontalAlignment="Stretch" IsExpanded="True" Height="Auto" >
+            <Expander.Template>
+                <ControlTemplate TargetType="Expander">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Name="ContentRow" Height="0"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Background="{StaticResource lighter}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Button Style="{StaticResource expanderButton}"/>
+                                <ToggleButton IsChecked="{Binding Path=IsExpanded,Mode=TwoWay,
+                                    RelativeSource={RelativeSource TemplatedParent}}">
+                                    <ToggleButton.Template>
+                                        <ControlTemplate TargetType="ToggleButton">
+                                            <Border Padding="6,4" Background="Transparent">
+                                                <Path Name="Arrow"
+                                            Fill="{StaticResource dark}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Data="M 0 0 L 8 8 L 16 0 Z"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="ToggleButton.IsMouseOver" Value="true">
+                                                    <Setter TargetName="Arrow" Property="Fill"
+                                                Value="{StaticResource light}" />
+                                                </Trigger>
+                                                <Trigger Property="IsPressed" Value="true">
+                                                    <Setter TargetName="Arrow" Property="Fill"
+                                                Value="{StaticResource medium}" />
+                                                </Trigger>
+                                                <Trigger Property="IsChecked" Value="true">
+                                                    <Setter TargetName="Arrow" Property="Data"
+                                                Value="M 0 8 L 8 0 L 16 8 Z" />
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter TargetName="Arrow" Property="Opacity"
+                                                Value="0.5" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </ToggleButton.Template>
+                                </ToggleButton>
+                                <ContentPresenter Grid.Column="1"
+                                        Margin="4" 
+                                        ContentSource="Header" 
+                                        />
+                            </Grid>
+                        </Border>
+                        <ContentPresenter Grid.Row="1"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="Red"/>
+                        </Trigger>
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="ContentRow" Property="Height"
+                        Value="{Binding ElementName=Content,Path=DesiredHeight}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Expander.Template>
+
+            <ItemsControl x:Name="ListView" 
+                      Background="#EAE5F6" 
+                      HorizontalAlignment="Stretch" 
+                      ItemsSource="{Binding OrganisationContacts}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:Contact  />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <!--<ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Style.Triggers>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter Property="IsSelected" Value="True"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.ItemContainerStyle>
+
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+
+                        
+
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                -->
+            </ItemsControl>
+
+        </Expander>
+    </Grid>
+</UserControl>

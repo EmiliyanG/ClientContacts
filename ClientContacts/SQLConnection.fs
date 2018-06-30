@@ -9,7 +9,7 @@ module SQLQueries =
     let ListContacts = 
         //WAITFOR DELAY '00:00:10';
         """
-        Select id, ContactName, IsDisabled, IsAdmin from Contact 
+        Select id, ContactName, IsDisabled, IsAdmin,organisationId from Contact 
         where ContactName like '%'+@searchPattern+'%'
         order by ContactName OFFSET @offset ROWS fetch NEXT @limit ROWS ONLY"""
     
@@ -23,7 +23,7 @@ module SQLQueries =
         where c.id = @id"""
 
 module SQLTypes = 
-    type Contact = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool}
+    type Contact = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool; organisationId: int}
     type ListContactsParams = {searchPattern: string; Limit: int; Offset: int}
     
     type ContactInfo = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool; email: string option; 
@@ -50,6 +50,7 @@ module MySQLConnection =
     open SQLQueries
     open SQLTypes
     open Contact
+    open OrganisationExpander
     open System
     open Elmish
     
@@ -81,7 +82,19 @@ module MySQLConnection =
         
     let getContacts (conn:SqlConnection) search (l:Limit) (o:Offset) = 
         conn.Query<Contact> (ListContacts, ({searchPattern = search; Limit= l.getData; Offset=o.getData}) )
-        |> Seq.map (fun c -> {id = c.id ; ContactName = c.ContactName; IsDisabled = c.IsDisabled; IsAdmin=c.IsAdmin})
+        |> Seq.groupBy(fun c -> c.organisationId)
+
+        |> Seq.map (
+            fun (org,contactList) -> 
+                
+
+                { OrganisationName="Organisation";
+                OrganisationContacts = 
+                    (contactList 
+                    |> Seq.map( fun c -> {id = c.id ; ContactName = c.ContactName; IsDisabled = c.IsDisabled; IsAdmin=c.IsAdmin; organisationId=c.organisationId} )
+                    |> List.ofSeq)
+                }
+                )
         |> List.ofSeq
         
     ///return Async task to load contact info for given contact id

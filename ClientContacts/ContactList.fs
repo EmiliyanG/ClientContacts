@@ -17,18 +17,18 @@ module ContactList =
 
     type Msg = 
         |SearchContacts of string
-        |UpdateContacts of Contact.Model list * DateTime
+        |UpdateContacts of OrganisationExpander.Model list * DateTime
         |SearchFailure
         |UpdateContactInfo of int 
         //|UpdateContact of Guid * Contact.Msg
 
-    type Model = {status: SearchResult; search: string; latestRequest: DateTime option; cancelSource: CancellationTokenSource option; contactList: Contact.Model list}
+    type Model = {status: SearchResult; search: string; latestRequest: DateTime option; 
+                  cancelSource: CancellationTokenSource option; contactList: OrganisationExpander.Model list}
 
     let init() = { status= Loading;  search = ""; latestRequest = None; cancelSource = None;  contactList = [] }
 
  
-        //generate task -> getListOfContacts searchString dateTriggered
-        //UpdateContacts (r ,dateTriggered)
+       
 
 
     let update (msg:Msg) (model:Model) = 

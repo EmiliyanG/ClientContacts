@@ -59,6 +59,7 @@
     <None Include="App.config" />
     <Content Include="packages.config" />
     <Compile Include="Contact.fs" />
+    <Compile Include="OrganisationExpander.fs" />
     <Compile Include="ElmishUtils.fs" />
     <Compile Include="SQLConnection.fs" />
     <Compile Include="ContactList.fs" />
