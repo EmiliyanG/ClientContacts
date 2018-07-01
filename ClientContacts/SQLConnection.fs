@@ -52,7 +52,6 @@ module MySQLConnection =
     open SQLQueries
     open SQLTypes
     open Contact
-    open OrganisationExpander
     open System
     open Elmish
     
@@ -103,7 +102,7 @@ module MySQLConnection =
     let getListOfContacts searchString (dateTriggered:DateTime) =
         async {
             let conn = openConnection() 
-            let q = getContacts conn searchString (Limit(10)) (Offset(0))
+            let q = getContacts conn searchString (Limit(50)) (Offset(0))
             conn.Close()
             return q,dateTriggered
             }
