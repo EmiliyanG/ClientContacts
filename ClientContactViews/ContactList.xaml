@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ClientContactViews.ContactList"
+﻿<Grid x:Class="ClientContactViews.ContactList"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -8,12 +8,12 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
 
-    <UserControl.Resources>
+    <Grid.Resources>
 
         <ResourceDictionary Source="res\styles\ContactListStyles.xaml"/>
-    </UserControl.Resources>
+    </Grid.Resources>
 
-    <Grid>
+    
         
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -31,23 +31,15 @@
 
         <ListBox Grid.Row="1"  x:Name="ListView" Visibility="{Binding loaded ,  
                             Converter={StaticResource BooleanToVisibilityConverter} }" 
-                 ItemsSource="{Binding Source={StaticResource listSource}}" Background="Transparent">
-            <!--ItemsSource="{Binding ContactItems}"--> 
-            <ListBox.GroupStyle>
-            <GroupStyle>
-                
-            </GroupStyle>
-        </ListBox.GroupStyle>
-            
-            
-
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    
-                    <local:Contact  />
-                    
-                </DataTemplate>
-            </ListBox.ItemTemplate>
+                 ItemsSource="{Binding Source={StaticResource listSource}}" Background="Transparent" 
+                 ItemContainerStyle="{StaticResource contactListItem}"
+                 ItemTemplate="{StaticResource contactListDataTemplate}"
+                 IsSynchronizedWithCurrentItem="False">
+        <!--IsSynchronizedWithCurrentItem="False" is required to set the initial focus to the ListBox itself
+            rather than the first list item-->
+        <ListBox.GroupStyle>
+                <GroupStyle/>
+            </ListBox.GroupStyle>
         </ListBox>
 
         <local:ListLoading Grid.Row="1" Visibility="{Binding loading ,  
@@ -58,5 +50,5 @@
             <Image  Width="100" Source=".\res\search.png" />
             <Label Content="No contacts match your search criteria." />
         </StackPanel>
-    </Grid>
-</UserControl>
+    
+</Grid>

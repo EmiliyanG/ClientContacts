@@ -18,7 +18,7 @@ namespace ClientContactViews
     /// <summary>
     /// Interaction logic for ContactList.xaml
     /// </summary>
-    public partial class ContactList : UserControl
+    public partial class ContactList : Grid
     {
         
 
