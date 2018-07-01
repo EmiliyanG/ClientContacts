@@ -10,9 +10,7 @@
 
     <UserControl.Resources>
 
-
-
-        <ResourceDictionary Source="Styles.xaml"/>
+        <ResourceDictionary Source="res\styles\ContactListStyles.xaml"/>
     </UserControl.Resources>
 
     <Grid>
@@ -37,49 +35,7 @@
             <!--ItemsSource="{Binding ContactItems}"--> 
             <ListBox.GroupStyle>
             <GroupStyle>
-                <GroupStyle.ContainerStyle>
-                    <Style TargetType="{x:Type GroupItem}">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate>
-                                        <Expander Header="{Binding Name}" IsExpanded="True">
-                                            <Expander.Template>
-                                                <ControlTemplate TargetType="Expander">
-                                                    <Grid>
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="Auto"/>
-                                                            <RowDefinition Name="ContentRow" Height="0"/>
-                                                        </Grid.RowDefinitions>
-
-                                                        <Border Background="{StaticResource lighter}">
-                                                            <Grid>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="Auto" />
-                                                                    <ColumnDefinition Width="*" />
-                                                                </Grid.ColumnDefinitions>
-                                                                <Button Style="{StaticResource expanderButton}"/>
-                                                                <ToggleButton IsChecked="{Binding Path=IsExpanded,Mode=TwoWay,
-                                    RelativeSource={RelativeSource TemplatedParent}}" Style="{StaticResource btn1}"/>
-
-                                                            </Grid>
-                                                        </Border>
-                                                        <ContentPresenter Grid.Row="1"/>
-                                                    </Grid>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsExpanded" Value="True">
-                                                            <Setter TargetName="ContentRow" Property="Height"
-                        Value="Auto" />
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Expander.Template>
-                                            <ItemsPresenter />
-                                    </Expander>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </GroupStyle.ContainerStyle>
+                
             </GroupStyle>
         </ListBox.GroupStyle>
             
