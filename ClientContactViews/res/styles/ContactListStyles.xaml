@@ -6,6 +6,7 @@
     <SolidColorBrush x:Key="medium" Color="#423075"/>
     <SolidColorBrush x:Key="dark" Color="#14073A"/>
     <SolidColorBrush x:Key="darker" Color="#000000"/>
+    <SolidColorBrush x:Key="listBoxItemBackground" Color="#e6e6ef"/>
     <Style x:Key="toggleBtn1" TargetType="ToggleButton">
         <Setter Property="IsChecked" Value="{Binding Path=IsExpanded,Mode=TwoWay,
                                     RelativeSource={RelativeSource TemplatedParent}}"/>
@@ -116,8 +117,8 @@
     
     
     <Style x:Key="contactListItem" TargetType="{x:Type ListBoxItem}">
-        
-        <Setter Property="Background" Value="{StaticResource lighter}" />
+
+        <Setter Property="Background" Value="{StaticResource listBoxItemBackground}" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="Template">
