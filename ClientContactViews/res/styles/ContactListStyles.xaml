@@ -63,6 +63,8 @@
         </Style.Triggers>
     </Style>
     <Style x:Key="expander" TargetType="Expander">
+        
+        
         <Setter Property="Template">
             <Setter.Value>
                 
@@ -89,6 +91,7 @@
                         <Trigger Property="IsExpanded" Value="True">
                             <Setter TargetName="ContentRow" Property="Height" Value="Auto" />
                         </Trigger>
+                        
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
                 
@@ -100,8 +103,11 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Expander Header="{Binding Name}" Style="{StaticResource expander}" IsExpanded="True">
+                    <Expander Header="{Binding Name}" 
+                              Style="{StaticResource expander}" 
+                              IsExpanded="True">
                         <ItemsPresenter />
+                        
                     </Expander>
                 </ControlTemplate>
             </Setter.Value>
@@ -110,47 +116,24 @@
     
     
     <Style x:Key="contactListItem" TargetType="{x:Type ListBoxItem}">
-        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        
         <Setter Property="Background" Value="{StaticResource lighter}" />
         <Setter Property="Padding" Value="0" />
-        <Style.Triggers>
-            <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                <Setter Property="IsSelected" Value="True"/>
-            </Trigger>
-            <EventTrigger RoutedEvent="GotKeyboardFocus">
-                <BeginStoryboard>
-                    <!--Storyboard used to prevent listboxitems from being deselected on losing focus-->
-                        <Storyboard>
-                        <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsSelected">
-                            <DiscreteBooleanKeyFrame Value="True" KeyTime="0:0:0"/>
-                        </BooleanAnimationUsingKeyFrames>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
-            
-        </Style.Triggers>
-    </Style>
-    <DataTemplate x:Key="contactListDataTemplate">
-        <local:Contact  />
-    </DataTemplate>
-    <!--
-    <Style TargetType="ListBoxItem">
-        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListBoxItem">
                     <Border x:Name="Bd"
                             BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
                             Background="{TemplateBinding Background}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="true">
-                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
                                             SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
                                             VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                     </Border>
                     <ControlTemplate.Triggers>
-                        
+
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
                             <Setter Property="IsSelected" Value="True"/>
                         </Trigger>
@@ -179,12 +162,30 @@
                                     TargetName="Bd"
                                     Value="{StaticResource light}" />
                         </MultiTrigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter Property="IsSelected" Value="True"/>
+                        </Trigger>
+                        <EventTrigger RoutedEvent="GotKeyboardFocus">
+                            <BeginStoryboard>
+                                <!--Storyboard used to prevent listboxitems from being deselected on losing focus-->
+                                <Storyboard>
+                                    <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="IsSelected">
+                                        <DiscreteBooleanKeyFrame Value="True" KeyTime="0:0:0"/>
+                                    </BooleanAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        
+                            
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
-    -->
+    <DataTemplate x:Key="contactListDataTemplate">
+        <local:Contact  />
+    </DataTemplate>
+    
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     <CollectionViewSource x:Key="listSource" Source="{Binding ContactItems}" >
 

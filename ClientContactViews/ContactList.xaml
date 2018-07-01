@@ -37,6 +37,8 @@
                  IsSynchronizedWithCurrentItem="False">
         <!--IsSynchronizedWithCurrentItem="False" is required to set the initial focus to the ListBox itself
             rather than the first list item-->
+        
+
         <ListBox.GroupStyle>
                 <GroupStyle/>
             </ListBox.GroupStyle>
