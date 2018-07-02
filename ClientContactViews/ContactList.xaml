@@ -35,13 +35,14 @@
                  ItemContainerStyle="{StaticResource contactListItem}"
                  ItemTemplate="{StaticResource contactListDataTemplate}"
                  IsSynchronizedWithCurrentItem="False">
-        <!--IsSynchronizedWithCurrentItem="False" is required to set the initial focus to the ListBox itself
+            <!--IsSynchronizedWithCurrentItem="False" is required to set the initial focus to the ListBox itself
             rather than the first list item-->
-        
 
-        <ListBox.GroupStyle>
+
+            <ListBox.GroupStyle>
                 <GroupStyle/>
             </ListBox.GroupStyle>
+
         </ListBox>
 
         <local:ListLoading Grid.Row="1" Visibility="{Binding loading ,  

@@ -7,10 +7,10 @@ module Contact =
 
     type Msg = 
         |UpdateModel
+        
+    type Model = { IsUsedAsLoadingButton:bool; id:int ; ContactName: string; IsDisabled: bool; IsAdmin: bool; organisationName:string}
 
-    type Model = {id:int ; ContactName: string; IsDisabled: bool; IsAdmin: bool; organisationName:string}
-
-    let init() = {id = 0 ; ContactName = ""; IsDisabled = true; IsAdmin=true; organisationName=""}
+    let init() = {IsUsedAsLoadingButton = true; id = 0 ; ContactName = ""; IsDisabled = false; IsAdmin=false; organisationName=""}
     
     let update msg model = 
         match msg with
@@ -20,5 +20,7 @@ module Contact =
     let view (msg:Msg) (model:Model) = 
         [ "IsDisabled" |> Binding.oneWay (fun m -> m.IsDisabled)
           "IsAdmin" |> Binding.oneWay (fun m -> m.IsAdmin)
-          "ContactName" |> Binding.oneWay (fun m -> m.ContactName)]
+          "ContactName" |> Binding.oneWay (fun m -> m.ContactName)
+          "IsUsedAsLoadingButton" |> Binding.oneWay (fun m -> m.IsUsedAsLoadingButton)
+          ]
 

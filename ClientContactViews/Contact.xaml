@@ -24,14 +24,13 @@
         </Style>
 
         <Style TargetType="Button">
+            
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border>
                             <Border.Style>
                                 <Style TargetType="{x:Type Border}">
-                                    <Setter Property="VerticalAlignment" Value="Stretch"/>
-                                    
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
@@ -41,7 +40,38 @@
                                 </Style>
                             </Border.Style>
                             <Grid  >
-                                <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,0,0"/>
+                                <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                                  Margin="5,0,0,0"/>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+        </Style>
+        
+        <Style x:Key="loading" TargetType="Button">
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Foreground" Value="{StaticResource lighter}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{StaticResource medium}">
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}">
+
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid  >
+                                <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                                  Margin="5,0,0,0"/>
                             </Grid>
                         </Border>
                     </ControlTemplate>
@@ -55,21 +85,25 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        
-        <Button  Grid.Column="0" Background="Transparent" Content="{Binding ContactName}" 
+    <Grid>
+        <Button  Grid.Column="0" Background="Transparent" HorizontalContentAlignment="Left" Content="{Binding ContactName}" 
                  Command="{Binding Path=DataContext.UpdateContactInfo, ElementName=ListView}" 
                  CommandParameter="{Binding id}" />
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-        <Image  Grid.Column="1" Source=".\res\user locked.png" ToolTip="The contact's user account is disabled."
+            <Image  Grid.Column="1" Source=".\res\user locked.png" ToolTip="The contact's user account is disabled."
                 Visibility="{Binding IsDisabled ,  
                             Converter={StaticResource BooleanToVisibilityConverter} }"
                 />
 
-        <Image  Grid.Column="2" Source=".\res\admin.png" ToolTip="This contact has admin access"
+            <Image  Grid.Column="2" Source=".\res\admin.png" ToolTip="This contact has admin access"
                 Visibility="{Binding IsAdmin, 
                             Converter={StaticResource BooleanToVisibilityConverter} }"
                 />
         </StackPanel>
+    </Grid>
+    <Button Visibility="{Binding IsUsedAsLoadingButton, Converter={StaticResource BooleanToVisibilityConverter} }"
+            Command="{Binding Path=DataContext.LoadMoreResults, ElementName=ListView}" Style="{StaticResource loading}" 
+            Content="Load more" 
+            HorizontalContentAlignment="Center"/>
 
-    
 </Grid>

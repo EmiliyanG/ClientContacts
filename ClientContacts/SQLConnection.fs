@@ -82,10 +82,13 @@ module MySQLConnection =
         
         
     let getContacts (conn:SqlConnection) search (l:Limit) (o:Offset) = 
+        
+        
+
         conn.Query<Contact> (ListContacts, ({searchPattern = search; Limit= l.getData; Offset=o.getData}) )
         
-        |> Seq.map( fun c -> {id = c.id ; ContactName = c.ContactName; IsDisabled = c.IsDisabled; IsAdmin=c.IsAdmin; organisationName=c.organisationName} )
-       
+        |> Seq.map( fun c -> {IsUsedAsLoadingButton=false; id = c.id ; ContactName = c.ContactName; IsDisabled = c.IsDisabled; IsAdmin=c.IsAdmin; organisationName=c.organisationName} )
+        |> Seq.append <| (seq [{Contact.init() with IsUsedAsLoadingButton=true}])
         |> List.ofSeq
         
     ///return Async task to load contact info for given contact id
@@ -99,10 +102,10 @@ module MySQLConnection =
             }
 
     ///return Async task to load list of contacts from the database
-    let getListOfContacts searchString (dateTriggered:DateTime) =
+    let getListOfContacts searchString (dateTriggered:DateTime) limit offset =
         async {
             let conn = openConnection() 
-            let q = getContacts conn searchString (Limit(50)) (Offset(0))
+            let q = getContacts conn searchString limit offset
             conn.Close()
             return q,dateTriggered
             }

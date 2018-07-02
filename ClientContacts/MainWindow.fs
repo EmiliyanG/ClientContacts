@@ -6,6 +6,8 @@ module MainWindow =
     open Elmish.WPF
     open System.Windows.Forms
     open ClientContactViews
+    open SQLTypes
+    open ContactList
 
     type Msg = 
         |ContactList of ContactList.Msg 
@@ -14,7 +16,7 @@ module MainWindow =
     type Model = {Contacts: ContactList.Model ; ContactInfoBox: ContactInfoBox.Model; IsAddressBookVisible: bool}
 
     let init() = { Contacts = ContactList.init(); ContactInfoBox=ContactInfoBox.init(); IsAddressBookVisible = true }, 
-                  Cmd.ofMsg (ContactList( ContactList.Msg.SearchContacts(""))) //load list of contacts when window is loaded
+                  Cmd.ofMsg (ContactList( ContactList.Msg.SearchContacts("", Offset(0), Limit(QUERY_LIMIT) ))) //load list of contacts when window is loaded
                 
 
 
