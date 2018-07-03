@@ -45,7 +45,7 @@
 
         </ListBox>
 
-        <local:ListLoading Grid.Row="1" Visibility="{Binding loading ,  
+    <local:ListLoading Grid.Row="1" Visibility="{Binding LoadingNewRequest ,  
                             Converter={StaticResource BooleanToVisibilityConverter} }"/>
         <StackPanel Grid.Row="1" Margin="10" Orientation="Vertical" HorizontalAlignment="Center"
                     Visibility="{Binding noResults ,  

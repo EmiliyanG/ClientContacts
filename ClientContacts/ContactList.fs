@@ -18,6 +18,10 @@ module ContactList =
         |Loading
         |Loaded
         |NoResults
+    
+    type LoadMoreBtnStatus = 
+        |DisplayLoadingBar
+        |DisplayLoadMoreBtn
 
     type Msg = 
         |SearchContacts of string * Offset * Limit
@@ -27,14 +31,14 @@ module ContactList =
         |LoadMoreResults
         //|UpdateContact of Guid * Contact.Msg
     
-    type Model = {status: SearchResult; search: string; offset: Offset; limit: Limit;
+    type Model = {status: SearchResult; loadBtnStatus: LoadMoreBtnStatus; search: string; offset: Offset; limit: Limit;
                   
                   latestRequest: DateTime option; 
                   cancelSource: CancellationTokenSource option; 
                   
                   contactList: Contact.Model list}
 
-    let init() = { status= Loading;  search = ""; offset= Offset(0); limit=Limit(QUERY_LIMIT);
+    let init() = { status= Loading; loadBtnStatus=DisplayLoadMoreBtn; search = ""; offset= Offset(0); limit=Limit(QUERY_LIMIT);
                    latestRequest = None; cancelSource = None;  contactList = [] }
 
  
@@ -54,7 +58,8 @@ module ContactList =
              | _ -> ()
 
              let src = new CancellationTokenSource()
-             {model with status=Loading; search = s; offset=offset; limit=limit ; latestRequest = Some d; cancelSource = Some src}, 
+             {model with status= (match offset with | Offset(0) -> Loading | _ -> Loaded);
+                         search = s; offset=offset; limit=limit ; latestRequest = Some d; cancelSource = Some src}, 
              ofAsync (getListOfContacts s d limit offset ) (src.Token) (fun (q,t) -> UpdateContacts (q ,t)) (fun _ -> SearchFailure)
 
         | UpdateContacts (q, d)-> 
@@ -66,9 +71,9 @@ module ContactList =
                                    contactList = q}, Cmd.none
             | Some r, _ when r = d -> //load more results request - append to existing results
                 
-                
-                {model with status= Loaded;
-                                   contactList = (List.append (model.contactList |> (List.rev >> List.tail >> List.rev)) q) }, Cmd.none
+                {model with loadBtnStatus = DisplayLoadMoreBtn;
+                            contactList = (List.append (model.contactList |> (List.rev >> List.tail >> List.rev)) q) }, Cmd.none
+
             | _ -> model, Cmd.none
 
         | SearchFailure ->  model, Cmd.none
@@ -76,25 +81,21 @@ module ContactList =
             //Doing nothing - this message will be elevated 1 level up 
             model, Cmd.none
         | LoadMoreResults -> 
-            model, Cmd.ofMsg (SearchContacts(model.search,Offset(model.offset.getData + QUERY_LIMIT), Limit(QUERY_LIMIT))) 
+            {model with loadBtnStatus = DisplayLoadingBar}, Cmd.ofMsg (SearchContacts(model.search,Offset(model.offset.getData + QUERY_LIMIT), Limit(QUERY_LIMIT))) 
         
             
     let contactsListViewBindings = 
-        
+
         ["ContactItems" |> Binding.oneWay (fun m -> m.contactList)
          "SearchBar" |> Binding.twoWay (fun m -> m.search) (fun s m -> SearchContacts(s,Offset(0),Limit(QUERY_LIMIT)) )
          "UpdateContactInfo" |> Binding.cmd (fun p m -> 
                                 let i = p :?> int //downcast the p object to Guid
                                 UpdateContactInfo(i))
-         "loaded" |> Binding.oneWay (fun m -> match m.status with
-                                              |Loaded -> true
-                                              |_ -> false)
-         "loading" |> Binding.oneWay (fun m -> match m.status with
-                                               |Loading -> true
-                                               |_ -> false)    
-         "noResults" |> Binding.oneWay (fun m -> match m.status with 
-                                                 |NoResults -> true
-                                                 |_ -> false)
+         "loaded" |> Binding.oneWay (fun m -> match m.status with | Loaded -> true |_ -> false)
+         "LoadingNewRequest" |> Binding.oneWay (fun m -> match m.status with | Loading -> true |_ -> false)   
+         "DisplayLoadingBar" |> Binding.oneWay (fun m -> match m.loadBtnStatus with |DisplayLoadingBar -> true |_ -> false)  
+         "DisplayLoadMoreBtn" |> Binding.oneWay (fun m -> match m.loadBtnStatus with | DisplayLoadMoreBtn -> true |_ -> false ) 
+         "noResults" |> Binding.oneWay (fun m -> match m.status with | NoResults -> true |_ -> false)
          "LoadMoreResults" |> Binding.cmd (fun msg m -> LoadMoreResults)
         ]
 

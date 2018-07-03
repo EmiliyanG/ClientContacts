@@ -101,9 +101,16 @@
                 />
         </StackPanel>
     </Grid>
-    <Button Visibility="{Binding IsUsedAsLoadingButton, Converter={StaticResource BooleanToVisibilityConverter} }"
-            Command="{Binding Path=DataContext.LoadMoreResults, ElementName=ListView}" Style="{StaticResource loading}" 
-            Content="Load more" 
-            HorizontalContentAlignment="Center"/>
+    <Grid Visibility="{Binding IsUsedAsLoadingButton, Converter={StaticResource BooleanToVisibilityConverter} }">
+        <Button Visibility="{Binding DataContext.DisplayLoadMoreBtn, ElementName=ListView, Converter={StaticResource BooleanToVisibilityConverter} }"
+                Command="{Binding Path=DataContext.LoadMoreResults, ElementName=ListView}" Style="{StaticResource loading}" 
+                Content="Load more" 
+                HorizontalContentAlignment="Center"/>
+        <local:AnimatedBar Height="20" Margin="10"
+                           Visibility="{Binding DataContext.DisplayLoadingBar,ElementName=ListView, Converter={StaticResource BooleanToVisibilityConverter} }"
+                           />
+    </Grid>
+    
+    
 
 </Grid>
