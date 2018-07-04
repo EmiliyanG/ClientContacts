@@ -1,0 +1,5 @@
+references: strict
+source https://www.nuget.org/api/v2
+
+nuget Elmish.WPF 1.0.0-beta-7
+nuget Dapper 1.50.5
