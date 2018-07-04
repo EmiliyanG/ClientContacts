@@ -9,6 +9,12 @@
              d:DesignHeight="400" d:DesignWidth="400">
 
     <UserControl.Resources>
+        <SolidColorBrush x:Key="lighter" Color="#FEFEFF"/>
+        <SolidColorBrush x:Key="light" Color="#897BAF"/>
+        <SolidColorBrush x:Key="medium" Color="#423075"/>
+        <SolidColorBrush x:Key="dark" Color="#14073A"/>
+        <SolidColorBrush x:Key="darker" Color="#000000"/>
+        <SolidColorBrush x:Key="readOnlyTextBoxBackground" Color="#e6e6ef"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
         <Style x:Key="textBox" TargetType="{x:Type TextBox}">
@@ -22,6 +28,31 @@
             <Setter Property="Padding" Value="4" />
             <Setter Property="Margin" Value="0,2,2,2" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="IsReadOnly" Value="{Binding AreTextBoxesReadOnly }" />
+            <Setter Property="BorderBrush" Value="{StaticResource darker}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Name="Bd" BorderThickness="{TemplateBinding BorderThickness}" 
+                                             BorderBrush="{TemplateBinding BorderBrush}" 
+                                             Background="{TemplateBinding Background}" 
+                                             SnapsToDevicePixels="true">
+                            <ScrollViewer Name="PART_ContentHost" Background="{TemplateBinding Background}" 
+                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsReadOnly" Value="True">
+                                <Setter Property="Background" Value="{StaticResource readOnlyTextBoxBackground}"  />
+                                <Setter Property="Foreground" Value="Black"  />
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="BorderBrush" Value="Transparent" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            
+            
         </Style>
 
 
@@ -87,7 +118,7 @@
             <TextBox Grid.Row="4" Text="{Binding email}" Style="{StaticResource textBox}"/>
             <ScrollViewer Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="6" Grid.RowSpan="2" MinHeight="100"
                           VerticalScrollBarVisibility="Auto" Margin="0,1,1,1">
-                <TextBox  AcceptsReturn="True" TextWrapping="Wrap" SpellCheck.IsEnabled="True" Margin="0" VerticalContentAlignment="Top" Style="{StaticResource textBox}"/>
+                <TextBox  AcceptsReturn="True" Text="{Binding Comments}" TextWrapping="Wrap" SpellCheck.IsEnabled="True" Margin="0" VerticalContentAlignment="Top" Style="{StaticResource textBox}"/>
             </ScrollViewer>
 
 

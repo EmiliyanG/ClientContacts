@@ -9,26 +9,22 @@ module ContactInfoBox =
     open SQLTypes
     open ElmishUtils
     
-
+    type InfoBoxMode =
+        | ReadOnlyMode
+        | EditMode
     type Msg = 
         |LoadContact of int
         |UpdateContactInfo of ContactInfo option * DateTime
         |LoadFailure
-        //|UpdateContact of Guid * Contact.Msg
 
-    type Model = { id: int; loading: bool; loaded:bool; organisation: string; name: string; phone: string option; 
+    type Model = { editMode:InfoBoxMode; id: int; loading: bool; loaded:bool; organisation: string; name: string; phone: string option; 
                    email: string option; comments: string option; cancelSource: CancellationTokenSource option; 
                    latestRequest: DateTime option; IsDisabled: bool; IsAdmin: bool}
 
-    let init() = { id= 0; loading= false; loaded=false; organisation = ""; name = ""; phone = None; email = None;  
+    let init() = { editMode=ReadOnlyMode; id= 0; loading= false; loaded=false; organisation = ""; name = ""; phone = None; email = None;  
                    comments = None; cancelSource=None; latestRequest = None; IsDisabled = false; IsAdmin = false }
     
  
-        
-        //generate task -> getListOfContacts searchString dateTriggered
-        //UpdateContacts (r ,dateTriggered)
-
-
     
     let update (msg:Msg) (model:Model) = 
         match msg with
@@ -55,7 +51,9 @@ module ContactInfoBox =
                     
                     {model with loading = false; loaded = true; name = info.ContactName; 
                                 phone = info.telephone; email = info.email;
-                                organisation = info.organisationName; IsAdmin= info.IsAdmin; IsDisabled=info.IsDisabled}, Cmd.none
+                                organisation = info.organisationName; 
+                                IsAdmin= info.IsAdmin; IsDisabled=info.IsDisabled
+                                comments = info.comments}, Cmd.none
                 |_ ->
                     {model with loading = false; loaded = true}, Cmd.none
             | _ -> model, Cmd.none
@@ -72,10 +70,12 @@ module ContactInfoBox =
          "loaded" |> Binding.oneWay (fun m -> m.loaded)
          "organisation" |> Binding.oneWay (fun m -> m.organisation)
          "contactName" |> Binding.oneWay (fun m -> m.name)
+         "Comments" |> Binding.oneWay (fun m -> match m.comments with | Some c -> c | None -> "")
          "phone" |> Binding.oneWay (fun m -> stringFromOption m.phone)
          "email" |> Binding.oneWay (fun m -> stringFromOption m.email)
          "IsDisabled" |> Binding.oneWay (fun m -> m.IsDisabled)
          "IsAdmin" |> Binding.oneWay (fun m -> m.IsAdmin)
+         "AreTextBoxesReadOnly" |> Binding.oneWay (fun m -> (match m.editMode with | EditMode -> false | ReadOnlyMode -> true) )
         ]
 
 
