@@ -112,6 +112,8 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MarginConverter.cs" />
+    <Compile Include="MyNullVisibilityConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -9,11 +9,12 @@ module SQLQueries =
     let ListContacts = 
         //WAITFOR DELAY '00:00:10';
         """
-        Select c.id, ContactName, IsDisabled, IsAdmin, o.name as organisationName 
+        Select c.id, ContactName, IsDisabled, IsAdmin, o.name as organisationName, l.name as locationName
         from Contact c
         inner join Organisation o on o.id = c.organisationId
+		left join Location l on l.id = c.locationId
         where ContactName like '%'+@searchPattern+'%' or o.name like '%'+@searchPattern+'%'
-        order by o.name, ContactName OFFSET @offset ROWS fetch NEXT @limit ROWS ONLY"""
+        order by o.name, l.name desc, ContactName OFFSET @offset ROWS fetch NEXT @limit ROWS ONLY"""
     
     [<Literal>]
     let ContactInfoQuery = 
@@ -25,7 +26,7 @@ module SQLQueries =
         where c.id = @id"""
 
 module SQLTypes = 
-    type Contact = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool; organisationName: string}
+    type Contact = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool; organisationName: string; locationName: string}
     type ListContactsParams = {searchPattern: string; Limit: int; Offset: int}
     
     type ContactInfo = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool; email: string option; 
@@ -90,7 +91,8 @@ module MySQLConnection =
                                   ContactName = c.ContactName; 
                                   IsDisabled = c.IsDisabled; 
                                   IsAdmin=c.IsAdmin; 
-                                  organisationName=c.organisationName} )
+                                  organisationName=c.organisationName;
+                                  locationName = c.locationName} )
         
         match Seq.length contacts with 
         | a when a < l.getData -> 

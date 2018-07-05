@@ -8,9 +8,9 @@ module Contact =
     type Msg = 
         |UpdateModel
         
-    type Model = { IsUsedAsLoadingButton:bool; id:int ; ContactName: string; IsDisabled: bool; IsAdmin: bool; organisationName:string}
+    type Model = { IsUsedAsLoadingButton:bool; id:int ; ContactName: string; IsDisabled: bool; IsAdmin: bool; organisationName:string; locationName:string}
 
-    let init() = {IsUsedAsLoadingButton = true; id = 0 ; ContactName = ""; IsDisabled = false; IsAdmin=false; organisationName=""}
+    let init() = {IsUsedAsLoadingButton = true; id = 0 ; ContactName = ""; IsDisabled = false; IsAdmin=false; organisationName=""; locationName=""}
     
     let update msg model = 
         match msg with
