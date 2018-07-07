@@ -10,6 +10,7 @@
     <SolidColorBrush x:Key="dark" Color="#14073A"/>
     <SolidColorBrush x:Key="darker" Color="#000000"/>
     <SolidColorBrush x:Key="listBoxItemBackground" Color="#e6e6ef"/>
+    <SolidColorBrush x:Key="expanderBackground" Color="#d0d0e8"/>
     <local:MyNullVisibilityConverter x:Key="NullToVisibilityConverter"/>
     <local:MarginConverter x:Key="NullToMarginConverter"/>
     
@@ -52,12 +53,16 @@
         <Setter Property="Content" Value="{Binding Name}"/>
         <Setter Property="Grid.ColumnSpan" Value="2"/>
         <Setter Property="Background" Value="{StaticResource lighter}"/>
+        <Setter Property="BorderThickness" Value="5,0,0,0" />
+        <Setter Property="BorderBrush" Value="{StaticResource expanderBackground}"/>
         <Setter Property="Height" Value="50"/>
         
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
-                    <Border Background="{TemplateBinding Background}" >
+                    <Border Background="{TemplateBinding Background}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            BorderBrush="{TemplateBinding BorderBrush}">
                         <ContentPresenter HorizontalAlignment="Left" Margin="30,0,0,0" VerticalAlignment="Center"/>
                     </Border>
                 </ControlTemplate>
@@ -66,6 +71,7 @@
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{StaticResource light}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource light}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -88,7 +94,7 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <Button Style="{StaticResource expanderButton}"/>
+                                <Button Style="{StaticResource expanderButton}" />
                                 <ToggleButton Style="{StaticResource toggleBtn1}"/>
                             </Grid>
                         </Border>
@@ -128,11 +134,13 @@
         <Setter Property="Background" Value="{StaticResource listBoxItemBackground}" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListBoxItem">
                     <Border x:Name="Bd"
                             BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
                             Background="{TemplateBinding Background}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="true">

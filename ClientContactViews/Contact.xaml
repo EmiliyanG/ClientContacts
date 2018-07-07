@@ -15,6 +15,8 @@
         <SolidColorBrush x:Key="dark" Color="#14073A"/>
         <SolidColorBrush x:Key="darker" Color="#000000"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <local:BoolToBorderThicknessConverter x:Key="BoolToBorderThicknessConverter" />
+
         <Style TargetType="Image">
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -23,15 +25,18 @@
             <Setter Property="Width" Value="20"/>
         </Style>
 
-        <Style TargetType="Button">
+        <Style x:Key="contactButton" TargetType="Button">
             
-            <Setter Property="Template">
+            <Setter  Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border>
                             <Border.Style>
                                 <Style TargetType="{x:Type Border}">
                                     <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderBrush" Value="{StaticResource light}"/>
+                                    <Setter Property="BorderThickness" Value="{Binding IsUsedAsLoadingButton, Converter={StaticResource BoolToBorderThicknessConverter} }"/>
+                                    
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter Property="Background" Value="Transparent"/>
@@ -88,7 +93,8 @@
     <Grid>
         <Button  Grid.Column="0" Background="Transparent" HorizontalContentAlignment="Left" Content="{Binding ContactName}" 
                  Command="{Binding Path=DataContext.UpdateContactInfo, ElementName=ListView}" 
-                 CommandParameter="{Binding id}" />
+                 CommandParameter="{Binding id}"
+                 Style="{StaticResource contactButton}"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
             <Image  Grid.Column="1" Source=".\res\user locked.png" ToolTip="The contact's user account is disabled."
                 Visibility="{Binding IsDisabled ,  

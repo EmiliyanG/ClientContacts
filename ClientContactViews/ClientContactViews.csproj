@@ -86,6 +86,7 @@
     <Compile Include="AnimatedBar.xaml.cs">
       <DependentUpon>AnimatedBar.xaml</DependentUpon>
     </Compile>
+    <Compile Include="BoolToBorderThicknessConverter.cs" />
     <Compile Include="Contact.xaml.cs">
       <DependentUpon>Contact.xaml</DependentUpon>
     </Compile>
