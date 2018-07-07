@@ -33,6 +33,7 @@
                             Converter={StaticResource BooleanToVisibilityConverter} }" 
                  ItemsSource="{Binding Source={StaticResource listSource}}" Background="Transparent" 
                  ItemContainerStyle="{StaticResource contactListItem}"
+                 
                  ItemTemplate="{StaticResource contactListDataTemplate}"
                  IsSynchronizedWithCurrentItem="False">
             <!--IsSynchronizedWithCurrentItem="False" is required to set the initial focus to the ListBox itself
@@ -40,7 +41,7 @@
 
 
             <ListBox.GroupStyle>
-                <GroupStyle/>
+            <GroupStyle ContainerStyle="{StaticResource organisationGroupStyle}"/>
             </ListBox.GroupStyle>
 
         </ListBox>

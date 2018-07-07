@@ -13,6 +13,7 @@
     <SolidColorBrush x:Key="expanderBackground" Color="#d0d0e8"/>
     <local:MyNullVisibilityConverter x:Key="NullToVisibilityConverter"/>
     <local:MarginConverter x:Key="NullToMarginConverter"/>
+    <local:CollectionViewGroupToVisibilityConverter x:Key="CollectionViewGroupToVisibilityConverter"/>
     
     <Style x:Key="toggleBtn1" TargetType="ToggleButton">
         <Setter Property="IsChecked" Value="{Binding Path=IsExpanded,Mode=TwoWay,
@@ -50,7 +51,8 @@
         </Setter>
     </Style>
     <Style x:Key="expanderButton" TargetType="Button" >
-        <Setter Property="Content" Value="{Binding Name}"/>
+        <Setter Property="Content" 
+                Value="{Binding Path=Name}"/>
         <Setter Property="Grid.ColumnSpan" Value="2"/>
         <Setter Property="Background" Value="{StaticResource lighter}"/>
         <Setter Property="BorderThickness" Value="5,0,0,0" />
@@ -96,6 +98,12 @@
                                 </Grid.ColumnDefinitions>
                                 <Button Style="{StaticResource expanderButton}" />
                                 <ToggleButton Style="{StaticResource toggleBtn1}"/>
+                                <local:ExpandableMenuButtons  
+                                    
+                                    Grid.Column="1" 
+                                    HorizontalAlignment="Right"
+                                    Visibility="{Binding Path=. ,Converter={StaticResource CollectionViewGroupToVisibilityConverter}}"/>
+                                
                             </Grid>
                         </Border>
                         <ContentPresenter Grid.Row="1" Margin="{Binding Name, Converter={StaticResource NullToMarginConverter}}"/>
@@ -111,14 +119,12 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <Style TargetType="{x:Type GroupItem}">
+    <Style x:Key="organisationGroupStyle" TargetType="{x:Type GroupItem}">
         
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Expander Header="{Binding Name}" 
-                              
-                              Style="{StaticResource expander}" 
+                    <Expander Style="{StaticResource expander}" 
                               IsExpanded="True">
                         <ItemsPresenter />
                         
@@ -203,11 +209,11 @@
     </DataTemplate>
     
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-    <CollectionViewSource x:Key="listSource" Source="{Binding ContactItems}" >
+    <CollectionViewSource x:Key="listSource" Source="{Binding ContactItems}"  >
 
         <CollectionViewSource.GroupDescriptions>
             <PropertyGroupDescription  PropertyName="organisationName"/>
-            <PropertyGroupDescription  PropertyName="locationName"/>
+            <PropertyGroupDescription  PropertyName="locationName" />
         </CollectionViewSource.GroupDescriptions>
     </CollectionViewSource>
 </ResourceDictionary>

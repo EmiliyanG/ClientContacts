@@ -55,6 +55,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CollectionViewGroupToVisibilityConverter.cs" />
     <Page Include="AnimatedBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -68,6 +69,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ContactList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ExpandableMenuButtons.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -95,6 +100,9 @@
     </Compile>
     <Compile Include="ContactList.xaml.cs">
       <DependentUpon>ContactList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ExpandableMenuButtons.xaml.cs">
+      <DependentUpon>ExpandableMenuButtons.xaml</DependentUpon>
     </Compile>
     <Compile Include="InfoBoxLoading.xaml.cs">
       <DependentUpon>InfoBoxLoading.xaml</DependentUpon>
@@ -164,6 +172,11 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="res\search.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="res\add user.png" />
+    <Resource Include="res\map.png" />
+    <Resource Include="res\menu-bars.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
