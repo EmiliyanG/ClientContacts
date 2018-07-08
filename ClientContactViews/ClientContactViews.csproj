@@ -178,5 +178,8 @@
     <Resource Include="res\map.png" />
     <Resource Include="res\menu-bars.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="res\filter-icon.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
