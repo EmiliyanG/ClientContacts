@@ -76,6 +76,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="FilterMenu.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="InfoBoxLoading.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -103,6 +107,9 @@
     </Compile>
     <Compile Include="ExpandableMenuButtons.xaml.cs">
       <DependentUpon>ExpandableMenuButtons.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FilterMenu.xaml.cs">
+      <DependentUpon>FilterMenu.xaml</DependentUpon>
     </Compile>
     <Compile Include="InfoBoxLoading.xaml.cs">
       <DependentUpon>InfoBoxLoading.xaml</DependentUpon>

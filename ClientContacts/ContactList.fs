@@ -30,10 +30,11 @@ module ContactList =
         |SearchFailure
         |UpdateContactInfo of int 
         |LoadMoreResults
-        |FilterDisabled
+        |FilterDisabled of bool
+        |FilterAdmins of bool
         //|UpdateContact of Guid * Contact.Msg
     
-    type Filters = {filterByDisabledContact: bool; filterByAdminContact: bool }
+    type Filters = {includeDisabledContacts: bool; showAdminsOnly: bool }
 
     type Model = {status: SearchResult; loadBtnStatus: LoadMoreBtnStatus; search: string; offset: Offset; limit: Limit;
                   
@@ -45,7 +46,7 @@ module ContactList =
 
     let init() = { status= Loading; loadBtnStatus=DisplayLoadMoreBtn; search = ""; offset= Offset(0); limit=Limit(QUERY_LIMIT);
                    latestRequest = None; cancelSource = None;  contactList = [];
-                   filters= {filterByDisabledContact=false; filterByAdminContact=false} }
+                   filters= {includeDisabledContacts=false; showAdminsOnly=false} }
 
  
 
@@ -88,23 +89,21 @@ module ContactList =
             model, Cmd.none
         | LoadMoreResults -> 
             {model with loadBtnStatus = DisplayLoadingBar}, Cmd.ofMsg (SearchContacts(model.search,Offset(model.offset.getData + QUERY_LIMIT), Limit(QUERY_LIMIT))) 
-        | FilterDisabled -> 
-            //MessageBox.Show("filterDisabled command called") |> ignore
-            {model with filters = {model.filters with filterByDisabledContact=true}}, Cmd.none 
-    
+        | FilterDisabled(isChecked) -> 
+            {model with filters = {model.filters with includeDisabledContacts=isChecked}}, Cmd.none 
+        | FilterAdmins(isChecked) -> 
+            {model with filters = {model.filters with showAdminsOnly=isChecked}}, Cmd.none 
     let filterContacts (m:Model) =
         m.contactList
         |> (fun cList ->    
-            match m.filters.filterByDisabledContact with
-            | true -> cList |> List.filter (fun c -> c.IsDisabled = false)
-            | false -> cList
+            match m.filters.includeDisabledContacts, 
+                  m.filters.showAdminsOnly 
+                  with 
+            | true,true -> cList |> List.filter (fun c -> c.IsAdmin)
+            | false, true -> cList |> List.filter (fun c -> c.IsAdmin  && not c.IsDisabled )
+            | true, false -> cList 
+            | false, false -> cList |> List.filter (fun c -> not c.IsDisabled)
            )
-        |> (fun cList ->    
-            match m.filters.filterByAdminContact with
-            | true -> cList |> List.filter (fun c -> c.IsAdmin = false)
-            | false -> cList
-           )
-
 
     let contactsListViewBindings = 
 
@@ -119,7 +118,12 @@ module ContactList =
          "DisplayLoadMoreBtn" |> Binding.oneWay (fun m -> match m.loadBtnStatus with | DisplayLoadMoreBtn -> true |_ -> false ) 
          "noResults" |> Binding.oneWay (fun m -> match m.status with | NoResults -> true |_ -> false)
          "LoadMoreResults" |> Binding.cmd (fun msg m -> LoadMoreResults)
-         "FilterDisabled" |> Binding.cmd (fun msg m -> FilterDisabled)
+         "FilterDisabled" |> Binding.cmd (fun isChecked m -> 
+                                              let ic = isChecked :?> bool //downcast the isChecked object to bool
+                                              FilterDisabled(ic) )
+         "FilterAdmins" |> Binding.cmd (fun isChecked m -> 
+                                              let ic = isChecked :?> bool //downcast the isChecked object to bool
+                                              FilterAdmins(ic) )
         ]
 
 

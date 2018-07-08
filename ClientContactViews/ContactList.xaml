@@ -26,13 +26,8 @@
                    Foreground="#897BAF" Visibility="{Binding ElementName=SearchBar, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
             <TextBox MinWidth="50" VerticalContentAlignment="Center" Name="SearchBar" Text="{Binding Path=SearchBar, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" />
-        <Button HorizontalAlignment="Right" ToolTip="Filter Out Disabled Contacts" Command="{Binding FilterDisabled}">
-            <Image Source="res\filter-icon.png" 
-               Stretch="Uniform" 
-               Width="20"
-               Margin="5"
-               />
-        </Button>
+        <local:FilterMenu HorizontalAlignment="Right" Width="40" Grid.Row="0"/>
+        
         
     </Grid>
 
