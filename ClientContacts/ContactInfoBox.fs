@@ -17,11 +17,13 @@ module ContactInfoBox =
         |UpdateContactInfo of ContactInfo option * DateTime
         |LoadFailure
 
-    type Model = { editMode:InfoBoxMode; id: int; loading: bool; loaded:bool; organisation: string; name: string; phone: string option; 
+    type Model = { editMode:InfoBoxMode; id: int; loading: bool; loaded:bool; organisation: string; 
+                   location: string option; name: string; phone: string option; 
                    email: string option; comments: string option; cancelSource: CancellationTokenSource option; 
                    latestRequest: DateTime option; IsDisabled: bool; IsAdmin: bool}
 
-    let init() = { editMode=ReadOnlyMode; id= 0; loading= false; loaded=false; organisation = ""; name = ""; phone = None; email = None;  
+    let init() = { editMode=ReadOnlyMode; id= 0; loading= false; loaded=false; organisation = ""; 
+                   location = None; name = ""; phone = None; email = None;  
                    comments = None; cancelSource=None; latestRequest = None; IsDisabled = false; IsAdmin = false }
     
  
@@ -52,6 +54,7 @@ module ContactInfoBox =
                     {model with loading = false; loaded = true; name = info.ContactName; 
                                 phone = info.telephone; email = info.email;
                                 organisation = info.organisationName; 
+                                location = info.locationName;
                                 IsAdmin= info.IsAdmin; IsDisabled=info.IsDisabled
                                 comments = info.comments}, Cmd.none
                 |_ ->
@@ -69,8 +72,9 @@ module ContactInfoBox =
         ["loading" |> Binding.oneWay (fun m -> m.loading)
          "loaded" |> Binding.oneWay (fun m -> m.loaded)
          "organisation" |> Binding.oneWay (fun m -> m.organisation)
+         "location" |> Binding.oneWay (fun m -> stringFromOption m.location)
          "contactName" |> Binding.oneWay (fun m -> m.name)
-         "Comments" |> Binding.oneWay (fun m -> match m.comments with | Some c -> c | None -> "")
+         "Comments" |> Binding.oneWay (fun m -> stringFromOption m.comments)
          "phone" |> Binding.oneWay (fun m -> stringFromOption m.phone)
          "email" |> Binding.oneWay (fun m -> stringFromOption m.email)
          "IsDisabled" |> Binding.oneWay (fun m -> m.IsDisabled)

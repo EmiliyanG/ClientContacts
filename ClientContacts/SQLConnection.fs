@@ -20,9 +20,10 @@ module SQLQueries =
     let ContactInfoQuery = 
         //WAITFOR DELAY '00:00:10';
         """
-        Select c.id, ContactName, IsDisabled, IsAdmin, email, telephone, o.name as organisationName, comments
+        Select c.id, ContactName, IsDisabled, IsAdmin, email, telephone, o.name as organisationName, l.name as locationName, comments
         from Contact c 
         inner join Organisation o on c.organisationId = o.id
+        left join Location l on l.id = c.locationId
         where c.id = @id"""
 
 module SQLTypes = 
@@ -30,7 +31,7 @@ module SQLTypes =
     type ListContactsParams = {searchPattern: string; Limit: int; Offset: int}
     
     type ContactInfo = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool; email: string option; 
-                        telephone: string option; organisationName: string; comments: string option}
+                        telephone: string option; organisationName: string; locationName: string option; comments: string option}
 
     type ContactInfoQueryParams = {id: int}
 

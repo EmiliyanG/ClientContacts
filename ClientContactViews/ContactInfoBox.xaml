@@ -91,6 +91,7 @@
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -109,13 +110,16 @@
             <Image  Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="0"
                     Grid.RowSpan="2" Width="60" Style="{StaticResource image}" ToolTip="Contact Name" Source=".\res\user.png"/>
             <Image  Grid.Column="0" Grid.Row="2" Style="{StaticResource image}" ToolTip="Organisation" Source=".\res\organisation.png"/>
-            <Image  Grid.Column="0" Grid.Row="3" Style="{StaticResource image}" ToolTip="Phone Number" Source=".\res\phone.png"/>
-            <Image  Grid.Column="0" Grid.Row="4" Style="{StaticResource image}" ToolTip="Email Address" Source=".\res\email.png"/>
-            <Image  Grid.Column="0" Grid.Row="5" Style="{StaticResource image}" ToolTip="Additional Notes Or Comments" Source=".\res\comment.png"/>
+            <Image  Grid.Column="0" Grid.Row="3" Style="{StaticResource image}" ToolTip="Location" Source=".\res\map.png"/>
+            <Image  Grid.Column="0" Grid.Row="4" Style="{StaticResource image}" ToolTip="Phone Number" Source=".\res\phone.png"/>
+            <Image  Grid.Column="0" Grid.Row="5" Style="{StaticResource image}" ToolTip="Email Address" Source=".\res\email.png"/>
+            <Image  Grid.Column="0" Grid.Row="6" Style="{StaticResource image}" ToolTip="Additional Notes Or Comments" Source=".\res\comment.png"/>
+            
             <TextBox Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="5" Text="{Binding contactName}" Style="{StaticResource textBox}"/>
             <TextBox Grid.Row="2" Text="{Binding organisation}" Style="{StaticResource textBox}"/>
-            <TextBox Grid.Row="3" Text="{Binding phone}" Style="{StaticResource textBox}"/>
-            <TextBox Grid.Row="4" Text="{Binding email}" Style="{StaticResource textBox}"/>
+            <TextBox Grid.Row="3" Text="{Binding location}" Style="{StaticResource textBox}"/>
+            <TextBox Grid.Row="4" Text="{Binding phone}" Style="{StaticResource textBox}"/>
+            <TextBox Grid.Row="5" Text="{Binding email}" Style="{StaticResource textBox}"/>
             <ScrollViewer Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="6" Grid.RowSpan="2" MinHeight="100"
                           VerticalScrollBarVisibility="Auto" Margin="0,1,1,1">
                 <TextBox  AcceptsReturn="True" Text="{Binding Comments}" TextWrapping="Wrap" SpellCheck.IsEnabled="True" Margin="0" VerticalContentAlignment="Top" Style="{StaticResource textBox}"/>
