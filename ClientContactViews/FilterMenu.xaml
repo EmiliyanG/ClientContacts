@@ -32,12 +32,12 @@
                                 HorizontalAlignment="Center" />
                 </Grid>
             </MenuItem.Header>
-            <MenuItem Name="disabledContactsFilter" Header="Include Disabled Contacts" Style="{StaticResource SubItems}" 
+            <MenuItem Name="DisabledContactsFilter" Header="Include Disabled Contacts" Style="{StaticResource SubItems}" 
                       Command="{Binding FilterDisabled}"
-                      CommandParameter="{Binding Path=IsChecked, ElementName=disabledContactsFilter}"/>
-            <MenuItem Name="adminContactsFilter" Header="Show Administrators Only" Style="{StaticResource SubItems}"
+                      CommandParameter="{Binding Path=IsChecked, ElementName=DisabledContactsFilter}"/>
+            <MenuItem Name="AdminContactsFilter" Header="Show Administrators Only" Style="{StaticResource SubItems}"
                       Command="{Binding FilterAdmins}"
-                      CommandParameter="{Binding Path=IsChecked, ElementName=adminContactsFilter}"/>
+                      CommandParameter="{Binding Path=IsChecked, ElementName=AdminContactsFilter}"/>
         </MenuItem>
     </Menu>
     
