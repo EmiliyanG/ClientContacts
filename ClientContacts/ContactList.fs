@@ -38,14 +38,12 @@ module ContactList =
 
     type Model = {status: SearchResult; loadBtnStatus: LoadMoreBtnStatus; search: string; offset: Offset; limit: Limit;
                   
-                  latestRequest: DateTime option; 
-                  cancelSource: CancellationTokenSource option; 
-                  
+                  loadContactsRequest: AsyncRequest option;
                   contactList: Contact.Model list;
                   filters: Filters}
 
     let init() = { status= Loading; loadBtnStatus=DisplayLoadMoreBtn; search = ""; offset= Offset(0); limit=Limit(QUERY_LIMIT);
-                   latestRequest = None; cancelSource = None;  contactList = [];
+                   loadContactsRequest=None;  contactList = [];
                    filters= {includeDisabledContacts=false; showAdminsOnly=false} }
 
  
@@ -58,28 +56,29 @@ module ContactList =
              let d = newDate()
 
              //cancel old request
-             match model.cancelSource with 
-             | Some src -> 
-                //System.Windows.MessageBox.Show("cancel async") |> ignore
-                src.Cancel()
+             match model.loadContactsRequest with 
+             | Some request -> 
+                request.cancelSource.Cancel()
              | _ -> ()
 
              let src = new CancellationTokenSource()
              {model with status= (match offset with | Offset(0) -> Loading | _ -> Loaded);
-                         search = s; offset=offset; limit=limit ; latestRequest = Some d; cancelSource = Some src}, 
+                         search = s; offset=offset; limit=limit ; 
+                         loadContactsRequest=Some { latestRequest = d; cancelSource = src}}, 
              ofAsync (getListOfContacts s d limit offset ) (src.Token) (fun (q,t) -> UpdateContacts (q ,t)) (fun _ -> SearchFailure)
 
         | UpdateContacts (q, d)-> 
-            match model.latestRequest, model.offset with 
-            | Some r, Offset(0) when r = d -> //new request made - update all results
+            match model.loadContactsRequest, model.offset with 
+            | Some request, Offset(0) when request.latestRequest = d -> //new request made - update all results
                 {model with status=(match q with
                                    | [] -> NoResults
                                    | _ -> Loaded);
                                    contactList = q}, Cmd.none
-            | Some r, _ when r = d -> //load more results request - append to existing results
+            | Some request, _ when request.latestRequest = d -> //load more results request - append to existing results
                 
                 {model with loadBtnStatus = DisplayLoadMoreBtn;
-                            contactList = (List.append (model.contactList |> (List.rev >> List.tail >> List.rev)) q) }, Cmd.none
+                            contactList = (List.append (model.contactList |> (List.rev >> List.tail >> List.rev)) q)
+                            loadContactsRequest = None}, Cmd.none
 
             | _ -> model, Cmd.none
 
