@@ -136,10 +136,6 @@ module MySQLConnection =
             let q =conn.Query<Location> (OrganisationLocationsQuery ,{organisationId = organisationId.getData})
             conn.Close()
             
-            debug (sprintf "organisationId %d" (organisationId.getData))
-            debug (sprintf "message from debug utils: %A" q)
-            debug (sprintf "message from debug utils is seq empty: %b" (Seq.isEmpty q))
-            
             return (match Seq.isEmpty q with 
                     | true -> None
                     | false -> Some q), dateTriggered

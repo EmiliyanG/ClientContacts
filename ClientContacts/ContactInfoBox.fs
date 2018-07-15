@@ -102,16 +102,11 @@ module ContactInfoBox =
                 
 
                 let getComboBoxIndex (locations:seq<Location> option) locationId = 
-                    
-                    debug (sprintf "message from contactInfoBox > locations object: %A" locations)
-                    debug (sprintf "locationid %d" locationId)
                     match locations with 
                     | Some lseq -> 
-                        debug "matched as some object"
                         Some(lseq
                             |> Seq.findIndex( fun location-> location.id = locationId) )
                     | None -> 
-                        debug "matched as None"
                         None
 
                 
