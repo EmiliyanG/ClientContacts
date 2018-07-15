@@ -16,7 +16,11 @@
         <SolidColorBrush x:Key="darker" Color="#000000"/>
         <SolidColorBrush x:Key="readOnlyTextBoxBackground" Color="#e6e6ef"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-
+        
+        <DataTemplate x:Key="LocationComboBoxTemplate">
+            <local:LocationComboBoxItem  />
+        </DataTemplate>
+        
         <Style x:Key="location" TargetType="ComboBox" >
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="VerticalAlignment" Value="Stretch"/>
@@ -29,7 +33,12 @@
             <Setter Property="IsEnabled" Value="{Binding IsLocationComboBoxEnabled }"/>
             <Setter Property="SelectedIndex" Value="{Binding SelectedLocationIndex}"/>
             <Setter Property="ItemsSource" Value="{Binding locationsSource}"/>
+            <Setter Property="ItemTemplate" Value="{StaticResource LocationComboBoxTemplate}"/>
         </Style>
+        
+        
+        
+        
         <Style x:Key="textBox" TargetType="{x:Type TextBox}">
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="VerticalAlignment" Value="Stretch"/>

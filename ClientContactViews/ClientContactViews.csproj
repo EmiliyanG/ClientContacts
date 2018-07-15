@@ -88,6 +88,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="LocationComboBoxItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -117,6 +121,9 @@
     <Compile Include="InputBindingManager.cs" />
     <Compile Include="ListLoading.xaml.cs">
       <DependentUpon>ListLoading.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LocationComboBoxItem.xaml.cs">
+      <DependentUpon>LocationComboBoxItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
