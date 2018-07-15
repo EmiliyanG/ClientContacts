@@ -20,8 +20,11 @@ module ContactInfoBox =
         |LoadLocationsList of OrganisationId
         |UpdateContactInfo of ContactInfo option * DateTime
         |UpdateLocationsList of Location seq option * DateTime
+        |UpdateLocationComboBoxIndex
         |LoadLocationsFailure
         |LoadContactFailure
+    [<Literal>]
+    let DEFAULT_ORGANISATION_ID = 0
 
     type Model = { editMode:InfoBoxMode; id: int; loading: bool; loaded:bool; organisation: string; organisationId: int;
                    name: string; phone: string option; locationId: int option;
@@ -33,14 +36,21 @@ module ContactInfoBox =
                    LocationComboBoxIndex: int option
                    }
 
-    let init() = { editMode=ReadOnlyMode; id= 0; loading= false; loaded=false; organisation = ""; organisationId = 0;
+    let init() = { editMode=ReadOnlyMode; id= 0; loading= false; loaded=false; organisation = ""; organisationId = DEFAULT_ORGANISATION_ID;
                    locationId = None; name = ""; phone = None; email = None;  
                    comments = None; loadContactRequest=None; LoadLocationsList=None;
                    IsDisabled = false; IsAdmin = false; 
                    LocationsList= None; LocationComboBoxIndex = None}
     
  
-    
+    let getComboBoxIndex (locations:seq<Location> option) locationId = 
+        match locations with 
+        | Some lseq -> 
+            Some(lseq
+                |> Seq.findIndex( fun location-> location.id = locationId) )
+        | None -> 
+            None
+
     let update (msg:Msg) (model:Model) = 
         match msg with
         
@@ -76,14 +86,26 @@ module ContactInfoBox =
                                 IsAdmin= info.IsAdmin; IsDisabled=info.IsDisabled
                                 comments = info.comments; 
                                 loadContactRequest= None
-                                }, Cmd.ofMsg (LoadLocationsList(OrganisationId(info.organisationId)))
+                                }, 
+                                match info.organisationId with
+                                | s when s = model.organisationId -> 
+                                    //no need to query the database if the list of locations for the given organisation is already loaded
+                                    //Update the Location ComboBox index only
+                                    Cmd.ofMsg (UpdateLocationComboBoxIndex)
+                                | _ ->
+                                    Cmd.ofMsg (LoadLocationsList(OrganisationId(info.organisationId)))
                 |_ ->
                     {model with loading = false; loaded = true}, Cmd.none
             | _ -> model, Cmd.none
 
         | LoadContactFailure ->  model, Cmd.none
 
-        | LoadLocationsList orgId -> 
+        | UpdateLocationComboBoxIndex -> 
+            {model with LocationComboBoxIndex = (match model.locationId with
+                                                 | Some lid -> getComboBoxIndex model.LocationsList lid
+                                                 | None -> None)
+                 }, Cmd.none
+        | LoadLocationsList orgId ->
             let d = newDate()
             match model.LoadLocationsList with
             | Some request -> 
@@ -98,18 +120,6 @@ module ContactInfoBox =
         | UpdateLocationsList (locationsList ,timeStamp) -> 
             match model.LoadLocationsList with 
             | Some request when request.latestRequest = timeStamp -> 
-                
-                
-
-                let getComboBoxIndex (locations:seq<Location> option) locationId = 
-                    match locations with 
-                    | Some lseq -> 
-                        Some(lseq
-                            |> Seq.findIndex( fun location-> location.id = locationId) )
-                    | None -> 
-                        None
-
-                
                 {model with LoadLocationsList= None; 
                             LocationsList = locationsList; 
                             LocationComboBoxIndex = (match model.locationId with
