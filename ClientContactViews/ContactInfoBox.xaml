@@ -17,6 +17,19 @@
         <SolidColorBrush x:Key="readOnlyTextBoxBackground" Color="#e6e6ef"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
+        <Style x:Key="location" TargetType="ComboBox" >
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="Height" Value="Auto"/>
+            <Setter Property="Width" Value="Auto"/>
+            <Setter Property="Grid.ColumnSpan" Value="6"/>
+            <Setter Property="Grid.Column" Value="1"/>
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="Margin" Value="0,2,2,2" />
+            <Setter Property="IsEnabled" Value="{Binding IsLocationComboBoxEnabled }"/>
+            <Setter Property="SelectedIndex" Value="{Binding SelectedLocationIndex}"/>
+            <Setter Property="ItemsSource" Value="{Binding locationsSource}"/>
+        </Style>
         <Style x:Key="textBox" TargetType="{x:Type TextBox}">
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="VerticalAlignment" Value="Stretch"/>
@@ -118,6 +131,8 @@
             <TextBox Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="5" Text="{Binding contactName}" Style="{StaticResource textBox}"/>
             <TextBox Grid.Row="2" Text="{Binding organisation}" Style="{StaticResource textBox}"/>
             <TextBox Grid.Row="3" Text="{Binding location}" Style="{StaticResource textBox}"/>
+            <ComboBox Grid.Row="3" Style="{StaticResource location}"/>
+
             <TextBox Grid.Row="4" Text="{Binding phone}" Style="{StaticResource textBox}"/>
             <TextBox Grid.Row="5" Text="{Binding email}" Style="{StaticResource textBox}"/>
             <ScrollViewer Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="6" Grid.RowSpan="2" MinHeight="100"

@@ -6,6 +6,9 @@ module ElmishUtils =
    open System.Threading
    open System
 
+
+   type AsyncRequest = {cancelSource: CancellationTokenSource; latestRequest: DateTime}
+
    let ofAsync (task: Async<_>)
             (cToken:CancellationToken)
             (ofSuccess: _ -> 'msg)
@@ -24,3 +27,4 @@ module ElmishUtils =
         [bind >> buildAsync cToken]
     
    let newDate() = DateTime.Now
+

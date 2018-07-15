@@ -9,7 +9,7 @@ module SQLQueries =
     let ListContacts = 
         //WAITFOR DELAY '00:00:10';
         """
-        Select c.id, ContactName, IsDisabled, IsAdmin, o.name as organisationName, l.name as locationName
+        Select c.id, ContactName, IsDisabled, IsAdmin, o.name as organisationName, o.id as organisationId, l.name as locationName
         from Contact c
         inner join Organisation o on o.id = c.organisationId
 		left join Location l on l.id = c.locationId
@@ -20,20 +20,34 @@ module SQLQueries =
     let ContactInfoQuery = 
         //WAITFOR DELAY '00:00:10';
         """
-        Select c.id, ContactName, IsDisabled, IsAdmin, email, telephone, o.name as organisationName, l.name as locationName, comments
+        Select c.id, ContactName, IsDisabled, IsAdmin, email, telephone, o.name as organisationName,
+        o.id as organisationId, l.id as locationId, comments
         from Contact c 
         inner join Organisation o on c.organisationId = o.id
         left join Location l on l.id = c.locationId
         where c.id = @id"""
+    [<Literal>]
+    let OrganisationLocationsQuery =
+        """
+        Select id, Name as locationName, organisationId from Location
+        where organisationId = @organisationId"""
 
 module SQLTypes = 
-    type Contact = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool; organisationName: string; locationName: string}
+    type Contact = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool; organisationName: string; organisationId: int; locationName: string}
     type ListContactsParams = {searchPattern: string; Limit: int; Offset: int}
     
     type ContactInfo = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool; email: string option; 
-                        telephone: string option; organisationName: string; locationName: string option; comments: string option}
-
+                        telephone: string option; organisationName: string; organisationId: int; locationId: int option; comments: string option}
     type ContactInfoQueryParams = {id: int}
+
+    type Location = {id: int; locationName: string; organisationId: int }
+    type OrganisationLocationsQueryParams = {organisationId: int}
+    
+    type OrganisationId = 
+        |OrganisationId of int
+        member this.getData = 
+             match this with
+             | OrganisationId i -> i
 
     type Limit = 
         |Limit of int
@@ -56,6 +70,7 @@ module MySQLConnection =
     open Contact
     open System
     open Elmish
+    open DebugUtils
     
     //copied from stackoverflow https://stackoverflow.com/questions/42797288/dapper-column-to-f-option-property
     //author: Charles Mager
@@ -93,6 +108,7 @@ module MySQLConnection =
                                   IsDisabled = c.IsDisabled; 
                                   IsAdmin=c.IsAdmin; 
                                   organisationName=c.organisationName;
+                                  organisationId = c.organisationId;
                                   locationName = c.locationName} )
         
         match Seq.length contacts with 
@@ -113,6 +129,21 @@ module MySQLConnection =
             conn.Close()
             return q, dateTriggered
             }
+    
+    let getOrganisationLocations (organisationId:OrganisationId) (dateTriggered:DateTime)=
+        async{
+            let conn = openConnection() 
+            let q =conn.Query<Location> (OrganisationLocationsQuery ,{organisationId = organisationId.getData})
+            conn.Close()
+            
+            debug (sprintf "organisationId %d" (organisationId.getData))
+            debug (sprintf "message from debug utils: %A" q)
+            debug (sprintf "message from debug utils is seq empty: %b" (Seq.isEmpty q))
+            
+            return (match Seq.isEmpty q with 
+                    | true -> None
+                    | false -> Some q), dateTriggered
+        }
 
     ///return Async task to load list of contacts from the database
     let getListOfContacts searchString (dateTriggered:DateTime) limit offset =
