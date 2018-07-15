@@ -72,6 +72,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="EditTextBoxButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ExpandableMenuButtons.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -108,6 +112,9 @@
     </Compile>
     <Compile Include="ContactList.xaml.cs">
       <DependentUpon>ContactList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EditTextBoxButton.xaml.cs">
+      <DependentUpon>EditTextBoxButton.xaml</DependentUpon>
     </Compile>
     <Compile Include="ExpandableMenuButtons.xaml.cs">
       <DependentUpon>ExpandableMenuButtons.xaml</DependentUpon>
@@ -194,6 +201,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="res\filter-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="res\edit.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
