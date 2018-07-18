@@ -82,9 +82,15 @@
                                 <Setter Property="BorderThickness" Value="1"/>
                                 <Setter Property="BorderBrush" Value="Transparent" />
                             </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="EditBtn" Property="Visibility" Value="Visible"/>
-                            </Trigger>
+                            <MultiTrigger >
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsReadOnly" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <MultiTrigger.Setters>
+                                    <Setter TargetName="EditBtn" Property="Visibility" Value="Visible"/>
+                                </MultiTrigger.Setters>
+                            </MultiTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
