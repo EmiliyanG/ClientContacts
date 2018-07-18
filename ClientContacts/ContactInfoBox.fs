@@ -10,10 +10,17 @@ module ContactInfoBox =
     open ElmishUtils
     open DebugUtils
     
-    type InfoBoxMode =
+    type TextBoxModes =
         | ReadOnlyMode
         | EditMode
-
+    type InfoBoxFieldsStatus = {
+        contactName: TextBoxModes
+        organisation: TextBoxModes
+        location: TextBoxModes
+        phone: TextBoxModes
+        email: TextBoxModes
+        comments: TextBoxModes
+    }
 
     type Msg = 
         |LoadContact of int
@@ -23,10 +30,11 @@ module ContactInfoBox =
         |UpdateLocationComboBoxIndex
         |LoadLocationsFailure
         |LoadContactFailure
+        |EnableTextBox of string
     [<Literal>]
     let DEFAULT_ORGANISATION_ID = 0
 
-    type Model = { editMode:InfoBoxMode; id: int; loading: bool; loaded:bool; organisation: string; organisationId: int;
+    type Model = { fieldsStatus:InfoBoxFieldsStatus; id: int; loading: bool; loaded:bool; organisation: string; organisationId: int;
                    name: string; phone: string option; locationId: int option;
                    email: string option; comments: string option; 
                    loadContactRequest: AsyncRequest option;
@@ -36,7 +44,13 @@ module ContactInfoBox =
                    LocationComboBoxIndex: int option
                    }
 
-    let init() = { editMode=ReadOnlyMode; id= 0; loading= false; loaded=false; organisation = ""; organisationId = DEFAULT_ORGANISATION_ID;
+    let init() = { fieldsStatus={contactName= ReadOnlyMode 
+                                 organisation= ReadOnlyMode
+                                 location= ReadOnlyMode
+                                 phone= ReadOnlyMode
+                                 email= ReadOnlyMode
+                                 comments= ReadOnlyMode};
+                   id= 0; loading= false; loaded=false; organisation = ""; organisationId = DEFAULT_ORGANISATION_ID;
                    locationId = None; name = ""; phone = None; email = None;  
                    comments = None; loadContactRequest=None; LoadLocationsList=None;
                    IsDisabled = false; IsAdmin = false; 
@@ -130,6 +144,18 @@ module ContactInfoBox =
             | _ -> model, Cmd.none
         | LoadLocationsFailure -> 
             model, Cmd.none
+        |EnableTextBox(textBoxName) -> 
+            debug (sprintf "%s" textBoxName)
+            let newFieldsStatus = 
+                match textBoxName with
+                |"contactName" -> {model.fieldsStatus with contactName = EditMode}
+                |"organisation" -> {model.fieldsStatus with organisation = EditMode}
+                |"phone" -> {model.fieldsStatus with phone = EditMode}
+                |"email" -> {model.fieldsStatus with email = EditMode}
+                |"comments" -> {model.fieldsStatus with comments = EditMode}
+                | _ -> model.fieldsStatus
+
+            {model with fieldsStatus = newFieldsStatus}, Cmd.none
         
             
     let ContactInfoBoxViewBindings: ViewBinding<Model, Msg> list = 
@@ -152,13 +178,19 @@ module ContactInfoBox =
          "email" |> Binding.oneWay (fun m -> stringFromOption m.email)
          "IsDisabled" |> Binding.oneWay (fun m -> m.IsDisabled)
          "IsAdmin" |> Binding.oneWay (fun m -> m.IsAdmin)
-         "AreTextBoxesReadOnly" |> Binding.oneWay (fun m -> (match m.editMode with | EditMode -> false | ReadOnlyMode -> true) )
-         "IsLocationComboBoxEnabled" |> Binding.oneWay (fun m -> (match m.editMode with | EditMode -> true | ReadOnlyMode -> false) )
+         "IsContactNameReadOnly" |> Binding.oneWay (fun m -> (match m.fieldsStatus.contactName with | EditMode -> false | ReadOnlyMode -> true) ) //binds the isReadOnly property
+         "IsOrganisationReadOnly" |> Binding.oneWay (fun m -> (match m.fieldsStatus.organisation with | EditMode -> false | ReadOnlyMode -> true) )//binds the isReadOnly property
+         "IsLocationComboBoxEnabled" |> Binding.oneWay (fun m -> (match m.fieldsStatus.location with | EditMode -> true | ReadOnlyMode -> false) )//binds the isEnabled property
+         "IsPhoneReadOnly"|> Binding.oneWay (fun m -> (match m.fieldsStatus.phone with | EditMode -> false | ReadOnlyMode -> true) )//binds the isReadOnly property
+         "IsEmailReadOnly"|> Binding.oneWay (fun m -> (match m.fieldsStatus.email with | EditMode -> false | ReadOnlyMode -> true) )//binds the isReadOnly property
+         "AreCommentsReadOnly"|> Binding.oneWay (fun m -> (match m.fieldsStatus.comments with | EditMode -> false | ReadOnlyMode -> true) )//binds the isReadOnly property
+         
+         
          "locationsSource" |> Binding.oneWay (fun m -> match m.LocationsList with 
                                                        | Some l -> l
                                                        | None -> null)
          "SelectedLocationIndex" |> Binding.oneWay (fun m -> match m.LocationComboBoxIndex with |Some index -> index |None -> -1) 
-         
+         "EnableTextBox" |> Binding.cmd (fun param m ->  EnableTextBox (string param))
         ]
 
 

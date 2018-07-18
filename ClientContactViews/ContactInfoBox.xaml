@@ -50,8 +50,8 @@
             <Setter Property="Padding" Value="4" />
             <Setter Property="Margin" Value="0,2,2,2" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="IsReadOnly" Value="{Binding AreTextBoxesReadOnly }" />
             <Setter Property="BorderBrush" Value="{StaticResource darker}"/>
+            
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
@@ -62,11 +62,16 @@
                             <Grid>
                                 <ScrollViewer Name="PART_ContentHost" Background="{TemplateBinding Background}" 
                                           SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                
+
                                 <local:EditTextBoxButton x:Name="EditBtn" 
                                                          HorizontalAlignment="Right" 
                                                          Width="30"
-                                                         Visibility="Hidden"/>
+                                                         Visibility="Hidden"
+                                                         Command="{Binding EnableTextBox}"
+                                                         CommandParameter="{Binding Path=Name, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type TextBox}}}"
+                                                         />
+
+
                             </Grid>
                             
                         </Border>
@@ -147,17 +152,16 @@
             <Image  Grid.Column="0" Grid.Row="4" Style="{StaticResource image}" ToolTip="Phone Number" Source=".\res\phone.png"/>
             <Image  Grid.Column="0" Grid.Row="5" Style="{StaticResource image}" ToolTip="Email Address" Source=".\res\email.png"/>
             <Image  Grid.Column="0" Grid.Row="6" Style="{StaticResource image}" ToolTip="Additional Notes Or Comments" Source=".\res\comment.png"/>
-            
-            <TextBox Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="5" Text="{Binding contactName}" Style="{StaticResource textBox}"/>
-            <TextBox Grid.Row="2" Text="{Binding organisation}" Style="{StaticResource textBox}"/>
-            <TextBox Grid.Row="3" Text="{Binding location}" Style="{StaticResource textBox}"/>
+            <!--<Setter Property="IsReadOnly" Value="{Binding AreTextBoxesReadOnly }" />-->
+            <TextBox Grid.Row="1" Name="contactName" IsReadOnly="{Binding IsContactNameReadOnly}" Grid.Column="2" Grid.ColumnSpan="5" Text="{Binding contactName}" Style="{StaticResource textBox}"/>
+            <TextBox Grid.Row="2" Name="organisation" IsReadOnly="{Binding IsOrganisationReadOnly}" Text="{Binding organisation}" Style="{StaticResource textBox}"/>
             <ComboBox Grid.Row="3" Style="{StaticResource location}"/>
 
-            <TextBox Grid.Row="4" Text="{Binding phone}" Style="{StaticResource textBox}"/>
-            <TextBox Grid.Row="5" Text="{Binding email}" Style="{StaticResource textBox}"/>
-            <ScrollViewer Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="6" Grid.RowSpan="2" MinHeight="100"
+            <TextBox Grid.Row="4" Name="phone" IsReadOnly="{Binding IsPhoneReadOnly}" Text="{Binding phone}" Style="{StaticResource textBox}"/>
+            <TextBox Grid.Row="5" Name="email" IsReadOnly="{Binding IsEmailReadOnly}" Text="{Binding email}" Style="{StaticResource textBox}"/>
+            <ScrollViewer Grid.Column="1" Grid.Row="6" Grid.ColumnSpan="6" Grid.RowSpan="2" MinHeight="100"
                           VerticalScrollBarVisibility="Auto" Margin="0,1,1,1">
-                <TextBox  AcceptsReturn="True" Text="{Binding Comments}" TextWrapping="Wrap" SpellCheck.IsEnabled="True" Margin="0" VerticalContentAlignment="Top" Style="{StaticResource textBox}"/>
+                <TextBox Name="comments" IsReadOnly="{Binding AreCommentsReadOnly}" AcceptsReturn="True" Text="{Binding Comments}" TextWrapping="Wrap" SpellCheck.IsEnabled="True" Margin="0" VerticalContentAlignment="Top" Style="{StaticResource textBox}"/>
             </ScrollViewer>
 
 
