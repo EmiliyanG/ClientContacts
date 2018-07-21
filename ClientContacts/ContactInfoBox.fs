@@ -34,12 +34,10 @@ module ContactInfoBox =
     [<Literal>]
     let DEFAULT_ORGANISATION_ID = 0
 
-    type Model = { fieldsStatus:InfoBoxFieldsStatus; id: int; loading: bool; loaded:bool; organisation: string; organisationId: int;
-                   name: string; phone: string option; locationId: int option;
-                   email: string option; comments: string option; 
+    type Model = { fieldsStatus:InfoBoxFieldsStatus; loading: bool; loaded:bool; 
+                   contactInfo: ContactInfo option
                    loadContactRequest: AsyncRequest option;
                    LoadLocationsList: AsyncRequest option;
-                   IsDisabled: bool; IsAdmin: bool; 
                    LocationsList: Location seq option; 
                    LocationComboBoxIndex: int option
                    }
@@ -50,11 +48,10 @@ module ContactInfoBox =
                                  phone= ReadOnlyMode
                                  email= ReadOnlyMode
                                  comments= ReadOnlyMode};
-                   id= 0; loading= false; loaded=false; organisation = ""; organisationId = DEFAULT_ORGANISATION_ID;
-                   locationId = None; name = ""; phone = None; email = None;  
-                   comments = None; loadContactRequest=None; LoadLocationsList=None;
-                   IsDisabled = false; IsAdmin = false; 
-                   LocationsList= None; LocationComboBoxIndex = None}
+                   loading= false; loaded=false; 
+                   contactInfo = None;
+                   loadContactRequest=None; LoadLocationsList=None; LocationsList= None; 
+                   LocationComboBoxIndex = None}
     
  
     let getComboBoxIndex (locations:seq<Location> option) locationId = 
@@ -92,17 +89,12 @@ module ContactInfoBox =
                 match q with 
                 |Some info -> 
                     
-                    {model with loading = false; loaded = true; name = info.ContactName; 
-                                phone = info.telephone; email = info.email;
-                                organisation = info.organisationName; 
-                                organisationId = info.organisationId;
-                                locationId = info.locationId;
-                                IsAdmin= info.IsAdmin; IsDisabled=info.IsDisabled
-                                comments = info.comments; 
+                    {model with loading = false; loaded = true; 
+                                contactInfo = Some info
                                 loadContactRequest= None
                                 }, 
-                                match info.organisationId with
-                                | s when s = model.organisationId -> 
+                                match info.organisationId, model.contactInfo  with
+                                | orgId, Some info when orgId = info.organisationId -> 
                                     //no need to query the database if the list of locations for the given organisation is already loaded
                                     //Update the Location ComboBox index only
                                     Cmd.ofMsg (UpdateLocationComboBoxIndex)
@@ -115,9 +107,13 @@ module ContactInfoBox =
         | LoadContactFailure ->  model, Cmd.none
 
         | UpdateLocationComboBoxIndex -> 
-            {model with LocationComboBoxIndex = (match model.locationId with
-                                                 | Some lid -> getComboBoxIndex model.LocationsList lid
-                                                 | None -> None)
+            {model with LocationComboBoxIndex = 
+                        (match model.contactInfo with
+                        |Some info -> 
+                            match info.locationId with
+                            | Some lid -> getComboBoxIndex model.LocationsList lid
+                            | None -> None
+                        |None -> None)
                  }, Cmd.none
         | LoadLocationsList orgId ->
             let d = newDate()
@@ -136,9 +132,14 @@ module ContactInfoBox =
             | Some request when request.latestRequest = timeStamp -> 
                 {model with LoadLocationsList= None; 
                             LocationsList = locationsList; 
-                            LocationComboBoxIndex = (match model.locationId with
-                                                     | Some lid -> getComboBoxIndex locationsList lid
-                                                     | None -> None)
+                            LocationComboBoxIndex = 
+                                (match model.contactInfo with 
+                                |Some info -> 
+                                    match info.locationId with
+                                    | Some lid -> getComboBoxIndex locationsList lid
+                                    | None -> None
+                                | None -> None
+                                )
                  }, Cmd.none
                 
             | _ -> model, Cmd.none
@@ -159,14 +160,33 @@ module ContactInfoBox =
         
             
     let ContactInfoBoxViewBindings: ViewBinding<Model, Msg> list = 
-        let stringFromOption opt = 
+        let stringFromOption opt =
             match opt with
             | Some o -> o
             | None -> ""
-        let intFromOptionOrDefault opt returnIfNone=
+        
+        ///get field from Some ContactInfo or return defaultValue if None
+        let getFieldFromContactInfoOption opt (defaultValue) f = 
+            match opt with
+            |Some opt -> f opt
+            |None -> defaultValue
+        ///get string field from Some ContactInfo or return "" if None
+        let getStringFieldFromContactInfo m=
+            getFieldFromContactInfoOption m.contactInfo ""
+        
+        ///get string option field from ContactInfo and pass the result to the stringFromOption function
+        let getStringOptionFieldFromContactInfo m=
+            getFieldFromContactInfoOption m.contactInfo None
+            >> stringFromOption
+        ///get int field from Some ContactInfo or return 0 if None
+        let getIntFieldFromContactInfo m=
+            getFieldFromContactInfoOption m.contactInfo 0
+        
+        let intFromOptionOrDefault opt (returnIfNone:int)=
             match opt with
             |Some o -> o
             |None -> returnIfNone
+
         let isReadOnly textBoxMode = 
             match textBoxMode with 
             | EditMode -> false 
@@ -174,14 +194,14 @@ module ContactInfoBox =
 
         ["loading" |> Binding.oneWay (fun m -> m.loading)
          "loaded" |> Binding.oneWay (fun m -> m.loaded)
-         "organisation" |> Binding.oneWay (fun m -> m.organisation)
-         "location" |> Binding.oneWay (fun m -> intFromOptionOrDefault m.locationId 0)
-         "contactName" |> Binding.oneWay (fun m -> m.name)
-         "Comments" |> Binding.oneWay (fun m -> stringFromOption m.comments)
-         "phone" |> Binding.oneWay (fun m -> stringFromOption m.phone)
-         "email" |> Binding.oneWay (fun m -> stringFromOption m.email)
-         "IsDisabled" |> Binding.oneWay (fun m -> m.IsDisabled)
-         "IsAdmin" |> Binding.oneWay (fun m -> m.IsAdmin)
+         "organisation" |> Binding.oneWay (fun m -> getStringFieldFromContactInfo m (fun info -> info.organisationName))
+         "location" |> Binding.oneWay (fun m -> getIntFieldFromContactInfo m (fun info -> intFromOptionOrDefault info.locationId 0))
+         "contactName" |> Binding.oneWay (fun m -> getStringFieldFromContactInfo m (fun info -> info.ContactName))
+         "Comments" |> Binding.oneWay (fun m -> getStringOptionFieldFromContactInfo m (fun info -> info.comments))
+         "phone" |> Binding.oneWay (fun m -> getStringOptionFieldFromContactInfo m  (fun info -> info.telephone))
+         "email" |> Binding.oneWay (fun m -> getStringOptionFieldFromContactInfo m (fun info -> info.email))
+         "IsDisabled" |> Binding.oneWay (fun m -> getFieldFromContactInfoOption m.contactInfo false (fun info -> info.IsDisabled))
+         "IsAdmin" |> Binding.oneWay (fun m -> getFieldFromContactInfoOption m.contactInfo false (fun info -> info.IsAdmin))
          "IsContactNameReadOnly" |> Binding.oneWay (fun m -> isReadOnly m.fieldsStatus.contactName)
          "IsOrganisationReadOnly" |> Binding.oneWay (fun m -> isReadOnly m.fieldsStatus.organisation)
          "IsLocationComboBoxEnabled" |> Binding.oneWay (fun m -> (match m.fieldsStatus.location with | EditMode -> true | ReadOnlyMode -> false) )//binds the isEnabled property
