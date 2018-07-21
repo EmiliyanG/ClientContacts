@@ -109,7 +109,7 @@ module ContactList =
         ["ContactItems" |> Binding.oneWay (fun m -> filterContacts m)
          "SearchBar" |> Binding.twoWay (fun m -> m.search) (fun s m -> SearchContacts(s,Offset(0),Limit(QUERY_LIMIT)) )
          "UpdateContactInfo" |> Binding.cmd (fun p m -> 
-                                let i = p :?> int //downcast the p object to Guid
+                                let i = p :?> int //downcast the p object to int
                                 UpdateContactInfo(i))
          "loaded" |> Binding.oneWay (fun m -> match m.status with | Loaded -> true |_ -> false)
          "LoadingNewRequest" |> Binding.oneWay (fun m -> match m.status with | Loading -> true |_ -> false)   

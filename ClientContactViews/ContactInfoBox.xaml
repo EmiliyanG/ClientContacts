@@ -22,7 +22,7 @@
         <DataTemplate x:Key="LocationComboBoxTemplate">
             <local:LocationComboBoxItem  />
         </DataTemplate>
-        
+
         <Style x:Key="location" TargetType="ComboBox" >
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="VerticalAlignment" Value="Stretch"/>
@@ -37,10 +37,7 @@
             <Setter Property="ItemsSource" Value="{Binding locationsSource}"/>
             <Setter Property="ItemTemplate" Value="{StaticResource LocationComboBoxTemplate}"/>
         </Style>
-        
-        
-        
-        
+
         <Style x:Key="textBox" TargetType="{x:Type TextBox}">
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="VerticalAlignment" Value="Stretch"/>
@@ -134,10 +131,6 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="40"/>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="40"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -155,25 +148,57 @@
 
             <Image  Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="0"
                     Grid.RowSpan="2" Width="60" Style="{StaticResource image}" ToolTip="Contact Name" Source=".\res\user.png"/>
-            <Image  Grid.Column="0" Grid.Row="2" Style="{StaticResource image}" ToolTip="Organisation" Source=".\res\organisation.png"/>
-            <Image  Grid.Column="0" Grid.Row="3" Style="{StaticResource image}" ToolTip="Location" Source=".\res\map.png"/>
-            <Image  Grid.Column="0" Grid.Row="4" Style="{StaticResource image}" ToolTip="Phone Number" Source=".\res\phone.png"/>
-            <Image  Grid.Column="0" Grid.Row="5" Style="{StaticResource image}" ToolTip="Email Address" Source=".\res\email.png"/>
-            <Image  Grid.Column="0" Grid.Row="6" Style="{StaticResource image}" ToolTip="Additional Notes Or Comments" Source=".\res\comment.png"/>
-            <!--<Setter Property="IsReadOnly" Value="{Binding AreTextBoxesReadOnly }" />-->
             <local:ContactInfoTextBox Grid.Row="1" x:Name="contactName" IsReadOnly="{Binding IsContactNameReadOnly}" Grid.Column="2" Grid.ColumnSpan="5" Text="{Binding contactName}" Style="{StaticResource textBox}"/>
-            <local:ContactInfoTextBox Grid.Row="2" x:Name="organisation" IsReadOnly="{Binding IsOrganisationReadOnly}" Text="{Binding organisation}" Style="{StaticResource textBox}"/>
-            <ComboBox Grid.Row="3" Style="{StaticResource location}"/>
 
-            <local:ContactInfoTextBox Grid.Row="4" x:Name="phone" IsReadOnly="{Binding IsPhoneReadOnly}" Text="{Binding phone, Mode=TwoWay}" Style="{StaticResource textBox}"/>
 
-            <local:ContactInfoTextBox Grid.Row="5" x:Name="email" IsReadOnly="{Binding IsEmailReadOnly}" Text="{Binding email,ValidatesOnNotifyDataErrors=True}" Style="{StaticResource textBox}"/>
-            <ScrollViewer Grid.Column="1" Grid.Row="6" Grid.ColumnSpan="6" Grid.RowSpan="2" MinHeight="100"
+            <StackPanel Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="7" Orientation="Vertical">
+                <Grid VerticalAlignment="Stretch" Height="40">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Image Style="{StaticResource image}" ToolTip="Organisation" Source=".\res\organisation.png"/>
+                    <local:ContactInfoTextBox Grid.Column="1" x:Name="organisation" IsReadOnly="{Binding IsOrganisationReadOnly}" Text="{Binding organisation}" Style="{StaticResource textBox}"/>
+                </Grid>
+                
+                <Grid VerticalAlignment="Stretch" Height="40">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Image  Grid.Column="0" Grid.Row="3" Style="{StaticResource image}" ToolTip="Location" Source=".\res\map.png"/>
+                    <ComboBox Grid.Column="1" Style="{StaticResource location}"/>
+                </Grid>
+                <Grid VerticalAlignment="Stretch" Height="40">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Image  Grid.Column="0" Style="{StaticResource image}" ToolTip="Phone Number" Source=".\res\phone.png"/>
+                    <local:ContactInfoTextBox Grid.Column="1" x:Name="phone" IsReadOnly="{Binding IsPhoneReadOnly}" Text="{Binding phone, Mode=TwoWay}" Style="{StaticResource textBox}"/>
+                </Grid>
+                <Grid VerticalAlignment="Stretch" Height="40">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Image  Grid.Column="0" Style="{StaticResource image}" ToolTip="Email Address" Source=".\res\email.png"/>
+                    <local:ContactInfoTextBox x:Name="email" IsReadOnly="{Binding IsEmailReadOnly}" Text="{Binding email,ValidatesOnNotifyDataErrors=True}" Style="{StaticResource textBox}"/>
+
+                </Grid>
+                <Grid VerticalAlignment="Stretch" Height="100">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Image  Grid.Column="0" Style="{StaticResource image}" ToolTip="Additional Notes Or Comments" Source=".\res\comment.png"/>
+                    <ScrollViewer Grid.Column="1" MinHeight="100"
                           VerticalScrollBarVisibility="Auto" Margin="0,1,1,1">
-                <local:ContactInfoTextBox x:Name="comments" IsReadOnly="{Binding AreCommentsReadOnly}" AcceptsReturn="True" Text="{Binding Comments}" TextWrapping="Wrap" SpellCheck.IsEnabled="True" Margin="0" VerticalContentAlignment="Top" Style="{StaticResource textBox}"/>
-            </ScrollViewer>
-
-
+                        <local:ContactInfoTextBox x:Name="comments" IsReadOnly="{Binding AreCommentsReadOnly}" AcceptsReturn="True" Text="{Binding Comments}" TextWrapping="Wrap" SpellCheck.IsEnabled="True" Margin="0" VerticalContentAlignment="Top" Style="{StaticResource textBox}"/>
+                    </ScrollViewer>
+                </Grid>
+            </StackPanel>
+            
 
         </Grid>
     </Grid>
