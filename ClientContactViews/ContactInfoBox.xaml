@@ -3,6 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             
              xmlns:ee="http://schemas.microsoft.com/expression/2010/effects"
              xmlns:local="clr-namespace:ClientContactViews"
              mc:Ignorable="d" 
@@ -73,7 +75,7 @@
 
 
                             </Grid>
-                            
+
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsReadOnly" Value="True">
@@ -82,6 +84,7 @@
                                 <Setter Property="BorderThickness" Value="1"/>
                                 <Setter Property="BorderBrush" Value="Transparent" />
                             </Trigger>
+                            
                             <MultiTrigger >
                                 <MultiTrigger.Conditions>
                                     <Condition Property="IsMouseOver" Value="True"/>
@@ -95,8 +98,7 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            
-            
+
         </Style>
 
 
@@ -159,15 +161,16 @@
             <Image  Grid.Column="0" Grid.Row="5" Style="{StaticResource image}" ToolTip="Email Address" Source=".\res\email.png"/>
             <Image  Grid.Column="0" Grid.Row="6" Style="{StaticResource image}" ToolTip="Additional Notes Or Comments" Source=".\res\comment.png"/>
             <!--<Setter Property="IsReadOnly" Value="{Binding AreTextBoxesReadOnly }" />-->
-            <TextBox Grid.Row="1" Name="contactName" IsReadOnly="{Binding IsContactNameReadOnly}" Grid.Column="2" Grid.ColumnSpan="5" Text="{Binding contactName}" Style="{StaticResource textBox}"/>
-            <TextBox Grid.Row="2" Name="organisation" IsReadOnly="{Binding IsOrganisationReadOnly}" Text="{Binding organisation}" Style="{StaticResource textBox}"/>
+            <local:ContactInfoTextBox Grid.Row="1" x:Name="contactName" IsReadOnly="{Binding IsContactNameReadOnly}" Grid.Column="2" Grid.ColumnSpan="5" Text="{Binding contactName}" Style="{StaticResource textBox}"/>
+            <local:ContactInfoTextBox Grid.Row="2" x:Name="organisation" IsReadOnly="{Binding IsOrganisationReadOnly}" Text="{Binding organisation}" Style="{StaticResource textBox}"/>
             <ComboBox Grid.Row="3" Style="{StaticResource location}"/>
 
-            <TextBox Grid.Row="4" Name="phone" IsReadOnly="{Binding IsPhoneReadOnly}" Text="{Binding phone}" Style="{StaticResource textBox}"/>
-            <TextBox Grid.Row="5" Name="email" IsReadOnly="{Binding IsEmailReadOnly}" Text="{Binding email}" Style="{StaticResource textBox}"/>
+            <local:ContactInfoTextBox Grid.Row="4" x:Name="phone" IsReadOnly="{Binding IsPhoneReadOnly}" Text="{Binding phone, Mode=TwoWay}" Style="{StaticResource textBox}"/>
+
+            <local:ContactInfoTextBox Grid.Row="5" x:Name="email" IsReadOnly="{Binding IsEmailReadOnly}" Text="{Binding email}" Style="{StaticResource textBox}"/>
             <ScrollViewer Grid.Column="1" Grid.Row="6" Grid.ColumnSpan="6" Grid.RowSpan="2" MinHeight="100"
                           VerticalScrollBarVisibility="Auto" Margin="0,1,1,1">
-                <TextBox Name="comments" IsReadOnly="{Binding AreCommentsReadOnly}" AcceptsReturn="True" Text="{Binding Comments}" TextWrapping="Wrap" SpellCheck.IsEnabled="True" Margin="0" VerticalContentAlignment="Top" Style="{StaticResource textBox}"/>
+                <local:ContactInfoTextBox x:Name="comments" IsReadOnly="{Binding AreCommentsReadOnly}" AcceptsReturn="True" Text="{Binding Comments}" TextWrapping="Wrap" SpellCheck.IsEnabled="True" Margin="0" VerticalContentAlignment="Top" Style="{StaticResource textBox}"/>
             </ScrollViewer>
 
 

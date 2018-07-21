@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Interactivity;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -17,11 +16,11 @@ using System.Windows.Shapes;
 namespace ClientContactViews
 {
     /// <summary>
-    /// Interaction logic for ContactInfoBox.xaml
+    /// Interaction logic for ContactInfoTextBox.xaml
     /// </summary>
-    public partial class ContactInfoBox : UserControl
+    public partial class ContactInfoTextBox : TextBox
     {
-        public ContactInfoBox()
+        public ContactInfoTextBox()
         {
             InitializeComponent();
         }

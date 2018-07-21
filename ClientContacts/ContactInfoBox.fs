@@ -26,15 +26,17 @@ module ContactInfoBox =
         |LoadContact of int
         |LoadLocationsList of OrganisationId
         |UpdateContactInfo of ContactInfo option * DateTime
+        |UpdateContactInfoPhone of string
         |UpdateLocationsList of Location seq option * DateTime
         |UpdateLocationComboBoxIndex
         |LoadLocationsFailure
         |LoadContactFailure
         |EnableTextBox of string
+        |DisableTextBox of string * DateTime
     [<Literal>]
     let DEFAULT_ORGANISATION_ID = 0
 
-    type Model = { fieldsStatus:InfoBoxFieldsStatus; loading: bool; loaded:bool; 
+    type Model = { fieldsStatus:InfoBoxFieldsStatus; fieldStatusChanged: DateTime option; loading: bool; loaded:bool; 
                    contactInfo: ContactInfo option
                    loadContactRequest: AsyncRequest option;
                    LoadLocationsList: AsyncRequest option;
@@ -48,6 +50,7 @@ module ContactInfoBox =
                                  phone= ReadOnlyMode
                                  email= ReadOnlyMode
                                  comments= ReadOnlyMode};
+                   fieldStatusChanged = None;
                    loading= false; loaded=false; 
                    contactInfo = None;
                    loadContactRequest=None; LoadLocationsList=None; LocationsList= None; 
@@ -146,17 +149,49 @@ module ContactInfoBox =
         | LoadLocationsFailure -> 
             model, Cmd.none
         |EnableTextBox(textBoxName) -> 
-            debug (sprintf "%s" textBoxName)
             let newFieldsStatus = 
                 match textBoxName with
                 |"contactName" -> {model.fieldsStatus with contactName = EditMode}
                 |"organisation" -> {model.fieldsStatus with organisation = EditMode}
-                |"phone" -> {model.fieldsStatus with phone = EditMode}
+                |"phone" -> 
+                    debug (sprintf "EnableTextBox(%s)" textBoxName)
+                    {model.fieldsStatus with phone = EditMode}
                 |"email" -> {model.fieldsStatus with email = EditMode}
                 |"comments" -> {model.fieldsStatus with comments = EditMode}
-                | _ -> model.fieldsStatus
+                | _ -> 
+                    debug (sprintf "could not match textBox name EnableTextBox(%s)" textBoxName)
+                    model.fieldsStatus
 
-            {model with fieldsStatus = newFieldsStatus}, Cmd.none
+            {model with fieldsStatus = newFieldsStatus; fieldStatusChanged = Some(newDate())}, Cmd.none
+        |DisableTextBox(textBoxName, newDate)->
+            //allowed to disable textbox only if it was enabled more than 100 ms ago
+            let allowedToDisableTextBox = 
+                match model.fieldStatusChanged with 
+                |Some oldDate -> 
+                    (newDate - oldDate).Duration() > TimeSpan.FromMilliseconds(float 100)
+                |_ -> false
+
+            match allowedToDisableTextBox with 
+            |true -> 
+                let newFieldsStatus = 
+                    match textBoxName with
+                    |"contactName" -> {model.fieldsStatus with contactName = ReadOnlyMode}
+                    |"organisation" -> {model.fieldsStatus with organisation = ReadOnlyMode}
+                    |"phone" -> {model.fieldsStatus with phone = ReadOnlyMode}
+                    |"email" -> {model.fieldsStatus with email = ReadOnlyMode}
+                    |"comments" -> {model.fieldsStatus with comments = ReadOnlyMode}
+                    | _ -> 
+                        debug (sprintf "could not match textBox name: message > DisableTextBox(%s,%A)" textBoxName newDate)
+                        model.fieldsStatus
+
+                {model with fieldsStatus = newFieldsStatus}, Cmd.none
+            |false -> model, Cmd.none
+        |UpdateContactInfoPhone(value) -> 
+
+            {model with contactInfo = 
+                            (match model.contactInfo with 
+                            |Some info -> Some {info with telephone = Some(value)}
+                            |None-> None)}, Cmd.none
         
             
     let ContactInfoBoxViewBindings: ViewBinding<Model, Msg> list = 
@@ -198,7 +233,9 @@ module ContactInfoBox =
          "location" |> Binding.oneWay (fun m -> getIntFieldFromContactInfo m (fun info -> intFromOptionOrDefault info.locationId 0))
          "contactName" |> Binding.oneWay (fun m -> getStringFieldFromContactInfo m (fun info -> info.ContactName))
          "Comments" |> Binding.oneWay (fun m -> getStringOptionFieldFromContactInfo m (fun info -> info.comments))
-         "phone" |> Binding.oneWay (fun m -> getStringOptionFieldFromContactInfo m  (fun info -> info.telephone))
+         "phone" |> Binding.twoWay (fun m -> getStringOptionFieldFromContactInfo m  (fun info -> info.telephone)) //getter
+                                   (fun v m -> UpdateContactInfoPhone(v)) //setter
+
          "email" |> Binding.oneWay (fun m -> getStringOptionFieldFromContactInfo m (fun info -> info.email))
          "IsDisabled" |> Binding.oneWay (fun m -> getFieldFromContactInfoOption m.contactInfo false (fun info -> info.IsDisabled))
          "IsAdmin" |> Binding.oneWay (fun m -> getFieldFromContactInfoOption m.contactInfo false (fun info -> info.IsAdmin))
@@ -213,6 +250,7 @@ module ContactInfoBox =
                                                        | None -> null)
          "SelectedLocationIndex" |> Binding.oneWay (fun m -> intFromOptionOrDefault m.LocationComboBoxIndex -1) 
          "EnableTextBox" |> Binding.cmd (fun param m ->  EnableTextBox (string param))
+         "DisableTextBox" |> Binding.cmd (fun param m -> DisableTextBox (string param, newDate()))
         ]
 
 
