@@ -167,7 +167,7 @@
 
             <local:ContactInfoTextBox Grid.Row="4" x:Name="phone" IsReadOnly="{Binding IsPhoneReadOnly}" Text="{Binding phone, Mode=TwoWay}" Style="{StaticResource textBox}"/>
 
-            <local:ContactInfoTextBox Grid.Row="5" x:Name="email" IsReadOnly="{Binding IsEmailReadOnly}" Text="{Binding email}" Style="{StaticResource textBox}"/>
+            <local:ContactInfoTextBox Grid.Row="5" x:Name="email" IsReadOnly="{Binding IsEmailReadOnly}" Text="{Binding email,ValidatesOnNotifyDataErrors=True}" Style="{StaticResource textBox}"/>
             <ScrollViewer Grid.Column="1" Grid.Row="6" Grid.ColumnSpan="6" Grid.RowSpan="2" MinHeight="100"
                           VerticalScrollBarVisibility="Auto" Margin="0,1,1,1">
                 <local:ContactInfoTextBox x:Name="comments" IsReadOnly="{Binding AreCommentsReadOnly}" AcceptsReturn="True" Text="{Binding Comments}" TextWrapping="Wrap" SpellCheck.IsEnabled="True" Margin="0" VerticalContentAlignment="Top" Style="{StaticResource textBox}"/>

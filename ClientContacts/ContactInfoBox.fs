@@ -9,6 +9,7 @@ module ContactInfoBox =
     open SQLTypes
     open ElmishUtils
     open DebugUtils
+    open System.Text.RegularExpressions
     
     type TextBoxModes =
         | ReadOnlyMode
@@ -27,6 +28,9 @@ module ContactInfoBox =
         |LoadLocationsList of OrganisationId
         |UpdateContactInfo of ContactInfo option * DateTime
         |UpdateContactInfoPhone of string
+        |UpdateContactInfoComments of string
+        |UpdateContactInfoContactName of string
+        |UpdateContactInfoEmail of string
         |UpdateLocationsList of Location seq option * DateTime
         |UpdateLocationComboBoxIndex
         |LoadLocationsFailure
@@ -64,6 +68,17 @@ module ContactInfoBox =
                 |> Seq.findIndex( fun location-> location.id = locationId) )
         | None -> 
             None
+    let updateContactInfoField model updateFunc =
+        {model with contactInfo = 
+                    (match model.contactInfo with 
+                    |Some info -> info |> updateFunc
+                    |None-> None)}
+    
+    ///return some(string) if str is not empty
+    let optionFromString str = 
+        match str with 
+        |"" -> None
+        |s-> Some(s)
 
     let update (msg:Msg) (model:Model) = 
         match msg with
@@ -153,9 +168,7 @@ module ContactInfoBox =
                 match textBoxName with
                 |"contactName" -> {model.fieldsStatus with contactName = EditMode}
                 |"organisation" -> {model.fieldsStatus with organisation = EditMode}
-                |"phone" -> 
-                    debug (sprintf "EnableTextBox(%s)" textBoxName)
-                    {model.fieldsStatus with phone = EditMode}
+                |"phone" -> {model.fieldsStatus with phone = EditMode}
                 |"email" -> {model.fieldsStatus with email = EditMode}
                 |"comments" -> {model.fieldsStatus with comments = EditMode}
                 | _ -> 
@@ -186,14 +199,15 @@ module ContactInfoBox =
 
                 {model with fieldsStatus = newFieldsStatus}, Cmd.none
             |false -> model, Cmd.none
-        |UpdateContactInfoPhone(value) -> 
+        |UpdateContactInfoPhone(value) ->
+            updateContactInfoField model (fun info -> Some {info with telephone = optionFromString value}), Cmd.none
+        |UpdateContactInfoComments(value) -> 
+            updateContactInfoField model (fun info -> Some {info with comments = optionFromString value}), Cmd.none
+        |UpdateContactInfoContactName(value) -> 
+            updateContactInfoField model (fun info -> Some {info with ContactName = value}), Cmd.none
+        |UpdateContactInfoEmail(value)->
+            updateContactInfoField model (fun info -> Some {info with email = optionFromString value}), Cmd.none
 
-            {model with contactInfo = 
-                            (match model.contactInfo with 
-                            |Some info -> Some {info with telephone = Some(value)}
-                            |None-> None)}, Cmd.none
-        
-            
     let ContactInfoBoxViewBindings: ViewBinding<Model, Msg> list = 
         let stringFromOption opt =
             match opt with
@@ -226,29 +240,42 @@ module ContactInfoBox =
             match textBoxMode with 
             | EditMode -> false 
             | ReadOnlyMode -> true
+        let isValidEmail str = 
+            let emailRegex = @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z"
+            Regex.IsMatch(str, emailRegex, RegexOptions.IgnoreCase)
 
         ["loading" |> Binding.oneWay (fun m -> m.loading)
          "loaded" |> Binding.oneWay (fun m -> m.loaded)
          "organisation" |> Binding.oneWay (fun m -> getStringFieldFromContactInfo m (fun info -> info.organisationName))
          "location" |> Binding.oneWay (fun m -> getIntFieldFromContactInfo m (fun info -> intFromOptionOrDefault info.locationId 0))
-         "contactName" |> Binding.oneWay (fun m -> getStringFieldFromContactInfo m (fun info -> info.ContactName))
-         "Comments" |> Binding.oneWay (fun m -> getStringOptionFieldFromContactInfo m (fun info -> info.comments))
+         "contactName" |> Binding.twoWay (fun m -> getStringFieldFromContactInfo m (fun info -> info.ContactName))//getter
+                                         (fun v m-> UpdateContactInfoContactName(v))//setter
+         "Comments" |> Binding.twoWay (fun m -> getStringOptionFieldFromContactInfo m (fun info -> info.comments)) //getter
+                                      (fun v m -> UpdateContactInfoComments(v))//setter
          "phone" |> Binding.twoWay (fun m -> getStringOptionFieldFromContactInfo m  (fun info -> info.telephone)) //getter
                                    (fun v m -> UpdateContactInfoPhone(v)) //setter
-
-         "email" |> Binding.oneWay (fun m -> getStringOptionFieldFromContactInfo m (fun info -> info.email))
+         //"email" |> Binding.oneWay (fun m -> getStringOptionFieldFromContactInfo m (fun info -> info.email))
+         "email" |> Binding.twoWayValidation (fun m -> getStringOptionFieldFromContactInfo m (fun info -> info.email))//getter
+                                             (fun v m -> match isValidEmail v with 
+                                                         |true ->  UpdateContactInfoEmail v |> Ok 
+                                                         |false -> Error "Email is invalid")//setter with validation
          "IsDisabled" |> Binding.oneWay (fun m -> getFieldFromContactInfoOption m.contactInfo false (fun info -> info.IsDisabled))
          "IsAdmin" |> Binding.oneWay (fun m -> getFieldFromContactInfoOption m.contactInfo false (fun info -> info.IsAdmin))
+         
+         //are fields enabled or read-only
          "IsContactNameReadOnly" |> Binding.oneWay (fun m -> isReadOnly m.fieldsStatus.contactName)
          "IsOrganisationReadOnly" |> Binding.oneWay (fun m -> isReadOnly m.fieldsStatus.organisation)
          "IsLocationComboBoxEnabled" |> Binding.oneWay (fun m -> (match m.fieldsStatus.location with | EditMode -> true | ReadOnlyMode -> false) )//binds the isEnabled property
          "IsPhoneReadOnly"|> Binding.oneWay (fun m -> isReadOnly m.fieldsStatus.phone )
          "IsEmailReadOnly"|> Binding.oneWay (fun m -> isReadOnly m.fieldsStatus.email)
          "AreCommentsReadOnly"|> Binding.oneWay (fun m -> isReadOnly m.fieldsStatus.comments)
+         
          "locationsSource" |> Binding.oneWay (fun m -> match m.LocationsList with 
                                                        | Some l -> l
                                                        | None -> null)
          "SelectedLocationIndex" |> Binding.oneWay (fun m -> intFromOptionOrDefault m.LocationComboBoxIndex -1) 
+         
+         //change textBox modes
          "EnableTextBox" |> Binding.cmd (fun param m ->  EnableTextBox (string param))
          "DisableTextBox" |> Binding.cmd (fun param m -> DisableTextBox (string param, newDate()))
         ]
