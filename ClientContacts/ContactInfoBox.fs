@@ -180,20 +180,29 @@ module ContactInfoBox =
         | LoadLocationsFailure -> 
             model, Cmd.none
         |EnableTextBox(textBoxName) -> 
-            let newFieldsStatus = 
-                match textBoxName with
-                |ContactName -> {model.fieldsStatus with contactName = EditMode}
-                |Organisation -> {model.fieldsStatus with organisation = EditMode}
-                |Phone -> {model.fieldsStatus with phone = EditMode}
-                |Email -> {model.fieldsStatus with email = EditMode}
-                |Comments -> {model.fieldsStatus with comments = EditMode}
+            //do not enable new textbox if another textbox is enabled and validation errors exist
+            let allowedToEnableTextBox = 
+                match model.fieldsStatus.validationErrors with
+                |Some _ -> false
+                |_ -> true
+            
+            match allowedToEnableTextBox with 
+            |true -> 
+                let newFieldsStatus = 
+                    match textBoxName with
+                    |ContactName -> {model.fieldsStatus with contactName = EditMode}
+                    |Organisation -> {model.fieldsStatus with organisation = EditMode}
+                    |Phone -> {model.fieldsStatus with phone = EditMode}
+                    |Email -> {model.fieldsStatus with email = EditMode}
+                    |Comments -> {model.fieldsStatus with comments = EditMode}
 
-            {model with fieldsStatus = newFieldsStatus; fieldStatusChanged = Some(newDate())}, Cmd.none
+                {model with fieldsStatus = newFieldsStatus; fieldStatusChanged = Some(newDate())}, Cmd.none
+            |false-> model,Cmd.none
         |DisableTextBox(textBoxName, newDate)->
             //allowed to disable textbox only if it was enabled more than 100 ms ago
             let allowedToDisableTextBox = 
-                match model.fieldStatusChanged with 
-                |Some oldDate -> 
+                match model.fieldStatusChanged, model.fieldsStatus.validationErrors with 
+                |Some oldDate,None -> 
                     (newDate - oldDate).Duration() > TimeSpan.FromMilliseconds(float 100)
                 |_ -> false
 
