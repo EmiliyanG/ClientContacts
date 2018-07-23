@@ -10,6 +10,7 @@ module ContactInfoBox =
     open ElmishUtils
     open DebugUtils
     open System.Text.RegularExpressions
+    open Contact
     
 
     type TextBox = 
@@ -246,9 +247,6 @@ module ContactInfoBox =
         let getStringOptionFieldFromContactInfo m=
             getFieldFromContactInfoOption m.contactInfo None
             >> stringFromOption
-        ///get int field from Some ContactInfo or return 0 if None
-        let getIntFieldFromContactInfo m=
-            getFieldFromContactInfoOption m.contactInfo 0
         
         let intFromOptionOrDefault opt (returnIfNone:int)=
             match opt with
@@ -290,7 +288,8 @@ module ContactInfoBox =
         ["loading" |> Binding.oneWay (fun m -> m.loading)
          "loaded" |> Binding.oneWay (fun m -> m.loaded)
          "organisation" |> Binding.oneWay (fun m -> getStringFieldFromContactInfo m (fun info -> info.organisationName))
-         "location" |> Binding.oneWay (fun m -> getIntFieldFromContactInfo m (fun info -> intFromOptionOrDefault info.locationId 0))
+         "location" |> Binding.oneWayMap (fun m -> m.contactInfo)
+                                         (fun info-> getFieldFromContactInfoOption info 0 (fun i -> intFromOptionOrDefault i.locationId 0))
          "contactName" |> Binding.twoWay (fun m -> getStringFieldFromContactInfo m (fun info -> info.ContactName))//getter
                                          (fun v m-> UpdateContactInfoContactName(v))//setter
          "Comments" |> Binding.twoWay (fun m -> getStringOptionFieldFromContactInfo m (fun info -> info.comments)) //getter
@@ -300,21 +299,21 @@ module ContactInfoBox =
          
          "email" |> Binding.twoWay (fun m -> getStringOptionFieldFromContactInfo m (fun info -> info.email))//getter
                                              (fun v m -> UpdateContactInfoEmail v )//setter with validation
-         "IsDisabled" |> Binding.oneWay (fun m -> getFieldFromContactInfoOption m.contactInfo false (fun info -> info.IsDisabled))
-         "IsAdmin" |> Binding.oneWay (fun m -> getFieldFromContactInfoOption m.contactInfo false (fun info -> info.IsAdmin))
+         "IsDisabled" |> Binding.oneWayMap (fun m -> m.contactInfo) 
+                                           (fun info-> getFieldFromContactInfoOption info false (fun i -> i.IsDisabled))
+         "IsAdmin" |> Binding.oneWayMap (fun m -> m.contactInfo) 
+                                        (fun info ->  getFieldFromContactInfoOption info false (fun i -> i.IsAdmin))
          
          //are fields enabled or read-only
-         "IsContactNameReadOnly" |> Binding.oneWay (fun m -> isReadOnly m.fieldsStatus.contactName)
-         "IsOrganisationReadOnly" |> Binding.oneWay (fun m -> isReadOnly m.fieldsStatus.organisation)
+         "IsContactNameReadOnly" |> Binding.oneWayMap (fun m -> m.fieldsStatus.contactName) (fun v -> isReadOnly v)
+         "IsOrganisationReadOnly" |> Binding.oneWayMap (fun m -> m.fieldsStatus.organisation) (fun v -> isReadOnly v)
          "IsLocationComboBoxEnabled" |> Binding.oneWay (fun m -> (match m.fieldsStatus.location with | EditMode -> true | ReadOnlyMode -> false) )//binds the isEnabled property
-         "IsPhoneReadOnly"|> Binding.oneWay (fun m -> isReadOnly m.fieldsStatus.phone )
-         "IsEmailReadOnly"|> Binding.oneWay (fun m -> isReadOnly m.fieldsStatus.email)
-         "AreCommentsReadOnly"|> Binding.oneWay (fun m -> isReadOnly m.fieldsStatus.comments)
+         "IsPhoneReadOnly"|> Binding.oneWayMap (fun m -> m.fieldsStatus.phone ) (fun v -> isReadOnly v)
+         "IsEmailReadOnly"|> Binding.oneWayMap (fun m -> m.fieldsStatus.email) (fun v -> isReadOnly v)
+         "AreCommentsReadOnly"|> Binding.oneWayMap (fun m -> m.fieldsStatus.comments) (fun v -> isReadOnly v)
          
-         "locationsSource" |> Binding.oneWay (fun m -> match m.LocationsList with 
-                                                       | Some l -> l
-                                                       | None -> null)
-         "SelectedLocationIndex" |> Binding.oneWay (fun m -> intFromOptionOrDefault m.LocationComboBoxIndex -1) 
+         "locationsSource" |> Binding.oneWayMap (fun m -> m.LocationsList) (fun v -> v |> function |Some l -> l |None-> null)      
+         "SelectedLocationIndex" |> Binding.oneWayMap (fun m ->  m.LocationComboBoxIndex) (fun v -> intFromOptionOrDefault v -1)
          
          //change textBox modes
          "EnableTextBox" |> Binding.cmd (fun param m ->  string param |> getTextBox |> EnableTextBox)
