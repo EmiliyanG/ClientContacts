@@ -20,7 +20,7 @@
 
          <local:ContactList DataContext="{Binding ContactList}" Grid.Column="0"/>
         <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="#14073A" />
-        <local:ContactInfoBox DataContext="{Binding ContactInfoBox}" Grid.Column="2" VerticalAlignment="Top"/>
+        <local:ContactInfoBox DataContext="{Binding ContactInfoBox}" Grid.Column="2" VerticalAlignment="Stretch"/>
         <Image  Grid.Column="2" Grid.Row="5" Visibility="{Binding AddressBook ,  
                                 Converter={StaticResource BooleanToVisibilityConverter} }"
                 MaxWidth="200" Source=".\res\address-book.png"/>
