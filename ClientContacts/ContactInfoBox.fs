@@ -11,10 +11,22 @@ module ContactInfoBox =
     open DebugUtils
     open System.Text.RegularExpressions
     
+
+    type TextBox = 
+        |ContactName
+        |Organisation
+        |Phone
+        |Email
+        |Comments
+
     type TextBoxModes =
         | ReadOnlyMode
         | EditMode
+    
+    type ValidationError = {message: string; fieldName: TextBox}
+
     type InfoBoxFieldsStatus = {
+        validationErrors: ValidationError option
         contactName: TextBoxModes
         organisation: TextBoxModes
         location: TextBoxModes
@@ -35,8 +47,8 @@ module ContactInfoBox =
         |UpdateLocationComboBoxIndex
         |LoadLocationsFailure
         |LoadContactFailure
-        |EnableTextBox of string
-        |DisableTextBox of string * DateTime
+        |EnableTextBox of TextBox
+        |DisableTextBox of TextBox * DateTime
     [<Literal>]
     let DEFAULT_ORGANISATION_ID = 0
 
@@ -48,12 +60,15 @@ module ContactInfoBox =
                    LocationComboBoxIndex: int option
                    }
 
-    let init() = { fieldsStatus={contactName= ReadOnlyMode 
-                                 organisation= ReadOnlyMode
-                                 location= ReadOnlyMode
-                                 phone= ReadOnlyMode
-                                 email= ReadOnlyMode
-                                 comments= ReadOnlyMode};
+    let init() = { fieldsStatus =
+                       {validationErrors= None
+                        contactName= ReadOnlyMode
+                        organisation= ReadOnlyMode
+                        location= ReadOnlyMode
+                        phone= ReadOnlyMode
+                        email= ReadOnlyMode
+                        comments= ReadOnlyMode
+                       };
                    fieldStatusChanged = None;
                    loading= false; loaded=false; 
                    contactInfo = None;
@@ -166,14 +181,11 @@ module ContactInfoBox =
         |EnableTextBox(textBoxName) -> 
             let newFieldsStatus = 
                 match textBoxName with
-                |"contactName" -> {model.fieldsStatus with contactName = EditMode}
-                |"organisation" -> {model.fieldsStatus with organisation = EditMode}
-                |"phone" -> {model.fieldsStatus with phone = EditMode}
-                |"email" -> {model.fieldsStatus with email = EditMode}
-                |"comments" -> {model.fieldsStatus with comments = EditMode}
-                | _ -> 
-                    debug (sprintf "could not match textBox name EnableTextBox(%s)" textBoxName)
-                    model.fieldsStatus
+                |ContactName -> {model.fieldsStatus with contactName = EditMode}
+                |Organisation -> {model.fieldsStatus with organisation = EditMode}
+                |Phone -> {model.fieldsStatus with phone = EditMode}
+                |Email -> {model.fieldsStatus with email = EditMode}
+                |Comments -> {model.fieldsStatus with comments = EditMode}
 
             {model with fieldsStatus = newFieldsStatus; fieldStatusChanged = Some(newDate())}, Cmd.none
         |DisableTextBox(textBoxName, newDate)->
@@ -188,14 +200,11 @@ module ContactInfoBox =
             |true -> 
                 let newFieldsStatus = 
                     match textBoxName with
-                    |"contactName" -> {model.fieldsStatus with contactName = ReadOnlyMode}
-                    |"organisation" -> {model.fieldsStatus with organisation = ReadOnlyMode}
-                    |"phone" -> {model.fieldsStatus with phone = ReadOnlyMode}
-                    |"email" -> {model.fieldsStatus with email = ReadOnlyMode}
-                    |"comments" -> {model.fieldsStatus with comments = ReadOnlyMode}
-                    | _ -> 
-                        debug (sprintf "could not match textBox name: message > DisableTextBox(%s,%A)" textBoxName newDate)
-                        model.fieldsStatus
+                    |ContactName -> {model.fieldsStatus with contactName = ReadOnlyMode}
+                    |Organisation -> {model.fieldsStatus with organisation = ReadOnlyMode}
+                    |Phone -> {model.fieldsStatus with phone = ReadOnlyMode}
+                    |Email -> {model.fieldsStatus with email = ReadOnlyMode}
+                    |Comments -> {model.fieldsStatus with comments = ReadOnlyMode}
 
                 {model with fieldsStatus = newFieldsStatus}, Cmd.none
             |false -> model, Cmd.none
@@ -206,7 +215,17 @@ module ContactInfoBox =
         |UpdateContactInfoContactName(value) -> 
             updateContactInfoField model (fun info -> Some {info with ContactName = value}), Cmd.none
         |UpdateContactInfoEmail(value)->
-            updateContactInfoField model (fun info -> Some {info with email = optionFromString value}), Cmd.none
+            
+            let isValidEmail str = 
+                let emailRegex = @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z"
+                Regex.IsMatch(str, emailRegex, RegexOptions.IgnoreCase)
+            match isValidEmail value with 
+            | true -> 
+                updateContactInfoField {model with fieldsStatus = {model.fieldsStatus with validationErrors = None}} 
+                                       (fun info -> Some {info with email = optionFromString value}), Cmd.none
+            | false -> {model 
+                            with fieldsStatus = {model.fieldsStatus 
+                                                    with validationErrors = Some {message="Email is not valid"; fieldName=Email} }}, Cmd.none
 
     let ContactInfoBoxViewBindings: ViewBinding<Model, Msg> list = 
         let stringFromOption opt =
@@ -240,9 +259,33 @@ module ContactInfoBox =
             match textBoxMode with 
             | EditMode -> false 
             | ReadOnlyMode -> true
-        let isValidEmail str = 
-            let emailRegex = @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z"
-            Regex.IsMatch(str, emailRegex, RegexOptions.IgnoreCase)
+
+
+        let getTextBox = 
+            function
+            |"contactName" -> ContactName
+            |"organisation" -> Organisation
+            |"phone" -> Phone
+            |"email" -> Email
+            |"comments" -> Comments
+            |a -> failwith <| sprintf "Could not match binding to TextField. Binding: %s" a
+        
+        let getValidationMessage field err=
+            match err with 
+            |Some er -> 
+                match field, er with 
+                |f, vr when f = vr.fieldName -> vr.message
+                |_, _ -> ""
+            |None -> ""
+        
+        let displayValidationMessage field err=
+            match err with 
+            |Some er -> 
+                match field, er with 
+                |f, vr when f = vr.fieldName -> true
+                |_, _ -> false
+            |None -> false
+        
 
         ["loading" |> Binding.oneWay (fun m -> m.loading)
          "loaded" |> Binding.oneWay (fun m -> m.loaded)
@@ -254,11 +297,9 @@ module ContactInfoBox =
                                       (fun v m -> UpdateContactInfoComments(v))//setter
          "phone" |> Binding.twoWay (fun m -> getStringOptionFieldFromContactInfo m  (fun info -> info.telephone)) //getter
                                    (fun v m -> UpdateContactInfoPhone(v)) //setter
-         //"email" |> Binding.oneWay (fun m -> getStringOptionFieldFromContactInfo m (fun info -> info.email))
-         "email" |> Binding.twoWayValidation (fun m -> getStringOptionFieldFromContactInfo m (fun info -> info.email))//getter
-                                             (fun v m -> match isValidEmail v with 
-                                                         |true ->  UpdateContactInfoEmail v |> Ok 
-                                                         |false -> Error "Email is invalid")//setter with validation
+         
+         "email" |> Binding.twoWay (fun m -> getStringOptionFieldFromContactInfo m (fun info -> info.email))//getter
+                                             (fun v m -> UpdateContactInfoEmail v )//setter with validation
          "IsDisabled" |> Binding.oneWay (fun m -> getFieldFromContactInfoOption m.contactInfo false (fun info -> info.IsDisabled))
          "IsAdmin" |> Binding.oneWay (fun m -> getFieldFromContactInfoOption m.contactInfo false (fun info -> info.IsAdmin))
          
@@ -276,8 +317,25 @@ module ContactInfoBox =
          "SelectedLocationIndex" |> Binding.oneWay (fun m -> intFromOptionOrDefault m.LocationComboBoxIndex -1) 
          
          //change textBox modes
-         "EnableTextBox" |> Binding.cmd (fun param m ->  EnableTextBox (string param))
-         "DisableTextBox" |> Binding.cmd (fun param m -> DisableTextBox (string param, newDate()))
+         "EnableTextBox" |> Binding.cmd (fun param m ->  string param |> getTextBox |> EnableTextBox)
+         "DisableTextBox" |> Binding.cmd (fun param m -> (string param |> getTextBox , newDate()) |> DisableTextBox)
+         
+         //TextBox validations
+         "ContactNameValidationsText" |> Binding.oneWayMap (fun m -> m.fieldsStatus.validationErrors) 
+                                                           (fun errors -> getValidationMessage ContactName errors)
+         "PhoneValidationsText" |> Binding.oneWayMap (fun m -> m.fieldsStatus.validationErrors) 
+                                                     (fun errors -> getValidationMessage Phone errors)
+         "EmailValidationsText" |> Binding.oneWayMap (fun m -> m.fieldsStatus.validationErrors) 
+                                                     (fun errors -> getValidationMessage Email errors)
+
+         //Validations visibility
+         "ContactNameValidationsVisible" |> Binding.oneWayMap (fun m -> m.fieldsStatus.validationErrors) 
+                                                              (fun errors -> displayValidationMessage ContactName errors)
+         "PhoneValidationsVisible" |> Binding.oneWayMap (fun m -> m.fieldsStatus.validationErrors) 
+                                                        (fun errors -> displayValidationMessage Phone errors)
+         "EmailValidationsVisible" |> Binding.oneWayMap (fun m -> m.fieldsStatus.validationErrors) 
+                                                        (fun errors -> displayValidationMessage Email errors)
+
         ]
 
 

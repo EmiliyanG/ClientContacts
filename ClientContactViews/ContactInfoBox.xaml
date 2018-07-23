@@ -18,6 +18,7 @@
         <SolidColorBrush x:Key="darker" Color="#000000"/>
         <SolidColorBrush x:Key="readOnlyTextBoxBackground" Color="#e6e6ef"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <local:BoolToVisibilityColapsedConverter x:Key="BoolToVisibilityColapsedConverter"/>
         
         <DataTemplate x:Key="LocationComboBoxTemplate">
             <local:LocationComboBoxItem  />
@@ -152,6 +153,8 @@
 
 
             <StackPanel Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="7" Orientation="Vertical">
+                <Label Content="{Binding ContactNameValidationsText}" Visibility="{Binding ContactNameValidationsVisible, Converter={StaticResource BoolToVisibilityColapsedConverter}}" />
+
                 <Grid VerticalAlignment="Stretch" Height="40">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="40" />
@@ -177,6 +180,7 @@
                     <Image  Grid.Column="0" Style="{StaticResource image}" ToolTip="Phone Number" Source=".\res\phone.png"/>
                     <local:ContactInfoTextBox Grid.Column="1" x:Name="phone" IsReadOnly="{Binding IsPhoneReadOnly}" Text="{Binding phone, Mode=TwoWay}" Style="{StaticResource textBox}"/>
                 </Grid>
+                <Label Content="{Binding PhoneValidationsText}" Visibility="{Binding PhoneValidationsVisible, Converter={StaticResource BoolToVisibilityColapsedConverter}}" />
                 <Grid VerticalAlignment="Stretch" Height="40">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="40" />
@@ -186,6 +190,7 @@
                     <local:ContactInfoTextBox x:Name="email" IsReadOnly="{Binding IsEmailReadOnly}" Text="{Binding email,ValidatesOnNotifyDataErrors=True}" Style="{StaticResource textBox}"/>
 
                 </Grid>
+                <Label Content="{Binding EmailValidationsText}" Visibility="{Binding EmailValidationsVisible, Converter={StaticResource BoolToVisibilityColapsedConverter}}" />
                 <Grid VerticalAlignment="Stretch" Height="100">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="40" />
