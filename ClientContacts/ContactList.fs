@@ -106,16 +106,21 @@ module ContactList =
 
     let contactsListViewBindings = 
 
-        ["ContactItems" |> Binding.oneWay (fun m -> filterContacts m)
+        let compareParamWithExpectedValue expected actual =
+            match expected, actual with 
+            |e, a when e = a -> true
+            |_-> false
+
+        ["ContactItems" |> Binding.oneWayMap (fun m -> m) (fun v-> filterContacts v)
          "SearchBar" |> Binding.twoWay (fun m -> m.search) (fun s m -> SearchContacts(s,Offset(0),Limit(QUERY_LIMIT)) )
          "UpdateContactInfo" |> Binding.cmd (fun p m -> 
                                 let i = p :?> int //downcast the p object to int
                                 UpdateContactInfo(i))
-         "loaded" |> Binding.oneWay (fun m -> match m.status with | Loaded -> true |_ -> false)
-         "LoadingNewRequest" |> Binding.oneWay (fun m -> match m.status with | Loading -> true |_ -> false)   
-         "DisplayLoadingBar" |> Binding.oneWay (fun m -> match m.loadBtnStatus with |DisplayLoadingBar -> true |_ -> false)  
-         "DisplayLoadMoreBtn" |> Binding.oneWay (fun m -> match m.loadBtnStatus with | DisplayLoadMoreBtn -> true |_ -> false ) 
-         "noResults" |> Binding.oneWay (fun m -> match m.status with | NoResults -> true |_ -> false)
+         "loaded" |> Binding.oneWayMap (fun m -> m.status) (fun v -> v |> compareParamWithExpectedValue Loaded)
+         "LoadingNewRequest" |> Binding.oneWayMap (fun m -> m.status)(fun v -> v |> compareParamWithExpectedValue Loading)   
+         "DisplayLoadingBar" |> Binding.oneWayMap (fun m -> m.loadBtnStatus) (fun v -> v |> compareParamWithExpectedValue DisplayLoadingBar)  
+         "DisplayLoadMoreBtn" |> Binding.oneWayMap (fun m -> m.loadBtnStatus) (fun v -> v |> compareParamWithExpectedValue DisplayLoadMoreBtn) 
+         "noResults" |> Binding.oneWayMap (fun m -> m.status) (fun v -> v |> compareParamWithExpectedValue NoResults)
          "LoadMoreResults" |> Binding.cmd (fun msg m -> LoadMoreResults)
          "FilterDisabled" |> Binding.cmd (fun isChecked m -> 
                                               let ic = isChecked :?> bool //downcast the isChecked object to bool
