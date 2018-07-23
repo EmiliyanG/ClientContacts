@@ -55,6 +55,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BoolToVisibilityColapsedConverter.cs" />
     <Compile Include="CollectionViewGroupToVisibilityConverter.cs" />
     <Page Include="AnimatedBar.xaml">
       <SubType>Designer</SubType>
