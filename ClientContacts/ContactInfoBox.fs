@@ -11,6 +11,8 @@ module ContactInfoBox =
     open DebugUtils
     open System.Text.RegularExpressions
     open Contact
+    open System.Windows.Forms
+    open System.Windows
     
 
     type TextBox = 
@@ -28,12 +30,7 @@ module ContactInfoBox =
 
     type InfoBoxFieldsStatus = {
         validationErrors: ValidationError option
-        contactName: TextBoxModes
-        organisation: TextBoxModes
-        location: TextBoxModes
-        phone: TextBoxModes
-        email: TextBoxModes
-        comments: TextBoxModes
+        isTextBoxInEditMode: TextBox option
     }
 
     type Msg = 
@@ -63,12 +60,7 @@ module ContactInfoBox =
 
     let init() = { fieldsStatus =
                        {validationErrors= None
-                        contactName= ReadOnlyMode
-                        organisation= ReadOnlyMode
-                        location= ReadOnlyMode
-                        phone= ReadOnlyMode
-                        email= ReadOnlyMode
-                        comments= ReadOnlyMode
+                        isTextBoxInEditMode= None
                        };
                    fieldStatusChanged = None;
                    loading= false; loaded=false; 
@@ -100,21 +92,41 @@ module ContactInfoBox =
         match msg with
         
         | LoadContact s -> 
-             let d = newDate()
+             let allowedToLoadNewContact = 
+                 match model.fieldsStatus.validationErrors with 
+                 |Some e -> 
+                    MessageBox.Show("Would you like to discard any unsaved changes?",
+                                    "Client Contacts",
+                                    MessageBoxButton.YesNo,
+                                    MessageBoxImage.Question,
+                                    MessageBoxResult.No)
+                    |> (fun result -> match result with 
+                                      |MessageBoxResult.Yes -> true
+                                      |_ -> false) 
+                        
+                 |None -> true
+             sprintf "allowedToLoadNewContact: %b" allowedToLoadNewContact |> debug
+             match allowedToLoadNewContact with 
+             |true -> 
+                 let d = newDate()
 
-             //cancel old request
-             match model.loadContactRequest with 
-             | Some request -> 
-                //System.Windows.MessageBox.Show("cancel async") |> ignore
-                request.cancelSource.Cancel()
-             | _ -> ()
+                 //cancel old request
+                 match model.loadContactRequest with 
+                 | Some request -> 
+                    //System.Windows.MessageBox.Show("cancel async") |> ignore
+                    request.cancelSource.Cancel()
+                 | _ -> ()
 
-             let src = new CancellationTokenSource()
-             {model with loading = true ; loadContactRequest=Some {latestRequest = d; cancelSource = src} }, 
-             ofAsync (getContactInfo s d) 
-                     (src.Token) 
-                     (fun (q,t) -> UpdateContactInfo (q ,t)) //success
-                     (fun _ -> LoadContactFailure) //failure
+                 let src = new CancellationTokenSource()
+                 {model with loading = true ; 
+                             loadContactRequest=Some {latestRequest = d; cancelSource = src}
+                             fieldsStatus = {model.fieldsStatus with isTextBoxInEditMode= None
+                                                                     validationErrors=None}}, 
+                 ofAsync (getContactInfo s d) 
+                         (src.Token) 
+                         (fun (q,t) -> UpdateContactInfo (q ,t)) //success
+                         (fun _ -> LoadContactFailure) //failure
+             |false -> model, Cmd.none
 
         | UpdateContactInfo (q, d)-> 
             match model.loadContactRequest with 
@@ -188,15 +200,13 @@ module ContactInfoBox =
             
             match allowedToEnableTextBox with 
             |true -> 
-                let newFieldsStatus = 
-                    match textBoxName with
-                    |ContactName -> {model.fieldsStatus with contactName = EditMode}
-                    |Organisation -> {model.fieldsStatus with organisation = EditMode}
-                    |Phone -> {model.fieldsStatus with phone = EditMode}
-                    |Email -> {model.fieldsStatus with email = EditMode}
-                    |Comments -> {model.fieldsStatus with comments = EditMode}
-
-                {model with fieldsStatus = newFieldsStatus; fieldStatusChanged = Some(newDate())}, Cmd.none
+                
+                {model with fieldsStatus = {model.fieldsStatus with isTextBoxInEditMode = Some textBoxName} 
+                            fieldStatusChanged = Some(newDate())}, 
+                match model.fieldsStatus.isTextBoxInEditMode with 
+                |Some tb -> Cmd.ofMsg(DisableTextBox(tb,newDate()))
+                |None -> Cmd.none
+                
             |false-> model,Cmd.none
         |DisableTextBox(textBoxName, newDate)->
             //allowed to disable textbox only if it was enabled more than 100 ms ago
@@ -207,16 +217,8 @@ module ContactInfoBox =
                 |_ -> false
 
             match allowedToDisableTextBox with 
-            |true -> 
-                let newFieldsStatus = 
-                    match textBoxName with
-                    |ContactName -> {model.fieldsStatus with contactName = ReadOnlyMode}
-                    |Organisation -> {model.fieldsStatus with organisation = ReadOnlyMode}
-                    |Phone -> {model.fieldsStatus with phone = ReadOnlyMode}
-                    |Email -> {model.fieldsStatus with email = ReadOnlyMode}
-                    |Comments -> {model.fieldsStatus with comments = ReadOnlyMode}
-
-                {model with fieldsStatus = newFieldsStatus}, Cmd.none
+            |true ->
+                {model with fieldsStatus = {model.fieldsStatus with isTextBoxInEditMode=None}}, Cmd.none
             |false -> model, Cmd.none
         |UpdateContactInfoPhone(value) ->
             updateContactInfoField model (fun info -> Some {info with telephone = optionFromString value}), Cmd.none
@@ -262,10 +264,10 @@ module ContactInfoBox =
             |Some o -> o
             |None -> returnIfNone
 
-        let isReadOnly textBoxMode = 
-            match textBoxMode with 
-            | EditMode -> false 
-            | ReadOnlyMode -> true
+        let isReadOnly isTextBoxReadOnly expected = 
+            match isTextBoxReadOnly with 
+            |Some tb when tb = expected -> false
+            |_ -> true
 
 
         let getTextBox = 
@@ -314,12 +316,17 @@ module ContactInfoBox =
                                         (fun info ->  getFieldFromContactInfoOption info false (fun i -> i.IsAdmin))
          
          //are fields enabled or read-only
-         "IsContactNameReadOnly" |> Binding.oneWayMap (fun m -> m.fieldsStatus.contactName) (fun v -> isReadOnly v)
-         "IsOrganisationReadOnly" |> Binding.oneWayMap (fun m -> m.fieldsStatus.organisation) (fun v -> isReadOnly v)
-         "IsLocationComboBoxEnabled" |> Binding.oneWay (fun m -> (match m.fieldsStatus.location with | EditMode -> true | ReadOnlyMode -> false) )//binds the isEnabled property
-         "IsPhoneReadOnly"|> Binding.oneWayMap (fun m -> m.fieldsStatus.phone ) (fun v -> isReadOnly v)
-         "IsEmailReadOnly"|> Binding.oneWayMap (fun m -> m.fieldsStatus.email) (fun v -> isReadOnly v)
-         "AreCommentsReadOnly"|> Binding.oneWayMap (fun m -> m.fieldsStatus.comments) (fun v -> isReadOnly v)
+         "IsContactNameReadOnly" |> Binding.oneWayMap (fun m -> m.fieldsStatus.isTextBoxInEditMode) 
+                                                      (fun v -> isReadOnly v ContactName)
+         "IsOrganisationReadOnly" |> Binding.oneWayMap (fun m -> m.fieldsStatus.isTextBoxInEditMode) 
+                                                       (fun v -> isReadOnly v Organisation)
+         "IsLocationComboBoxEnabled" |> Binding.oneWay (fun m -> false )//binds the isEnabled property; not implemented yet
+         "IsPhoneReadOnly"|> Binding.oneWayMap (fun m -> m.fieldsStatus.isTextBoxInEditMode ) 
+                                               (fun v -> isReadOnly v Phone)
+         "IsEmailReadOnly"|> Binding.oneWayMap (fun m -> m.fieldsStatus.isTextBoxInEditMode) 
+                                               (fun v -> isReadOnly v Email)
+         "AreCommentsReadOnly"|> Binding.oneWayMap (fun m -> m.fieldsStatus.isTextBoxInEditMode) 
+                                                   (fun v -> isReadOnly v Comments)
          
          "locationsSource" |> Binding.oneWayMap (fun m -> m.LocationsList) (fun v -> v |> function |Some l -> l |None-> null)      
          "SelectedLocationIndex" |> Binding.oneWayMap (fun m ->  m.LocationComboBoxIndex) (fun v -> intFromOptionOrDefault v -1)
