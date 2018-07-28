@@ -152,10 +152,10 @@
             <local:ContactInfoTextBox Grid.Row="1" x:Name="contactName" IsReadOnly="{Binding IsContactNameReadOnly}" Grid.Column="2" Grid.ColumnSpan="5" Text="{Binding contactName}" Style="{StaticResource textBox}"/>
 
 
-            <StackPanel Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="7" Orientation="Vertical">
-                <Label Content="{Binding ContactNameValidationsText}" Visibility="{Binding ContactNameValidationsVisible, Converter={StaticResource BoolToVisibilityColapsedConverter}}" />
+            <DockPanel Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="7">
+                <Label DockPanel.Dock="Top" Content="{Binding ContactNameValidationsText}" Visibility="{Binding ContactNameValidationsVisible, Converter={StaticResource BoolToVisibilityColapsedConverter}}" />
 
-                <Grid VerticalAlignment="Stretch" Height="40">
+                <Grid DockPanel.Dock="Top" Height="40">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="40" />
                         <ColumnDefinition Width="*" />
@@ -163,8 +163,8 @@
                     <Image Style="{StaticResource image}" ToolTip="Organisation" Source=".\res\organisation.png"/>
                     <local:ContactInfoTextBox Grid.Column="1" x:Name="organisation" IsReadOnly="{Binding IsOrganisationReadOnly}" Text="{Binding organisation}" Style="{StaticResource textBox}"/>
                 </Grid>
-                
-                <Grid VerticalAlignment="Stretch" Height="40">
+
+                <Grid DockPanel.Dock="Top" Height="40">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="40" />
                         <ColumnDefinition Width="*" />
@@ -172,7 +172,7 @@
                     <Image  Grid.Column="0" Grid.Row="3" Style="{StaticResource image}" ToolTip="Location" Source=".\res\map.png"/>
                     <ComboBox Grid.Column="1" Style="{StaticResource location}"/>
                 </Grid>
-                <Grid VerticalAlignment="Stretch" Height="40">
+                <Grid DockPanel.Dock="Top" Height="40">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="40" />
                         <ColumnDefinition Width="*" />
@@ -180,8 +180,8 @@
                     <Image  Grid.Column="0" Style="{StaticResource image}" ToolTip="Phone Number" Source=".\res\phone.png"/>
                     <local:ContactInfoTextBox Grid.Column="1" x:Name="phone" IsReadOnly="{Binding IsPhoneReadOnly}" Text="{Binding phone, Mode=TwoWay}" Style="{StaticResource textBox}"/>
                 </Grid>
-                <Label Content="{Binding PhoneValidationsText}" Visibility="{Binding PhoneValidationsVisible, Converter={StaticResource BoolToVisibilityColapsedConverter}}" />
-                <Grid VerticalAlignment="Stretch" Height="40">
+                <Label DockPanel.Dock="Top" Content="{Binding PhoneValidationsText}" Visibility="{Binding PhoneValidationsVisible, Converter={StaticResource BoolToVisibilityColapsedConverter}}" />
+                <Grid DockPanel.Dock="Top" Height="40">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="40" />
                         <ColumnDefinition Width="*" />
@@ -190,8 +190,8 @@
                     <local:ContactInfoTextBox x:Name="email" IsReadOnly="{Binding IsEmailReadOnly}" Text="{Binding email,ValidatesOnNotifyDataErrors=True}" Style="{StaticResource textBox}"/>
 
                 </Grid>
-                <Label Content="{Binding EmailValidationsText}" Visibility="{Binding EmailValidationsVisible, Converter={StaticResource BoolToVisibilityColapsedConverter}}" />
-                <Grid VerticalAlignment="Stretch" Height="100">
+                <Label DockPanel.Dock="Top" Content="{Binding EmailValidationsText}" Visibility="{Binding EmailValidationsVisible, Converter={StaticResource BoolToVisibilityColapsedConverter}}" />
+                <Grid DockPanel.Dock="Top">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="40" />
                         <ColumnDefinition Width="*" />
@@ -202,7 +202,7 @@
                         <local:ContactInfoTextBox x:Name="comments" IsReadOnly="{Binding AreCommentsReadOnly}" AcceptsReturn="True" Text="{Binding Comments}" TextWrapping="Wrap" SpellCheck.IsEnabled="True" Margin="0" VerticalContentAlignment="Top" Style="{StaticResource textBox}"/>
                     </ScrollViewer>
                 </Grid>
-            </StackPanel>
+            </DockPanel>
             
 
         </Grid>
