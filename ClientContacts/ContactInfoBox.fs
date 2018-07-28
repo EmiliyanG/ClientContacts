@@ -21,10 +21,6 @@ module ContactInfoBox =
         |Phone
         |Email
         |Comments
-
-    type TextBoxModes =
-        | ReadOnlyMode
-        | EditMode
     
     type ValidationError = {message: string; fieldName: TextBox}
 
@@ -105,7 +101,7 @@ module ContactInfoBox =
                                       |_ -> false) 
                         
                  |None -> true
-             sprintf "allowedToLoadNewContact: %b" allowedToLoadNewContact |> debug
+             
              match allowedToLoadNewContact with 
              |true -> 
                  let d = newDate()
@@ -213,7 +209,7 @@ module ContactInfoBox =
             let allowedToDisableTextBox = 
                 match model.fieldStatusChanged, model.fieldsStatus.validationErrors with 
                 |Some oldDate,None -> 
-                    (newDate - oldDate).Duration() > TimeSpan.FromMilliseconds(float 100)
+                    (newDate - oldDate).Duration() > TimeSpan.FromMilliseconds(float 200)
                 |_ -> false
 
             match allowedToDisableTextBox with 
