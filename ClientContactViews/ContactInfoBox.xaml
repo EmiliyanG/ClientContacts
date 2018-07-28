@@ -20,11 +20,15 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <local:BoolToVisibilityColapsedConverter x:Key="BoolToVisibilityColapsedConverter"/>
         
-        <DataTemplate x:Key="LocationComboBoxTemplate">
-            <local:LocationComboBoxItem  />
+        <DataTemplate x:Key="LocationComboBoxItemTemplate">
+            <ComboBoxItem Content="{Binding locationName}"/>
         </DataTemplate>
-
-        <Style x:Key="location" TargetType="ComboBox" >
+        
+        <DataTemplate x:Key="OrganisationComboBoxItemTemplate">
+            <ComboBoxItem Content="{Binding organisationName}"/>
+        </DataTemplate>
+        
+        <Style TargetType="ComboBox" >
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="VerticalAlignment" Value="Stretch"/>
             <Setter Property="Height" Value="Auto"/>
@@ -33,10 +37,6 @@
             <Setter Property="Grid.Column" Value="1"/>
             <Setter Property="Padding" Value="4" />
             <Setter Property="Margin" Value="0,2,2,2" />
-            <Setter Property="IsEnabled" Value="{Binding IsLocationComboBoxEnabled }"/>
-            <Setter Property="SelectedIndex" Value="{Binding SelectedLocationIndex}"/>
-            <Setter Property="ItemsSource" Value="{Binding locationsSource}"/>
-            <Setter Property="ItemTemplate" Value="{StaticResource LocationComboBoxTemplate}"/>
         </Style>
 
         <Style x:Key="textBox" TargetType="{x:Type TextBox}">
@@ -161,7 +161,14 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Image Style="{StaticResource image}" ToolTip="Organisation" Source=".\res\organisation.png"/>
-                    <local:ContactInfoTextBox Grid.Column="1" x:Name="organisation" IsReadOnly="{Binding IsOrganisationReadOnly}" Text="{Binding organisation}" Style="{StaticResource textBox}"/>
+                    <ComboBox Grid.Column="1" 
+                              IsEnabled="{Binding IsOrganisationComboBoxEnabled }"
+                              SelectedIndex="{Binding SelectedOrganisationIndex}"
+                              ItemsSource="{Binding organisationsSource}"
+                              ItemTemplate="{StaticResource OrganisationComboBoxItemTemplate}"
+                              />
+                    <!--<local:ContactInfoTextBox Grid.Column="1" x:Name="organisation" IsReadOnly="{Binding IsOrganisationReadOnly}" Text="{Binding organisation}" Style="{StaticResource textBox}"/>
+                -->
                 </Grid>
 
                 <Grid DockPanel.Dock="Top" Height="40">
@@ -170,7 +177,13 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Image  Grid.Column="0" Grid.Row="3" Style="{StaticResource image}" ToolTip="Location" Source=".\res\map.png"/>
-                    <ComboBox Grid.Column="1" Style="{StaticResource location}"/>
+                    <ComboBox Grid.Column="1" 
+                              IsEnabled="{Binding IsLocationComboBoxEnabled }"
+                              SelectedIndex="{Binding SelectedLocationIndex}"
+                              ItemsSource="{Binding locationsSource}"
+                              ItemTemplate="{StaticResource LocationComboBoxItemTemplate}"
+                    />
+                    
                 </Grid>
                 <Grid DockPanel.Dock="Top" Height="40">
                     <Grid.ColumnDefinitions>

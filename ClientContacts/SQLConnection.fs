@@ -32,6 +32,11 @@ module SQLQueries =
         Select id, Name as locationName, organisationId from Location
         where organisationId = @organisationId"""
 
+    [<Literal>]
+    let OrganisationsQuery =
+        """
+        Select id, name as organisationName from Organisation"""
+
 module SQLTypes = 
     type Contact = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool; organisationName: string; organisationId: int; locationName: string}
     type ListContactsParams = {searchPattern: string; Limit: int; Offset: int}
@@ -41,6 +46,7 @@ module SQLTypes =
     type ContactInfoQueryParams = {id: int}
 
     type Location = {id: int; locationName: string; organisationId: int }
+    type Organisation = {id: int; organisationName: string }
     type OrganisationLocationsQueryParams = {organisationId: int}
     
     type OrganisationId = 
@@ -134,6 +140,17 @@ module MySQLConnection =
         async{
             let conn = openConnection() 
             let q =conn.Query<Location> (OrganisationLocationsQuery ,{organisationId = organisationId.getData})
+            conn.Close()
+            
+            return (match Seq.isEmpty q with 
+                    | true -> None
+                    | false -> Some q), dateTriggered
+        }
+
+    let getOrganisations (dateTriggered:DateTime)=
+        async{
+            let conn = openConnection() 
+            let q =conn.Query<Organisation> (OrganisationsQuery)
             conn.Close()
             
             return (match Seq.isEmpty q with 

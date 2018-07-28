@@ -17,12 +17,35 @@ module ContactInfoBox =
 
     type TextBox = 
         |ContactName
-        |Organisation
         |Phone
         |Email
         |Comments
     
     type ValidationError = {message: string; fieldName: TextBox}
+
+
+    type LocationComboBox = 
+        |LocationComboBox of Location seq option * index: int option
+        member this.getLocationsList = 
+            match this with 
+            |LocationComboBox (l, i) -> l
+        member this.getSelectedLocationIndex = 
+            match this with 
+            |LocationComboBox (l, i) -> i
+
+
+    type OrganisationComboBox = 
+        |OrganisationComboBox of Organisation seq option * index: int option
+        member this.getOrganisationsList = 
+            match this with 
+            |OrganisationComboBox (l, i) -> l
+        member this.getSelectedOrganisationIndex = 
+            match this with 
+            |OrganisationComboBox (l, i) -> i
+
+
+
+
 
     type InfoBoxFieldsStatus = {
         validationErrors: ValidationError option
@@ -30,46 +53,64 @@ module ContactInfoBox =
     }
 
     type Msg = 
+        //contact info
         |LoadContact of int
-        |LoadLocationsList of OrganisationId
         |UpdateContactInfo of ContactInfo option * DateTime
+        |LoadContactFailure
+        //organisation combo box
+        |LoadOrganisationsList
+        |UpdateOrganisationsList of Organisation seq option * DateTime
+        |LoadOrganisationsFailure
+        //location combo box
+        |LoadLocationsList of OrganisationId
+        |UpdateLocationsList of Location seq option * DateTime
+        |LoadLocationsFailure
+        |UpdateLocationComboBoxIndex
+        //text box updates
         |UpdateContactInfoPhone of string
         |UpdateContactInfoComments of string
         |UpdateContactInfoContactName of string
         |UpdateContactInfoEmail of string
-        |UpdateLocationsList of Location seq option * DateTime
-        |UpdateLocationComboBoxIndex
-        |LoadLocationsFailure
-        |LoadContactFailure
         |EnableTextBox of TextBox
         |DisableTextBox of TextBox * DateTime
     [<Literal>]
     let DEFAULT_ORGANISATION_ID = 0
 
-    type Model = { fieldsStatus:InfoBoxFieldsStatus; fieldStatusChanged: DateTime option; loading: bool; loaded:bool; 
+    type Model = { fieldsStatus:InfoBoxFieldsStatus; fieldStatusChanged: DateTime option; loading: bool; loaded:bool
                    contactInfo: ContactInfo option
-                   loadContactRequest: AsyncRequest option;
-                   LoadLocationsList: AsyncRequest option;
-                   LocationsList: Location seq option; 
-                   LocationComboBoxIndex: int option
+                   loadContactRequest: AsyncRequest option
+                   LoadLocationsList: AsyncRequest option
+                   loadOrganisationsList: AsyncRequest option
+                   locationComboBox: LocationComboBox
+                   organisationComboBox: OrganisationComboBox
                    }
 
     let init() = { fieldsStatus =
                        {validationErrors= None
                         isTextBoxInEditMode= None
                        };
-                   fieldStatusChanged = None;
-                   loading= false; loaded=false; 
-                   contactInfo = None;
-                   loadContactRequest=None; LoadLocationsList=None; LocationsList= None; 
-                   LocationComboBoxIndex = None}
+                   fieldStatusChanged = None
+                   loading= false; loaded=false;
+                   contactInfo = None
+                   loadContactRequest=None; LoadLocationsList=None; loadOrganisationsList=None 
+                   locationComboBox=LocationComboBox (None, None)
+                   organisationComboBox=OrganisationComboBox(None, None)
+                   }
     
  
-    let getComboBoxIndex (locations:seq<Location> option) locationId = 
+    let getLocationComboBoxIndex (locations:seq<Location> option) locationId = 
         match locations with 
         | Some lseq -> 
             Some(lseq
                 |> Seq.findIndex( fun location-> location.id = locationId) )
+        | None -> 
+            None
+
+    let getOrganisationComboBoxIndex (organisations:seq<Organisation> option) organisationId = 
+        match organisations with 
+        | Some oSeq -> 
+            Some(oSeq
+                |> Seq.findIndex( fun organisation-> organisation.id = organisationId) )
         | None -> 
             None
     let updateContactInfoField model updateFunc =
@@ -141,22 +182,34 @@ module ContactInfoBox =
                                     //Update the Location ComboBox index only
                                     Cmd.ofMsg (UpdateLocationComboBoxIndex)
                                 | _ ->
-                                    Cmd.ofMsg (LoadLocationsList(OrganisationId(info.organisationId)))
+                                    Cmd.ofMsg (LoadOrganisationsList)
                 |_ ->
                     {model with loading = false; loaded = true}, Cmd.none
             | _ -> model, Cmd.none
 
-        | LoadContactFailure ->  model, Cmd.none
-
         | UpdateLocationComboBoxIndex -> 
-            {model with LocationComboBoxIndex = 
-                        (match model.contactInfo with
-                        |Some info -> 
-                            match info.locationId with
-                            | Some lid -> getComboBoxIndex model.LocationsList lid
-                            | None -> None
-                        |None -> None)
+            {model with locationComboBox = 
+                            LocationComboBox( model.locationComboBox.getLocationsList,
+                                (match model.contactInfo with
+                                |Some info -> 
+                                    match info.locationId with
+                                    | Some lid -> getLocationComboBoxIndex model.locationComboBox.getLocationsList lid
+                                    | None -> None
+                                |None -> None))
                  }, Cmd.none
+        | LoadOrganisationsList -> 
+            let d = newDate()
+            match model.loadOrganisationsList with
+            | Some request -> 
+                request.cancelSource.Cancel()
+            | _-> ()
+            let src = new CancellationTokenSource()
+            {model with loadOrganisationsList=Some {latestRequest = d; cancelSource = src} }, 
+            ofAsync (getOrganisations d) 
+                    (src.Token) 
+                    (fun (organisationList,t) -> UpdateOrganisationsList (organisationList ,t))  //request success
+                    (fun _ -> LoadOrganisationsFailure) //request failure
+        
         | LoadLocationsList orgId ->
             let d = newDate()
             match model.LoadLocationsList with
@@ -173,19 +226,32 @@ module ContactInfoBox =
             match model.LoadLocationsList with 
             | Some request when request.latestRequest = timeStamp -> 
                 {model with LoadLocationsList= None; 
-                            LocationsList = locationsList; 
-                            LocationComboBoxIndex = 
-                                (match model.contactInfo with 
-                                |Some info -> 
-                                    match info.locationId with
-                                    | Some lid -> getComboBoxIndex locationsList lid
-                                    | None -> None
-                                | None -> None
-                                )
+                            locationComboBox= 
+                                LocationComboBox(locationsList,
+                                    (match model.contactInfo with 
+                                    |Some info-> 
+                                        match info.locationId with
+                                        | Some lid -> getLocationComboBoxIndex locationsList lid
+                                        | None -> None
+                                    | None -> None))
                  }, Cmd.none
                 
             | _ -> model, Cmd.none
-        | LoadLocationsFailure -> 
+        |UpdateOrganisationsList(organisationlist, timeStamp)-> 
+            match model.loadOrganisationsList with 
+            | Some request when request.latestRequest = timeStamp -> 
+                {model with LoadLocationsList= None; 
+                            organisationComboBox= 
+                                OrganisationComboBox(organisationlist,
+                                    (match model.contactInfo with 
+                                    |Some info-> getOrganisationComboBoxIndex organisationlist info.organisationId
+                                    | None -> None))
+                 }, match model.contactInfo with 
+                    | Some info -> Cmd.ofMsg (LoadLocationsList(OrganisationId(info.organisationId)))
+                    | None -> Cmd.none
+            | _ -> model, Cmd.none
+
+        | LoadLocationsFailure |LoadOrganisationsFailure |LoadContactFailure -> 
             model, Cmd.none
         |EnableTextBox(textBoxName) -> 
             //do not enable new textbox if another textbox is enabled and validation errors exist
@@ -269,7 +335,6 @@ module ContactInfoBox =
         let getTextBox = 
             function
             |"contactName" -> ContactName
-            |"organisation" -> Organisation
             |"phone" -> Phone
             |"email" -> Email
             |"comments" -> Comments
@@ -294,7 +359,6 @@ module ContactInfoBox =
 
         ["loading" |> Binding.oneWay (fun m -> m.loading)
          "loaded" |> Binding.oneWay (fun m -> m.loaded)
-         "organisation" |> Binding.oneWay (fun m -> getStringFieldFromContactInfo m (fun info -> info.organisationName))
          "location" |> Binding.oneWayMap (fun m -> m.contactInfo)
                                          (fun info-> getFieldFromContactInfoOption info 0 (fun i -> intFromOptionOrDefault i.locationId 0))
          "contactName" |> Binding.twoWay (fun m -> getStringFieldFromContactInfo m (fun info -> info.ContactName))//getter
@@ -314,9 +378,11 @@ module ContactInfoBox =
          //are fields enabled or read-only
          "IsContactNameReadOnly" |> Binding.oneWayMap (fun m -> m.fieldsStatus.isTextBoxInEditMode) 
                                                       (fun v -> isReadOnly v ContactName)
-         "IsOrganisationReadOnly" |> Binding.oneWayMap (fun m -> m.fieldsStatus.isTextBoxInEditMode) 
-                                                       (fun v -> isReadOnly v Organisation)
-         "IsLocationComboBoxEnabled" |> Binding.oneWay (fun m -> false )//binds the isEnabled property; not implemented yet
+         //"IsOrganisationReadOnly" |> Binding.oneWayMap (fun m -> m.fieldsStatus.isTextBoxInEditMode) 
+         //                                            (fun v -> isReadOnly v Organisation)
+         
+         "IsOrganisationComboBoxEnabled" |> Binding.oneWay (fun m -> true )
+         "IsLocationComboBoxEnabled" |> Binding.oneWay (fun m -> true )//binds the isEnabled property; not implemented yet
          "IsPhoneReadOnly"|> Binding.oneWayMap (fun m -> m.fieldsStatus.isTextBoxInEditMode ) 
                                                (fun v -> isReadOnly v Phone)
          "IsEmailReadOnly"|> Binding.oneWayMap (fun m -> m.fieldsStatus.isTextBoxInEditMode) 
@@ -324,9 +390,11 @@ module ContactInfoBox =
          "AreCommentsReadOnly"|> Binding.oneWayMap (fun m -> m.fieldsStatus.isTextBoxInEditMode) 
                                                    (fun v -> isReadOnly v Comments)
          
-         "locationsSource" |> Binding.oneWayMap (fun m -> m.LocationsList) (fun v -> v |> function |Some l -> l |None-> null)      
-         "SelectedLocationIndex" |> Binding.oneWayMap (fun m ->  m.LocationComboBoxIndex) (fun v -> intFromOptionOrDefault v -1)
+         "locationsSource" |> Binding.oneWayMap (fun m -> m.locationComboBox.getLocationsList) (fun v -> v |> function |Some l -> l |None-> null)      
+         "SelectedLocationIndex" |> Binding.oneWayMap (fun m ->  m.locationComboBox.getSelectedLocationIndex) (fun v -> intFromOptionOrDefault v -1)
          
+         "organisationsSource" |> Binding.oneWayMap (fun m -> m.organisationComboBox.getOrganisationsList) (fun v -> v |> function |Some l -> l |None-> null)
+         "SelectedOrganisationIndex" |> Binding.oneWayMap (fun m ->  m.organisationComboBox.getSelectedOrganisationIndex) (fun v -> intFromOptionOrDefault v -1)
          //change textBox modes
          "EnableTextBox" |> Binding.cmd (fun param m ->  string param |> getTextBox |> EnableTextBox)
          "DisableTextBox" |> Binding.cmd (fun param m -> (string param |> getTextBox , newDate()) |> DisableTextBox)
