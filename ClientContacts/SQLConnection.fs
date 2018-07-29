@@ -153,9 +153,7 @@ module MySQLConnection =
             let q =conn.Query<Organisation> (OrganisationsQuery)
             conn.Close()
             
-            return (match Seq.isEmpty q with 
-                    | true -> None
-                    | false -> Some q), dateTriggered
+            return q, dateTriggered
         }
 
     ///return Async task to load list of contacts from the database
