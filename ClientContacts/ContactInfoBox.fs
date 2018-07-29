@@ -13,17 +13,13 @@ module ContactInfoBox =
     open Contact
     open System.Windows.Forms
     open System.Windows
+    open ContactInfoBoxValidator
     
-
-    type TextBox = 
-        |ContactName
-        |Phone
-        |Email
-        |Comments
     
-    type ValidationError = {message: string; fieldName: TextBox}
-
-
+    type ContactInfoBoxMode = 
+        |EditMode
+        |ReadOnlyMode
+        
     type LocationComboBox = 
         |LocationComboBox of Location seq option * index: int option
         member this.getLocationsList = 
@@ -45,13 +41,6 @@ module ContactInfoBox =
 
 
 
-
-
-    type InfoBoxFieldsStatus = {
-        validationErrors: ValidationError option
-        isTextBoxInEditMode: TextBox option
-    }
-
     type Msg = 
         //contact info
         |LoadContact of int
@@ -72,12 +61,13 @@ module ContactInfoBox =
         |UpdateContactInfoComments of string
         |UpdateContactInfoContactName of string
         |UpdateContactInfoEmail of string
-        |EnableTextBox of TextBox
-        |DisableTextBox of TextBox * DateTime
+        |ChangeMode of ContactInfoBoxMode
     [<Literal>]
     let DEFAULT_ORGANISATION_ID = 0
 
-    type Model = { fieldsStatus:InfoBoxFieldsStatus; fieldStatusChanged: DateTime option; loading: bool; loaded:bool
+    type Model = { mode: ContactInfoBoxMode
+                   validationErrors: ValidationError list option
+                   loading: bool; loaded:bool
                    contactInfo: ContactInfo option
                    loadContactRequest: AsyncRequest option
                    LoadLocationsList: AsyncRequest option
@@ -86,11 +76,8 @@ module ContactInfoBox =
                    organisationComboBox: OrganisationComboBox
                    }
 
-    let init() = { fieldsStatus =
-                       {validationErrors= None
-                        isTextBoxInEditMode= None
-                       };
-                   fieldStatusChanged = None
+    let init() = { mode=ReadOnlyMode
+                   validationErrors= None
                    loading= false; loaded=false;
                    contactInfo = None
                    loadContactRequest=None; LoadLocationsList=None; loadOrganisationsList=None 
@@ -132,8 +119,8 @@ module ContactInfoBox =
         
         | LoadContact s -> 
              let allowedToLoadNewContact = 
-                 match model.fieldsStatus.validationErrors with 
-                 |Some e -> 
+                 match model.mode with 
+                 |EditMode -> 
                     MessageBox.Show("Would you like to discard any unsaved changes?",
                                     "Client Contacts",
                                     MessageBoxButton.YesNo,
@@ -143,7 +130,7 @@ module ContactInfoBox =
                                       |MessageBoxResult.Yes -> true
                                       |_ -> false) 
                         
-                 |None -> true
+                 |ReadOnlyMode -> true
              
              match allowedToLoadNewContact with 
              |true -> 
@@ -159,8 +146,7 @@ module ContactInfoBox =
                  let src = new CancellationTokenSource()
                  {model with loading = true ; 
                              loadContactRequest=Some {latestRequest = d; cancelSource = src}
-                             fieldsStatus = {model.fieldsStatus with isTextBoxInEditMode= None
-                                                                     validationErrors=None}}, 
+                             mode = ReadOnlyMode}, 
                  ofAsync (getContactInfo s d) 
                          (src.Token) 
                          (fun (q,t) -> UpdateContactInfo (q ,t)) //success
@@ -268,35 +254,8 @@ module ContactInfoBox =
 
         | LoadLocationsFailure |LoadOrganisationsFailure |LoadContactFailure -> 
             model, Cmd.none
-        |EnableTextBox(textBoxName) -> 
-            //do not enable new textbox if another textbox is enabled and validation errors exist
-            let allowedToEnableTextBox = 
-                match model.fieldsStatus.validationErrors with
-                |Some _ -> false
-                |_ -> true
-            
-            match allowedToEnableTextBox with 
-            |true -> 
-                
-                {model with fieldsStatus = {model.fieldsStatus with isTextBoxInEditMode = Some textBoxName} 
-                            fieldStatusChanged = Some(newDate())}, 
-                match model.fieldsStatus.isTextBoxInEditMode with 
-                |Some tb -> Cmd.ofMsg(DisableTextBox(tb,newDate()))
-                |None -> Cmd.none
-                
-            |false-> model,Cmd.none
-        |DisableTextBox(textBoxName, newDate)->
-            //allowed to disable textbox only if it was enabled more than 100 ms ago
-            let allowedToDisableTextBox = 
-                match model.fieldStatusChanged, model.fieldsStatus.validationErrors with 
-                |Some oldDate,None -> 
-                    (newDate - oldDate).Duration() > TimeSpan.FromMilliseconds(float 200)
-                |_ -> false
-
-            match allowedToDisableTextBox with 
-            |true ->
-                {model with fieldsStatus = {model.fieldsStatus with isTextBoxInEditMode=None}}, Cmd.none
-            |false -> model, Cmd.none
+        | ChangeMode(mode)->
+            {model with mode=mode}, Cmd.none
         |UpdateContactInfoPhone(value) ->
             updateContactInfoField model (fun info -> {info with telephone = optionFromString value}), Cmd.none
         |UpdateContactInfoComments(value) -> 
@@ -310,11 +269,13 @@ module ContactInfoBox =
                 Regex.IsMatch(str, emailRegex, RegexOptions.IgnoreCase)
             match isValidEmail value with 
             | true -> 
-                updateContactInfoField {model with fieldsStatus = {model.fieldsStatus with validationErrors = None}} 
-                                       (fun info -> {info with email = optionFromString value}), Cmd.none
+                updateContactInfoField model (fun info -> {info with email = optionFromString value})
+                |> (fun m -> {m with validationErrors = removeValidationError m.validationErrors Email})
+                , Cmd.none
             | false -> {model 
-                            with fieldsStatus = {model.fieldsStatus 
-                                                    with validationErrors = Some {message="Email is not valid"; fieldName=Email} }}, Cmd.none
+                            with validationErrors = addValidationError model.validationErrors 
+                                                                       {message="Email is not valid"; fieldName=Email}
+                       }, Cmd.none
 
     let ContactInfoBoxViewBindings: ViewBinding<Model, Msg> list = 
         let stringFromOption opt =
@@ -341,11 +302,19 @@ module ContactInfoBox =
             |Some o -> o
             |None -> returnIfNone
 
-        let isReadOnly isTextBoxReadOnly expected = 
-            match isTextBoxReadOnly with 
-            |Some tb when tb = expected -> false
-            |_ -> true
-
+        let isReadOnly = 
+            function
+            |ReadOnlyMode -> true
+            |EditMode -> false
+            
+        let isComboBoxEnabled = 
+            function
+            |ReadOnlyMode -> false
+            |EditMode -> true
+        let isActionButtonVisible = 
+            function
+            |ReadOnlyMode -> true
+            |EditMode -> false
 
         let getTextBox = 
             function
@@ -355,21 +324,13 @@ module ContactInfoBox =
             |"comments" -> Comments
             |a -> failwith <| sprintf "Could not match binding to TextField. Binding: %s" a
         
-        let getValidationMessage field err=
-            match err with 
-            |Some er -> 
-                match field, er with 
-                |f, vr when f = vr.fieldName -> vr.message
-                |_, _ -> ""
-            |None -> ""
-        
-        let displayValidationMessage field err=
-            match err with 
-            |Some er -> 
-                match field, er with 
-                |f, vr when f = vr.fieldName -> true
-                |_, _ -> false
-            |None -> false
+
+        let isValidationMessageVisible field errors=
+            errors
+            |> getValidationsErrorsForTextBox <| field
+            |> function 
+               |Some e -> true
+               |None -> false
         
 
         ["loading" |> Binding.oneWay (fun m -> m.loading)
@@ -391,18 +352,20 @@ module ContactInfoBox =
                                         (fun info ->  getFieldFromContactInfoOption info false (fun i -> i.IsAdmin))
          
          //are fields enabled or read-only
-         "IsContactNameReadOnly" |> Binding.oneWayMap (fun m -> m.fieldsStatus.isTextBoxInEditMode) 
-                                                      (fun v -> isReadOnly v ContactName)
+         "IsContactNameReadOnly" |> Binding.oneWayMap (fun m -> m.mode ) 
+                                                      (fun v -> isReadOnly v)
          
          
-         "IsOrganisationComboBoxEnabled" |> Binding.oneWay (fun m -> true )
-         "IsLocationComboBoxEnabled" |> Binding.oneWay (fun m -> true )//binds the isEnabled property; not implemented yet
-         "IsPhoneReadOnly"|> Binding.oneWayMap (fun m -> m.fieldsStatus.isTextBoxInEditMode ) 
-                                               (fun v -> isReadOnly v Phone)
-         "IsEmailReadOnly"|> Binding.oneWayMap (fun m -> m.fieldsStatus.isTextBoxInEditMode) 
-                                               (fun v -> isReadOnly v Email)
-         "AreCommentsReadOnly"|> Binding.oneWayMap (fun m -> m.fieldsStatus.isTextBoxInEditMode) 
-                                                   (fun v -> isReadOnly v Comments)
+         "IsOrganisationComboBoxEnabled" |> Binding.oneWayMap (fun m -> m.mode )
+                                                              (fun mode -> isComboBoxEnabled mode )
+         "IsLocationComboBoxEnabled" |> Binding.oneWayMap (fun m -> m.mode )
+                                                          (fun mode -> isComboBoxEnabled mode )
+         "IsPhoneReadOnly"|> Binding.oneWayMap (fun m -> m.mode ) 
+                                               (fun v -> isReadOnly v)
+         "IsEmailReadOnly"|> Binding.oneWayMap (fun m -> m.mode ) 
+                                               (fun v -> isReadOnly v)
+         "AreCommentsReadOnly"|> Binding.oneWayMap (fun m -> m.mode ) 
+                                                   (fun v -> isReadOnly v)
          
          "locationsSource" |> Binding.oneWayMap (fun m -> m.locationComboBox.getLocationsList) (fun v -> v |> function |Some l -> l |None-> null)      
          "SelectedLocationIndex" |> Binding.twoWay (fun m ->  m.locationComboBox.getSelectedLocationIndex |> intFromOptionOrDefault <| -1) //getter
@@ -412,25 +375,26 @@ module ContactInfoBox =
          
          "SelectedOrganisationIndex" |> Binding.twoWay (fun m ->  m.organisationComboBox.getSelectedOrganisationIndex) //getter 
                                                        (fun index m -> UpdateOrganisationComboBoxIndex(int index)) //setter
-         //change textBox modes
-         "EnableTextBox" |> Binding.cmd (fun param m ->  string param |> getTextBox |> EnableTextBox)
-         "DisableTextBox" |> Binding.cmd (fun param m -> (string param |> getTextBox , newDate()) |> DisableTextBox)
+         //change modes
+         "EditContact" |> Binding.cmd (fun param m-> ChangeMode(EditMode))
          
          //TextBox validations
-         "ContactNameValidationsText" |> Binding.oneWayMap (fun m -> m.fieldsStatus.validationErrors) 
-                                                           (fun errors -> getValidationMessage ContactName errors)
-         "PhoneValidationsText" |> Binding.oneWayMap (fun m -> m.fieldsStatus.validationErrors) 
-                                                     (fun errors -> getValidationMessage Phone errors)
-         "EmailValidationsText" |> Binding.oneWayMap (fun m -> m.fieldsStatus.validationErrors) 
-                                                     (fun errors -> getValidationMessage Email errors)
+         "ContactNameValidationsText" |> Binding.oneWayMap (fun m -> m.validationErrors) 
+                                                           (fun errors -> getValidationErrorMessageForTextBox ContactName errors) 
+         "PhoneValidationsText" |> Binding.oneWayMap (fun m -> m.validationErrors) 
+                                                     (fun errors -> getValidationErrorMessageForTextBox Phone errors)
+         "EmailValidationsText" |> Binding.oneWayMap (fun m -> m.validationErrors) 
+                                                     (fun errors -> getValidationErrorMessageForTextBox Email errors)
 
          //Validations visibility
-         "ContactNameValidationsVisible" |> Binding.oneWayMap (fun m -> m.fieldsStatus.validationErrors) 
-                                                              (fun errors -> displayValidationMessage ContactName errors)
-         "PhoneValidationsVisible" |> Binding.oneWayMap (fun m -> m.fieldsStatus.validationErrors) 
-                                                        (fun errors -> displayValidationMessage Phone errors)
-         "EmailValidationsVisible" |> Binding.oneWayMap (fun m -> m.fieldsStatus.validationErrors) 
-                                                        (fun errors -> displayValidationMessage Email errors)
+         "ContactNameValidationsVisible" |> Binding.oneWayMap (fun m -> m.validationErrors) 
+                                                              (fun errors -> isValidationMessageVisible ContactName errors)
+         "PhoneValidationsVisible" |> Binding.oneWayMap (fun m -> m.validationErrors) 
+                                                        (fun errors -> isValidationMessageVisible Phone errors)
+         "EmailValidationsVisible" |> Binding.oneWayMap (fun m -> m.validationErrors) 
+                                                        (fun errors -> isValidationMessageVisible Email errors)
+         //Action Buttons visibility
+         "EditContactButtonVisible" |> Binding.oneWayMap (fun m -> m.mode) (fun mode -> isActionButtonVisible mode)
 
         ]
 

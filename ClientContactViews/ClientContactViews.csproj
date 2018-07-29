@@ -69,10 +69,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ContactInfoTextBox.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="ContactList.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -110,9 +106,6 @@
     </Compile>
     <Compile Include="ContactInfoBox.xaml.cs">
       <DependentUpon>ContactInfoBox.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ContactInfoTextBox.xaml.cs">
-      <DependentUpon>ContactInfoTextBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="ContactList.xaml.cs">
       <DependentUpon>ContactList.xaml</DependentUpon>
