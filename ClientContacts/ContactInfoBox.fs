@@ -190,7 +190,6 @@ module ContactInfoBox =
                                     |> Option.bind(
                                         fun info-> 
                                             Some {info with organisationId=org.id; 
-                                                            organisationName = org.organisationName
                                                             locationId=None})
                                     )
                         
