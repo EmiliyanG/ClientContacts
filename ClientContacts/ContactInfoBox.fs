@@ -61,7 +61,8 @@ module ContactInfoBox =
         |UpdateContactInfoComments of string
         |UpdateContactInfoContactName of string
         |UpdateContactInfoEmail of string
-        |ChangeMode of ContactInfoBoxMode
+        |EnterEditMode
+        |CancelChanges 
     [<Literal>]
     let DEFAULT_ORGANISATION_ID = 0
 
@@ -69,20 +70,26 @@ module ContactInfoBox =
                    validationErrors: ValidationError list option
                    loading: bool; loaded:bool
                    contactInfo: ContactInfo option
+                   contactInfoSnapshot: ContactInfo option
                    loadContactRequest: AsyncRequest option
                    LoadLocationsList: AsyncRequest option
                    loadOrganisationsList: AsyncRequest option
                    locationComboBox: LocationComboBox
                    organisationComboBox: OrganisationComboBox
+                   locationComboBoxSnapshot: LocationComboBox
+                   organisationComboBoxSnapshot: OrganisationComboBox
                    }
 
     let init() = { mode=ReadOnlyMode
                    validationErrors= None
                    loading= false; loaded=false;
-                   contactInfo = None
+                   contactInfo= None
+                   contactInfoSnapshot= None
                    loadContactRequest=None; LoadLocationsList=None; loadOrganisationsList=None 
                    locationComboBox=LocationComboBox (None, None)
                    organisationComboBox=OrganisationComboBox([], -1)
+                   locationComboBoxSnapshot=LocationComboBox (None, None)
+                   organisationComboBoxSnapshot=OrganisationComboBox([], -1)
                    }
     
  
@@ -253,8 +260,17 @@ module ContactInfoBox =
 
         | LoadLocationsFailure |LoadOrganisationsFailure |LoadContactFailure -> 
             model, Cmd.none
-        | ChangeMode(mode)->
-            {model with mode=mode}, Cmd.none
+        | EnterEditMode->
+            {model with mode=EditMode
+                        contactInfoSnapshot=model.contactInfo
+                        locationComboBoxSnapshot=model.locationComboBox
+                        organisationComboBoxSnapshot=model.organisationComboBox}, Cmd.none
+        | CancelChanges-> 
+            {model with mode=ReadOnlyMode
+                        contactInfo=model.contactInfoSnapshot
+                        validationErrors=None
+                        locationComboBox=model.locationComboBoxSnapshot
+                        organisationComboBox=model.organisationComboBoxSnapshot}, Cmd.none
         |UpdateContactInfoPhone(value) ->
             updateContactInfoField model (fun info -> {info with telephone = optionFromString value}), Cmd.none
         |UpdateContactInfoComments(value) -> 
@@ -266,15 +282,15 @@ module ContactInfoBox =
             let isValidEmail str = 
                 let emailRegex = @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z"
                 Regex.IsMatch(str, emailRegex, RegexOptions.IgnoreCase)
-            match isValidEmail value with 
-            | true -> 
-                updateContactInfoField model (fun info -> {info with email = optionFromString value})
-                |> (fun m -> {m with validationErrors = removeValidationError m.validationErrors Email})
-                , Cmd.none
-            | false -> {model 
-                            with validationErrors = addValidationError model.validationErrors 
-                                                                       {message="Email is not valid"; fieldName=Email}
-                       }, Cmd.none
+            
+            updateContactInfoField 
+                {model with 
+                        validationErrors= match isValidEmail value with
+                                            |true -> removeValidationError model.validationErrors Email
+                                            |false -> addValidationError model.validationErrors 
+                                                                {message="Email is not valid"; fieldName=Email}}
+                (fun info -> {info with email = optionFromString value})
+            , Cmd.none
 
     let ContactInfoBoxViewBindings: ViewBinding<Model, Msg> list = 
         let stringFromOption opt =
@@ -375,8 +391,8 @@ module ContactInfoBox =
          "SelectedOrganisationIndex" |> Binding.twoWay (fun m ->  m.organisationComboBox.getSelectedOrganisationIndex) //getter 
                                                        (fun index m -> UpdateOrganisationComboBoxIndex(int index)) //setter
          //change modes
-         "EditContact" |> Binding.cmd (fun param m-> ChangeMode(EditMode))
-         
+         "EditContact" |> Binding.cmd (fun param m-> EnterEditMode)
+         "CancelChanges"|> Binding.cmd (fun param m-> CancelChanges)
          //TextBox validations
          "ContactNameValidationsText" |> Binding.oneWayMap (fun m -> m.validationErrors) 
                                                            (fun errors -> getValidationErrorMessageForTextBox ContactName errors) 

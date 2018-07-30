@@ -205,7 +205,7 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Button Content="Save changes"/>
-                    <Button Content="Cancel"  Grid.Column="1"/>
+                <Button Content="Cancel"  Command="{Binding CancelChanges}" Grid.Column="1"/>
                 <Button Content="Edit Contact" Command="{Binding EditContact}" Visibility="{Binding EditContactButtonVisible, Converter={StaticResource BooleanToVisibilityConverter}}" Grid.ColumnSpan="2"/>
             </Grid>
 
