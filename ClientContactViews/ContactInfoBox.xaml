@@ -19,7 +19,18 @@
         <SolidColorBrush x:Key="readOnlyTextBoxBackground" Color="#e6e6ef"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <local:BoolToVisibilityColapsedConverter x:Key="BoolToVisibilityColapsedConverter"/>
-        
+
+        <Style TargetType="{x:Type Button}" x:Key="ImageButtonStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <ContentPresenter/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
+        </Style>
+
         <DataTemplate x:Key="LocationComboBoxItemTemplate">
             <ComboBoxItem Content="{Binding locationName}"/>
         </DataTemplate>
@@ -117,15 +128,33 @@
             </Grid.RowDefinitions>
 
             <StackPanel  Grid.Row="0" Grid.ColumnSpan="7" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Image  Style="{StaticResource banner}" Source=".\res\user locked.png" ToolTip="The contact's user account is disabled."
-                    Visibility="{Binding IsDisabled ,  
+                <Button Style="{StaticResource ImageButtonStyle}"
+                        Visibility="{Binding IsDisabled ,  
                                 Converter={StaticResource BooleanToVisibilityConverter} }"
+                        ToolTip="The contact's user account is disabled."
+                        Command="{Binding IsDisabledChanged}"
+                        IsEnabled="{Binding IsDisabledBtnEnabled}"
+                        >
+                    <Image  Style="{StaticResource banner}" 
+                            Source=".\res\user locked.png"
+                            Opacity="{Binding IsDisabledOpacity}"
                     />
+                </Button>
+                
+                <Button Style="{StaticResource ImageButtonStyle}"
+                        ToolTip="This contact has admin access"
+                        Visibility="{Binding IsAdmin, 
+                                  Converter={StaticResource BooleanToVisibilityConverter} }"
+                        Command="{Binding IsAdminChanged}"
+                        IsEnabled="{Binding IsAdminBtnEnabled}"
+                        >
+                    <Image  Style="{StaticResource banner}" 
+                            Source=".\res\admin.png"
+                            Opacity="{Binding IsAdminOpacity}"
+                      />  
+                </Button>
 
-                <Image  Style="{StaticResource banner}" Source=".\res\admin.png" ToolTip="This contact has admin access"
-                    Visibility="{Binding IsAdmin, 
-                                Converter={StaticResource BooleanToVisibilityConverter} }"
-                    />
+                
             </StackPanel>
 
             <Image  Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="0"
