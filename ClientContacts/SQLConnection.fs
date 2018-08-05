@@ -27,6 +27,20 @@ module SQLQueries =
         left join Location l on l.id = c.locationId
         where c.id = @id"""
     [<Literal>]
+    let UpdateContactInfoQuery = 
+        """
+        Update Contact
+        set ContactName = @ContactName,
+	        IsDisabled = @IsDisabled,
+	        IsAdmin = @IsAdmin,
+	        email = @email,
+	        telephone = @telephone,
+	        organisationId = @organisationId,
+	        locationid = @locationId,
+	        comments = @comments 
+        where id = @id"""
+
+    [<Literal>]
     let OrganisationLocationsQuery =
         """
         Select id, Name as locationName, organisationId from Location
@@ -129,7 +143,7 @@ module MySQLConnection =
     ///return Async task to load contact info for given contact id
     let getContactInfo id (dateTriggered:DateTime)= 
         async {
-            let conn = openConnection() 
+            use conn = openConnection() 
             let q =conn.Query<ContactInfo> (ContactInfoQuery ,{id = id})
                    |> Seq.tryHead
             conn.Close()
@@ -138,7 +152,7 @@ module MySQLConnection =
     
     let getOrganisationLocations (organisationId:OrganisationId) (dateTriggered:DateTime)=
         async{
-            let conn = openConnection() 
+            use conn = openConnection() 
             let q =conn.Query<Location> (OrganisationLocationsQuery ,{organisationId = organisationId.getData})
             conn.Close()
             
@@ -149,23 +163,30 @@ module MySQLConnection =
 
     let getOrganisations (dateTriggered:DateTime)=
         async{
-            let conn = openConnection() 
+            use conn = openConnection() 
             let q =conn.Query<Organisation> (OrganisationsQuery)
             conn.Close()
             
             return q, dateTriggered
         }
 
+    let updateContactInfo (contactInfo:ContactInfo)=
+        async{
+            use conn = openConnection() 
+            let affectedRows =conn.Execute (UpdateContactInfoQuery,contactInfo)
+            conn.Close()
+            return affectedRows
+        }
+
     ///return Async task to load list of contacts from the database
     let getListOfContacts searchString (dateTriggered:DateTime) limit offset =
         async {
-            let conn = openConnection() 
+            use conn = openConnection() 
             let q = getContacts conn searchString limit offset
             conn.Close()
             return q,dateTriggered
             }
-                //return b, elapsed
-           // } 
+            
         
         
 

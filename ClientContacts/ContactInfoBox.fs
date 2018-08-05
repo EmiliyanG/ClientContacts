@@ -65,6 +65,9 @@ module ContactInfoBox =
         |UpdateIsDisabled
         |EnterEditMode
         |CancelChanges 
+        |SaveContactInfoChanges
+        |SaveContactInfoChangesFailure
+        |SaveContactInfoChangesSuccess
     [<Literal>]
     let DEFAULT_ORGANISATION_ID = 0
 
@@ -273,6 +276,19 @@ module ContactInfoBox =
                         validationErrors=None
                         locationComboBox=model.locationComboBoxSnapshot
                         organisationComboBox=model.organisationComboBoxSnapshot}, Cmd.none
+        | SaveContactInfoChanges-> 
+            match model.validationErrors with 
+            |Some v -> model, Cmd.none
+            |None-> 
+                {model with mode=ReadOnlyMode}, 
+                match model.contactInfo with 
+                |Some info -> 
+                    Cmd.ofAsync (updateContactInfo)
+                                info
+                                (fun param -> SaveContactInfoChangesSuccess)
+                                (fun exn -> SaveContactInfoChangesFailure)
+                |None -> Cmd.none
+        |SaveContactInfoChangesFailure |SaveContactInfoChangesSuccess -> model, Cmd.none
         |UpdateContactInfoPhone(value) ->
             updateContactInfoField model (fun info -> {info with telephone = optionFromString value}), Cmd.none
         |UpdateContactInfoComments(value) -> 
@@ -425,6 +441,7 @@ module ContactInfoBox =
          //change modes
          "EditContact" |> Binding.cmd (fun param m-> EnterEditMode)
          "CancelChanges"|> Binding.cmd (fun param m-> CancelChanges)
+         "SaveChanges" |> Binding.cmd (fun param m-> SaveContactInfoChanges)
          //TextBox validations
          "ContactNameValidationsText" |> Binding.oneWayMap (fun m -> m.validationErrors) 
                                                            (fun errors -> getValidationErrorMessageForTextBox ContactName errors) 
