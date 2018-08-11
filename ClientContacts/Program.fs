@@ -18,7 +18,7 @@ let main argv =
     
     Program.mkProgram MainWindow.init MainWindow.update MainWindow.view
     |> Program.withErrorHandler (fun (_, ex) -> MessageBox.Show(ex.Message) |> ignore)
-    |> Program.withConsoleTrace
+    //|> Program.withConsoleTrace
     //|> Program.withSubscription (ContactList.getListOfContacts "")
     |> Program.runWindow ( window )
 

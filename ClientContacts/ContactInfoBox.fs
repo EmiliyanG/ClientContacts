@@ -9,7 +9,6 @@ module ContactInfoBox =
     open SQLTypes
     open ElmishUtils
     open DebugUtils
-    open System.Text.RegularExpressions
     open Contact
     open System.Windows.Forms
     open System.Windows
@@ -123,8 +122,22 @@ module ContactInfoBox =
     ///return some(string) if str is not empty
     let optionFromString str = 
         match str with 
-        |"" -> None
+        |"" | null -> None
         |s-> Some(s)
+    
+    ///validate ContactInfo text field user input
+    /// <returns> New model with updated validation errors based on the specified field </returns>
+    let validateContactInfoTextField model field value = 
+        match value |> getValidationFunction field with
+        |Success e -> removeValidationError model.validationErrors field
+        |Failure err -> addValidationError model.validationErrors 
+                            {message=err; fieldName=field}
+        |> fun e -> {model with validationErrors = e}
+        
+        
+
+
+
 
     let update (msg:Msg) (model:Model) = 
         match msg with
@@ -290,28 +303,22 @@ module ContactInfoBox =
                 |None -> Cmd.none
         |SaveContactInfoChangesFailure |SaveContactInfoChangesSuccess -> model, Cmd.none
         |UpdateContactInfoPhone(value) ->
-            updateContactInfoField model (fun info -> {info with telephone = optionFromString value}), Cmd.none
+            validateContactInfoTextField model Phone value
+            |>  updateContactInfoField <| (fun info -> {info with telephone = optionFromString value}), Cmd.none
         |UpdateContactInfoComments(value) -> 
-            updateContactInfoField model (fun info -> {info with comments = optionFromString value}), Cmd.none
+            
+            validateContactInfoTextField model Comments value
+            |> updateContactInfoField <| (fun info -> {info with comments = optionFromString value}), Cmd.none
         |UpdateContactInfoContactName(value) -> 
-            updateContactInfoField model (fun info -> {info with ContactName = value}), Cmd.none
+            validateContactInfoTextField model ContactName value
+            |> updateContactInfoField <| (fun info -> {info with ContactName = value}), Cmd.none
         |UpdateIsAdmin -> 
             updateContactInfoField model (fun info -> {info with IsAdmin = not info.IsAdmin}), Cmd.none
         |UpdateIsDisabled -> 
             updateContactInfoField model (fun info -> {info with IsDisabled = not info.IsDisabled}), Cmd.none
         |UpdateContactInfoEmail(value)->
-            
-            let isValidEmail str = 
-                let emailRegex = @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z"
-                Regex.IsMatch(str, emailRegex, RegexOptions.IgnoreCase)
-            
-            updateContactInfoField 
-                {model with 
-                        validationErrors= match isValidEmail value with
-                                            |true -> removeValidationError model.validationErrors Email
-                                            |false -> addValidationError model.validationErrors 
-                                                                {message="Email is not valid"; fieldName=Email}}
-                (fun info -> {info with email = optionFromString value})
+            validateContactInfoTextField model Email value
+            |> updateContactInfoField <| (fun info -> {info with email = optionFromString value})
             , Cmd.none
 
     let ContactInfoBoxViewBindings: ViewBinding<Model, Msg> list = 
@@ -449,7 +456,10 @@ module ContactInfoBox =
                                                      (fun errors -> getValidationErrorMessageForTextBox Phone errors)
          "EmailValidationsText" |> Binding.oneWayMap (fun m -> m.validationErrors) 
                                                      (fun errors -> getValidationErrorMessageForTextBox Email errors)
-
+         "CommentsValidationsText" |> Binding.oneWayMap (fun m -> m.validationErrors) 
+                                                        (fun errors -> let b = getValidationErrorMessageForTextBox Comments errors
+                                                                       debug <| sprintf "Comments Validation message: %s" b
+                                                                       b)
          //Validations visibility
          "ContactNameValidationsVisible" |> Binding.oneWayMap (fun m -> m.validationErrors) 
                                                               (fun errors -> isValidationMessageVisible ContactName errors)
@@ -457,6 +467,13 @@ module ContactInfoBox =
                                                         (fun errors -> isValidationMessageVisible Phone errors)
          "EmailValidationsVisible" |> Binding.oneWayMap (fun m -> m.validationErrors) 
                                                         (fun errors -> isValidationMessageVisible Email errors)
+         "CommentsValidationsVisible" |> Binding.oneWayMap (fun m -> m.validationErrors) 
+                                                           (fun errors -> 
+                                                           
+                                                                let b = isValidationMessageVisible Comments errors
+                                                                debug <| sprintf "Comments Validations visible: %b" b
+                                                                b
+                                                                )
          //Action Buttons visibility
          "EditContactButtonVisible" |> Binding.oneWayMap (fun m -> m.mode) (fun mode -> isActionButtonVisible mode)
 

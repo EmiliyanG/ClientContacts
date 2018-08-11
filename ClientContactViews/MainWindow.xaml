@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ClientContactViews"
         mc:Ignorable="d"
-        Title="Client Contacts" Height="350" MinWidth="560" MinHeight="450" Background="#FEFEFF">
+        Title="Client Contacts" Height="350" MinWidth="560" MinHeight="550" Background="#FEFEFF">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Window.Resources>
