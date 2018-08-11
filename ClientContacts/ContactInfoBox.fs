@@ -306,7 +306,6 @@ module ContactInfoBox =
             validateContactInfoTextField model Phone value
             |>  updateContactInfoField <| (fun info -> {info with telephone = optionFromString value}), Cmd.none
         |UpdateContactInfoComments(value) -> 
-            
             validateContactInfoTextField model Comments value
             |> updateContactInfoField <| (fun info -> {info with comments = optionFromString value}), Cmd.none
         |UpdateContactInfoContactName(value) -> 
@@ -457,9 +456,7 @@ module ContactInfoBox =
          "EmailValidationsText" |> Binding.oneWayMap (fun m -> m.validationErrors) 
                                                      (fun errors -> getValidationErrorMessageForTextBox Email errors)
          "CommentsValidationsText" |> Binding.oneWayMap (fun m -> m.validationErrors) 
-                                                        (fun errors -> let b = getValidationErrorMessageForTextBox Comments errors
-                                                                       debug <| sprintf "Comments Validation message: %s" b
-                                                                       b)
+                                                        (fun errors -> getValidationErrorMessageForTextBox Comments errors)
          //Validations visibility
          "ContactNameValidationsVisible" |> Binding.oneWayMap (fun m -> m.validationErrors) 
                                                               (fun errors -> isValidationMessageVisible ContactName errors)
@@ -468,12 +465,7 @@ module ContactInfoBox =
          "EmailValidationsVisible" |> Binding.oneWayMap (fun m -> m.validationErrors) 
                                                         (fun errors -> isValidationMessageVisible Email errors)
          "CommentsValidationsVisible" |> Binding.oneWayMap (fun m -> m.validationErrors) 
-                                                           (fun errors -> 
-                                                           
-                                                                let b = isValidationMessageVisible Comments errors
-                                                                debug <| sprintf "Comments Validations visible: %b" b
-                                                                b
-                                                                )
+                                                           (fun errors -> isValidationMessageVisible Comments errors)
          //Action Buttons visibility
          "EditContactButtonVisible" |> Binding.oneWayMap (fun m -> m.mode) (fun mode -> isActionButtonVisible mode)
 
