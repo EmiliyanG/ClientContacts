@@ -13,11 +13,9 @@ module ContactInfoBox =
     open System.Windows.Forms
     open System.Windows
     open ContactInfoBoxValidator
+    open ContactInfoBoxBindingsManager
     
-    
-    type ContactInfoBoxMode = 
-        |EditMode
-        |ReadOnlyMode
+
         
     type LocationComboBox = 
         |LocationComboBox of Location seq option * index: int option
@@ -321,44 +319,7 @@ module ContactInfoBox =
             , Cmd.none
 
     let ContactInfoBoxViewBindings: ViewBinding<Model, Msg> list = 
-        let stringFromOption opt =
-            match opt with
-            | Some o -> o
-            | None -> ""
         
-        ///get field from Some ContactInfo or return defaultValue if None
-        let getFieldFromContactInfoOption opt (defaultValue) f = 
-            match opt with
-            |Some opt -> f opt
-            |None -> defaultValue
-        ///get string field from Some ContactInfo or return "" if None
-        let getStringFieldFromContactInfo m=
-            getFieldFromContactInfoOption m.contactInfo ""
-        
-        ///get string option field from ContactInfo and pass the result to the stringFromOption function
-        let getStringOptionFieldFromContactInfo m=
-            getFieldFromContactInfoOption m.contactInfo None
-            >> stringFromOption
-        
-        let intFromOptionOrDefault opt (returnIfNone:int)=
-            match opt with
-            |Some o -> o
-            |None -> returnIfNone
-
-        let isReadOnly = 
-            function
-            |ReadOnlyMode -> true
-            |EditMode -> false
-            
-        let isEnabled = 
-            function
-            |ReadOnlyMode -> false
-            |EditMode -> true
-        let isActionButtonVisible = 
-            function
-            |ReadOnlyMode -> true
-            |EditMode -> false
-
         let getTextBox = 
             function
             |"contactName" -> ContactName
@@ -367,42 +328,36 @@ module ContactInfoBox =
             |"comments" -> Comments
             |a -> failwith <| sprintf "Could not match binding to TextField. Binding: %s" a
         
-        let getImageBtnVisibility mode param =
-            match mode with 
-            |EditMode -> true 
-            |ReadOnlyMode -> param
-        let getImageBtnOpacity mode param =
-            match mode with 
-            |ReadOnlyMode ->
-                match param with
-                |true -> 1.0
-                |false -> 0.0
-            |EditMode -> 
-                match param with
-                |true -> 1.0
-                |false -> 0.3
-
-        let isValidationMessageVisible field errors=
-            errors
-            |> getValidationsErrorsForTextBox <| field
-            |> function 
-               |Some e -> true
-               |None -> false
+        let isReadOnlyBinding = 
+            Binding.oneWayMap (fun m -> m.mode ) 
+                              (fun v -> isReadOnly v)
         
-
+        let isEnabledBinding = 
+            Binding.oneWayMap (fun m -> m.mode )
+                              (fun mode -> isEnabled mode )
+        
+        let textFieldValidationVisibleBinding textField = 
+            Binding.oneWayMap (fun m -> m.validationErrors) 
+                              (fun errors -> isValidationMessageVisible textField errors)
+        
+        let textFieldValidationTextBinding textField = 
+            Binding.oneWayMap (fun m -> m.validationErrors) 
+                              (fun errors -> getValidationErrorMessageForTextBox textField errors)
+        
+        let getStringOptionFieldFromContactInfoBinding msg func =
+            Binding.twoWay (fun m -> getStringOptionFieldFromContactInfo m.contactInfo func) //getter
+                           (fun v m -> msg(v))
+        let bindingCmd msg = 
+            Binding.cmd (fun param m -> msg)
         ["loading" |> Binding.oneWay (fun m -> m.loading)
          "loaded" |> Binding.oneWay (fun m -> m.loaded)
          "location" |> Binding.oneWayMap (fun m -> m.contactInfo)
                                          (fun info-> getFieldFromContactInfoOption info 0 (fun i -> intFromOptionOrDefault i.locationId 0))
-         "contactName" |> Binding.twoWay (fun m -> getStringFieldFromContactInfo m (fun info -> info.ContactName))//getter
+         "contactName" |> Binding.twoWay (fun m -> getStringFieldFromContactInfo m.contactInfo (fun info -> info.ContactName))//getter
                                          (fun v m-> UpdateContactInfoContactName(v))//setter
-         "Comments" |> Binding.twoWay (fun m -> getStringOptionFieldFromContactInfo m (fun info -> info.comments)) //getter
-                                      (fun v m -> UpdateContactInfoComments(v))//setter
-         "phone" |> Binding.twoWay (fun m -> getStringOptionFieldFromContactInfo m  (fun info -> info.telephone)) //getter
-                                   (fun v m -> UpdateContactInfoPhone(v)) //setter
-         
-         "email" |> Binding.twoWay (fun m -> getStringOptionFieldFromContactInfo m (fun info -> info.email))//getter
-                                             (fun v m -> UpdateContactInfoEmail v )//setter with validation
+         "Comments" |> getStringOptionFieldFromContactInfoBinding UpdateContactInfoComments (fun info -> info.comments)
+         "phone" |> getStringOptionFieldFromContactInfoBinding UpdateContactInfoPhone (fun info -> info.telephone)
+         "email" |> getStringOptionFieldFromContactInfoBinding UpdateContactInfoEmail (fun info -> info.email)
          "IsDisabled" |> Binding.oneWayMap (fun m -> m.contactInfo, m.mode) 
                                            (fun (info,mode)-> getFieldFromContactInfoOption info false (fun i -> i.IsDisabled)
                                                               |> getImageBtnVisibility mode )
@@ -412,30 +367,22 @@ module ContactInfoBox =
          "IsAdmin" |> Binding.oneWayMap (fun m -> m.contactInfo, m.mode) 
                                         (fun (info,mode) -> getFieldFromContactInfoOption info false (fun i -> i.IsAdmin)
                                                             |> getImageBtnVisibility mode)
-         "IsDisabledChanged" |> Binding.cmd (fun param m -> UpdateIsDisabled)
-         "IsAdminChanged" |> Binding.cmd (fun param m -> UpdateIsAdmin)
+         "IsDisabledChanged" |> bindingCmd UpdateIsDisabled
+         "IsAdminChanged" |> bindingCmd UpdateIsAdmin
          "IsAdminOpacity"|> Binding.oneWayMap(fun m -> m.contactInfo, m.mode)
                                              (fun (info,mode)-> getFieldFromContactInfoOption info false (fun i -> i.IsAdmin)
                                                                 |> getImageBtnOpacity mode)
          
 
          //are fields enabled or read-only
-         "IsContactNameReadOnly" |> Binding.oneWayMap (fun m -> m.mode ) 
-                                                      (fun v -> isReadOnly v)
-         "IsOrganisationComboBoxEnabled" |> Binding.oneWayMap (fun m -> m.mode )
-                                                              (fun mode -> isEnabled mode )
-         "IsLocationComboBoxEnabled" |> Binding.oneWayMap (fun m -> m.mode )
-                                                          (fun mode -> isEnabled mode )
-         "IsPhoneReadOnly"|> Binding.oneWayMap (fun m -> m.mode ) 
-                                               (fun v -> isReadOnly v)
-         "IsEmailReadOnly"|> Binding.oneWayMap (fun m -> m.mode ) 
-                                               (fun v -> isReadOnly v)
-         "AreCommentsReadOnly"|> Binding.oneWayMap (fun m -> m.mode ) 
-                                                   (fun v -> isReadOnly v)
-         "IsAdminBtnEnabled"|> Binding.oneWayMap (fun m -> m.mode ) 
-                                                 (fun v -> isEnabled v)
-         "IsDisabledBtnEnabled"|> Binding.oneWayMap (fun m -> m.mode ) 
-                                                 (fun v -> isEnabled v)
+         "IsContactNameReadOnly" |> isReadOnlyBinding
+         "IsOrganisationComboBoxEnabled" |> isEnabledBinding
+         "IsLocationComboBoxEnabled" |> isEnabledBinding
+         "IsPhoneReadOnly"|> isReadOnlyBinding
+         "IsEmailReadOnly"|> isReadOnlyBinding
+         "AreCommentsReadOnly"|> isReadOnlyBinding
+         "IsAdminBtnEnabled"|> isEnabledBinding
+         "IsDisabledBtnEnabled"|> isEnabledBinding
          "locationsSource" |> Binding.oneWayMap (fun m -> m.locationComboBox.getLocationsList) (fun v -> v |> function |Some l -> l |None-> null)      
          "SelectedLocationIndex" |> Binding.twoWay (fun m ->  m.locationComboBox.getSelectedLocationIndex |> intFromOptionOrDefault <| -1) //getter
                                                    (fun index m-> UpdateLocationComboBoxIndex(Some(int index))) //setter
@@ -445,27 +392,19 @@ module ContactInfoBox =
          "SelectedOrganisationIndex" |> Binding.twoWay (fun m ->  m.organisationComboBox.getSelectedOrganisationIndex) //getter 
                                                        (fun index m -> UpdateOrganisationComboBoxIndex(int index)) //setter
          //change modes
-         "EditContact" |> Binding.cmd (fun param m-> EnterEditMode)
-         "CancelChanges"|> Binding.cmd (fun param m-> CancelChanges)
-         "SaveChanges" |> Binding.cmd (fun param m-> SaveContactInfoChanges)
+         "EditContact" |> bindingCmd EnterEditMode
+         "CancelChanges"|> bindingCmd CancelChanges
+         "SaveChanges" |> bindingCmd SaveContactInfoChanges
          //TextBox validations
-         "ContactNameValidationsText" |> Binding.oneWayMap (fun m -> m.validationErrors) 
-                                                           (fun errors -> getValidationErrorMessageForTextBox ContactName errors) 
-         "PhoneValidationsText" |> Binding.oneWayMap (fun m -> m.validationErrors) 
-                                                     (fun errors -> getValidationErrorMessageForTextBox Phone errors)
-         "EmailValidationsText" |> Binding.oneWayMap (fun m -> m.validationErrors) 
-                                                     (fun errors -> getValidationErrorMessageForTextBox Email errors)
-         "CommentsValidationsText" |> Binding.oneWayMap (fun m -> m.validationErrors) 
-                                                        (fun errors -> getValidationErrorMessageForTextBox Comments errors)
+         "ContactNameValidationsText" |> textFieldValidationTextBinding ContactName 
+         "PhoneValidationsText" |> textFieldValidationTextBinding Phone
+         "EmailValidationsText" |> textFieldValidationTextBinding Email
+         "CommentsValidationsText" |> textFieldValidationTextBinding Comments
          //Validations visibility
-         "ContactNameValidationsVisible" |> Binding.oneWayMap (fun m -> m.validationErrors) 
-                                                              (fun errors -> isValidationMessageVisible ContactName errors)
-         "PhoneValidationsVisible" |> Binding.oneWayMap (fun m -> m.validationErrors) 
-                                                        (fun errors -> isValidationMessageVisible Phone errors)
-         "EmailValidationsVisible" |> Binding.oneWayMap (fun m -> m.validationErrors) 
-                                                        (fun errors -> isValidationMessageVisible Email errors)
-         "CommentsValidationsVisible" |> Binding.oneWayMap (fun m -> m.validationErrors) 
-                                                           (fun errors -> isValidationMessageVisible Comments errors)
+         "ContactNameValidationsVisible" |> textFieldValidationVisibleBinding ContactName
+         "PhoneValidationsVisible" |> textFieldValidationVisibleBinding Phone
+         "EmailValidationsVisible" |> textFieldValidationVisibleBinding Email
+         "CommentsValidationsVisible" |> textFieldValidationVisibleBinding Comments
          //Action Buttons visibility
          "EditContactButtonVisible" |> Binding.oneWayMap (fun m -> m.mode) (fun mode -> isActionButtonVisible mode)
 
