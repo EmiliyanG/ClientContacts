@@ -3,10 +3,13 @@
 module ContactInfoBoxValidator =
     
     open System.Text.RegularExpressions
+    open DebugUtils
     
     [<Literal>]
     let emailRegex = @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z"
-        
+    [<Literal>]
+    let emptyStringRegex = @"^[\s\t]+$"
+
     type TextBox = 
     |ContactName
     |Phone
@@ -39,17 +42,30 @@ module ContactInfoBoxValidator =
         |true -> Success str
         |false -> Failure (sprintf "The value in the %s field cannot exceed more than %d characters." (field.ToString)  limit)
 
+    let doesFieldContainBlankSpacesOnly (field:TextBox) (str:string) =
+        match Regex.IsMatch(str, emptyStringRegex, RegexOptions.IgnoreCase) with
+        |true -> Failure ( sprintf "The %s field cannot be empty" (field.ToString) )
+        |false -> Success str
+    
+    let isFieldEmpty (field:TextBox) (str:string) =
+        debug <| sprintf "str: <%s> length: %d" str str.Length
+        match str.Length with
+        |0 -> Failure ( sprintf "The %s field cannot be empty" (field.ToString) )
+        |_ -> Success str
+
     let doesEmailMatchRegex str = 
         match Regex.IsMatch(str, emailRegex, RegexOptions.IgnoreCase) with 
         |true -> Success str
         |false -> Failure "The email is not valid."
-
+    
     let validateEmail= 
         isFieldValueLongerThanLimit Email 250
         >>> doesEmailMatchRegex
 
     let validateContactName =
         isFieldValueLongerThanLimit ContactName 250
+        >>> doesFieldContainBlankSpacesOnly ContactName
+        >>> isFieldEmpty ContactName
 
     let validateTelephone =
         isFieldValueLongerThanLimit Phone 250

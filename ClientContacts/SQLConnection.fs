@@ -68,7 +68,7 @@ module SQLTypes =
         member this.getData = 
              match this with
              | OrganisationId i -> i
-
+    
     type Limit = 
         |Limit of int
         member this.getData = 
@@ -80,7 +80,11 @@ module SQLTypes =
              match this with
              | Offset s -> s
      
-
+     type OrganisationName =
+        |OrganisationName of string
+        member this.getData = 
+             match this with
+             | OrganisationName s -> s
 
 module MySQLConnection = 
     open System.Data.SqlClient

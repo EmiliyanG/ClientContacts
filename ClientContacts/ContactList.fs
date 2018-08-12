@@ -11,6 +11,7 @@ module ContactList =
     open System.Configuration
     open SQLTypes
     open System.Windows.Forms
+    open DebugUtils
     
     [<Literal>] 
     let QUERY_LIMIT = 50
@@ -32,6 +33,7 @@ module ContactList =
         |LoadMoreResults
         |FilterDisabled of bool
         |FilterAdmins of bool
+        |AddNewContact of OrganisationName
         //|UpdateContact of Guid * Contact.Msg
     
     type Filters = {includeDisabledContacts: bool; showAdminsOnly: bool }
@@ -83,15 +85,21 @@ module ContactList =
             | _ -> model, Cmd.none
 
         | SearchFailure ->  model, Cmd.none
-        | UpdateContactInfo (id) -> 
-            //Doing nothing - this message will be elevated 1 level up 
+        | UpdateContactInfo(id)-> 
+            //this message will be elevated 1 level up 
+            failwith <| sprintf "this message should have been caught 1 level up. Msg: UpdateContactInfo(%d)" id
+            model, Cmd.none
+        | AddNewContact(organisationName)-> 
+            //this message will be elevated 1 level up 
+            failwith <| sprintf "this message should have been caught 1 level up. Msg: AddNewContact(%s)" organisationName.getData
             model, Cmd.none
         | LoadMoreResults -> 
             {model with loadBtnStatus = DisplayLoadingBar}, Cmd.ofMsg (SearchContacts(model.search,Offset(model.offset.getData + QUERY_LIMIT), Limit(QUERY_LIMIT))) 
         | FilterDisabled(isChecked) -> 
             {model with filters = {model.filters with includeDisabledContacts=isChecked}}, Cmd.none 
         | FilterAdmins(isChecked) -> 
-            {model with filters = {model.filters with showAdminsOnly=isChecked}}, Cmd.none 
+            {model with filters = {model.filters with showAdminsOnly=isChecked}}, Cmd.none
+        
     let filterContacts (m:Model) =
         m.contactList
         |> (fun cList ->    
@@ -128,6 +136,7 @@ module ContactList =
          "FilterAdmins" |> Binding.cmd (fun isChecked m -> 
                                               let ic = isChecked :?> bool //downcast the isChecked object to bool
                                               FilterAdmins(ic) )
+         "AddNewContact" |> Binding.cmd (fun param m -> AddNewContact(OrganisationName(string param)))
         ]
 
 

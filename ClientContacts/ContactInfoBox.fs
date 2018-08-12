@@ -39,13 +39,14 @@ module ContactInfoBox =
 
 
     type Msg = 
+        |AddNewContact of OrganisationName
         //contact info
         |LoadContact of int
         |UpdateContactInfo of ContactInfo option * DateTime
         |LoadContactFailure
         //organisation combo box
-        |LoadOrganisationsList
-        |UpdateOrganisationsList of Organisation seq * DateTime
+        |LoadOrganisationsList of OrganisationName option
+        |UpdateOrganisationsList of Organisation seq * DateTime * OrganisationName option
         |LoadOrganisationsFailure
         |UpdateOrganisationComboBoxIndex of int
         //location combo box
@@ -103,9 +104,11 @@ module ContactInfoBox =
         | None -> 
             None
 
-    let getOrganisationComboBoxIndex (organisations:seq<Organisation> ) organisationId = 
+    let getOrganisationComboBoxIndexById (organisations:seq<Organisation> ) organisationId = 
         organisations |> Seq.findIndex( fun organisation-> organisation.id = organisationId)
-
+    
+    let getOrganisationComboBoxIndexByName (organisations:seq<Organisation> ) (org:OrganisationName) = 
+        organisations |> Seq.findIndex( fun organisation-> organisation.organisationName = org.getData)
 
     let getComboBoxItemAtIndex (items:seq<'A> option) index = 
         items  
@@ -133,29 +136,45 @@ module ContactInfoBox =
         |> fun e -> {model with validationErrors = e}
         
         
-
+    let allowedToLoadNewContact mode = 
+        match mode with 
+        |EditMode -> 
+        MessageBox.Show("Would you like to discard any unsaved changes?",
+                        "Client Contacts",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question,
+                        MessageBoxResult.No)
+        |> (fun result -> match result with 
+                            |MessageBoxResult.Yes -> true
+                            |_ -> false) 
+                        
+        |ReadOnlyMode -> true
 
 
 
     let update (msg:Msg) (model:Model) = 
         match msg with
-        
+        |AddNewContact org -> 
+            match allowedToLoadNewContact model.mode with 
+            |true -> 
+                {model with 
+                    contactInfo = Some({id = -1 
+                                        ContactName=""
+                                        IsDisabled= false
+                                        IsAdmin= false
+                                        email= None 
+                                        telephone= None
+                                        organisationId= -1
+                                        locationId=None 
+                                        comments=None})
+                    loading = false; loaded = true;
+                    mode = EditMode},
+                Cmd.ofMsg(LoadOrganisationsList (Some(org)))
+
+            |false -> model, Cmd.none
         | LoadContact s -> 
-             let allowedToLoadNewContact = 
-                 match model.mode with 
-                 |EditMode -> 
-                    MessageBox.Show("Would you like to discard any unsaved changes?",
-                                    "Client Contacts",
-                                    MessageBoxButton.YesNo,
-                                    MessageBoxImage.Question,
-                                    MessageBoxResult.No)
-                    |> (fun result -> match result with 
-                                      |MessageBoxResult.Yes -> true
-                                      |_ -> false) 
-                        
-                 |ReadOnlyMode -> true
              
-             match allowedToLoadNewContact with 
+             match allowedToLoadNewContact model.mode with 
              |true -> 
                  let d = newDate()
 
@@ -196,7 +215,7 @@ module ContactInfoBox =
                                                                              |> Option.bind (fun lid -> getLocationComboBoxIndex model.locationComboBox.getLocationsList lid)))
                                     )
                                 | _ ->
-                                    Cmd.ofMsg (LoadOrganisationsList)
+                                    Cmd.ofMsg (LoadOrganisationsList(None))
                 |_ ->
                     {model with loading = false; loaded = true}, Cmd.none
             | _ -> model, Cmd.none
@@ -219,7 +238,8 @@ module ContactInfoBox =
                         }, 
                         
                         Cmd.ofMsg (LoadLocationsList(OrganisationId(org.id)))
-        | LoadOrganisationsList -> 
+        | LoadOrganisationsList(org) -> 
+            
             let d = newDate()
             match model.loadOrganisationsList with
             | Some request -> 
@@ -229,7 +249,7 @@ module ContactInfoBox =
             {model with loadOrganisationsList=Some {latestRequest = d; cancelSource = src} }, 
             ofAsync (getOrganisations d) 
                     (src.Token) 
-                    (fun (organisationList,t) -> UpdateOrganisationsList (organisationList ,t))  //request success
+                    (fun (organisationList,t) -> UpdateOrganisationsList (organisationList ,t, org))  //request success
                     (fun _ -> LoadOrganisationsFailure) //request failure
         
         | LoadLocationsList orgId ->
@@ -260,15 +280,27 @@ module ContactInfoBox =
                  }, Cmd.none
                 
             | _ -> model, Cmd.none
-        |UpdateOrganisationsList(organisationlist, timeStamp)-> 
+        |UpdateOrganisationsList(organisationlist, timeStamp, org)-> 
             match model.loadOrganisationsList with 
             | Some request when request.latestRequest = timeStamp -> 
+                
+
+                let orgIndexFromList = Option.map (fun v -> getOrganisationComboBoxIndexByName organisationlist v) org
+                
                 {model with LoadLocationsList= None; 
                             organisationComboBox= 
                                 OrganisationComboBox(organisationlist,
-                                    (match model.contactInfo with 
-                                    |Some info-> getOrganisationComboBoxIndex organisationlist info.organisationId
-                                    | None -> -1))
+                                    (match model.contactInfo, orgIndexFromList with 
+                                    |Some info, None-> getOrganisationComboBoxIndexById organisationlist info.organisationId
+                                    |Some info, Some index -> index
+                                    |_ -> -1))
+                            contactInfo = model.contactInfo 
+                                          |> Option.bind (fun (info:ContactInfo) -> 
+                                                              Some({info with 
+                                                                         organisationId = match orgIndexFromList with 
+                                                                                          |Some index -> Seq.item index organisationlist
+                                                                                                         |> fun v -> v.id
+                                                                                          |None -> -1 }) ) 
                  }, match model.contactInfo with 
                     | Some info -> Cmd.ofMsg (LoadLocationsList(OrganisationId(info.organisationId)))
                     | None -> Cmd.none
@@ -288,15 +320,25 @@ module ContactInfoBox =
                         locationComboBox=model.locationComboBoxSnapshot
                         organisationComboBox=model.organisationComboBoxSnapshot}, Cmd.none
         | SaveContactInfoChanges-> 
-            match model.validationErrors with 
-            |Some v -> model, Cmd.none
+            
+            let name = Option.map (fun (info:ContactInfo)-> info.ContactName) model.contactInfo
+                       |> stringFromOption
+
+            let m = validateContactInfoTextField model ContactName name
+            
+            match m.validationErrors with 
+            |Some v -> m, Cmd.none
             |None-> 
-                {model with mode=ReadOnlyMode}, 
-                match model.contactInfo with 
+                {m with mode=ReadOnlyMode}, 
+                match m.contactInfo with 
                 |Some info -> 
                     Cmd.ofAsync (updateContactInfo)
                                 info
-                                (fun param -> SaveContactInfoChangesSuccess)
+                                (fun param -> 
+                                     match param with 
+                                     |1 -> SaveContactInfoChangesSuccess
+                                     |_ ->failwith "Could not update or insert a contact in the database"
+                                          SaveContactInfoChangesFailure)
                                 (fun exn -> SaveContactInfoChangesFailure)
                 |None -> Cmd.none
         |SaveContactInfoChangesFailure |SaveContactInfoChangesSuccess -> model, Cmd.none
