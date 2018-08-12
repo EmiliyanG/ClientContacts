@@ -48,7 +48,6 @@ module ContactInfoBoxValidator =
         |false -> Success str
     
     let isFieldEmpty (field:TextBox) (str:string) =
-        debug <| sprintf "str: <%s> length: %d" str str.Length
         match str.Length with
         |0 -> Failure ( sprintf "The %s field cannot be empty" (field.ToString) )
         |_ -> Success str

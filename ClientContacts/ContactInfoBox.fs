@@ -332,7 +332,7 @@ module ContactInfoBox =
                 {m with mode=ReadOnlyMode}, 
                 match m.contactInfo with 
                 |Some info -> 
-                    Cmd.ofAsync (updateContactInfo)
+                    Cmd.ofAsync (updateOrInsertContactInfo)
                                 info
                                 (fun param -> 
                                      match param with 

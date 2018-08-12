@@ -39,6 +39,15 @@ module SQLQueries =
 	        locationid = @locationId,
 	        comments = @comments 
         where id = @id"""
+    
+    [<Literal>]
+    let InsertContactInfoQuery = 
+        """
+        Insert into Contact 
+        (ContactName,IsDisabled,IsAdmin,email,telephone,organisationId,id,comments,locationid)
+        Values
+        (@ContactName,@IsDisabled,@IsAdmin,@email,@telephone,@organisationId,
+        (Select max(id) + 1 from Contact), @comments, @locationId)"""
 
     [<Literal>]
     let OrganisationLocationsQuery =
@@ -181,6 +190,19 @@ module MySQLConnection =
             conn.Close()
             return affectedRows
         }
+    
+    let insertContactInfo (contactInfo:ContactInfo)=
+        async{
+            use conn = openConnection() 
+            let affectedRows =conn.Execute (InsertContactInfoQuery,contactInfo)
+            conn.Close()
+            return affectedRows
+        }
+    
+    let updateOrInsertContactInfo (contactInfo:ContactInfo) = 
+        match contactInfo.id with 
+        | -1 -> insertContactInfo contactInfo
+        |_ -> updateContactInfo contactInfo
 
     ///return Async task to load list of contacts from the database
     let getListOfContacts searchString (dateTriggered:DateTime) limit offset =
