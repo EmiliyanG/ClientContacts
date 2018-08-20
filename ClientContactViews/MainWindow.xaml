@@ -8,22 +8,26 @@
         Title="Client Contacts" Height="350" MinWidth="560" MinHeight="550" Background="#FEFEFF">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <SolidColorBrush x:Key="popupBackground" Color="Black" Opacity="0.6" />
     </Window.Resources>
     <Grid>
-        <Grid.RowDefinitions>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" MinWidth="300"/>
-            <ColumnDefinition Width="5"/>
-            <ColumnDefinition Width="*" MinWidth="300"/>
-        </Grid.ColumnDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="300"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="*" MinWidth="300"/>
+            </Grid.ColumnDefinitions>
 
-         <local:ContactList DataContext="{Binding ContactList}" Grid.Column="0"/>
-        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="#14073A" />
-        <local:ContactInfoBox DataContext="{Binding ContactInfoBox}" Grid.Column="2" VerticalAlignment="Stretch"/>
-        <Image  Grid.Column="2" Grid.Row="5" Visibility="{Binding AddressBook ,  
-                                Converter={StaticResource BooleanToVisibilityConverter} }"
-                MaxWidth="200" Source=".\res\address-book.png"/>
+             <local:ContactList DataContext="{Binding ContactList}" Grid.Column="0"/>
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="#14073A" />
+            <local:ContactInfoBox DataContext="{Binding ContactInfoBox}" Grid.Column="2" VerticalAlignment="Stretch"/>
+            <Image  Grid.Column="2" Grid.Row="5" Visibility="{Binding AddressBook ,  
+                                    Converter={StaticResource BooleanToVisibilityConverter} }"
+                    MaxWidth="200" Source=".\res\address-book.png"/>
 
+        </Grid>
+        <local:LocationPopup Background="{StaticResource popupBackground}"/>
     </Grid>
 </Window>

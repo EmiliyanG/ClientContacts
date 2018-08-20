@@ -93,6 +93,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="LocationPopup.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -125,6 +129,9 @@
     <Compile Include="InputBindingManager.cs" />
     <Compile Include="ListLoading.xaml.cs">
       <DependentUpon>ListLoading.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LocationPopup.xaml.cs">
+      <DependentUpon>LocationPopup.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

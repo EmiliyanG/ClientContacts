@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="ClientContactViews.LocationPopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ClientContactViews"
+        mc:Ignorable="d" 
+         >
+    
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="lighter" Color="#FEFEFF"/>
+        <SolidColorBrush x:Key="light" Color="#897BAF"/>
+        <SolidColorBrush x:Key="medium" Color="#423075"/>
+        <SolidColorBrush x:Key="dark" Color="#14073A"/>
+        <SolidColorBrush x:Key="darker" Color="#000000"/>
+        <DataTemplate x:Key="LocationComboBoxItemTemplate">
+            <Label Content="{Binding locationName}"/>
+        </DataTemplate>
+        
+        <Style TargetType="ComboBox" >
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="Height" Value="Auto"/>
+            <Setter Property="Width" Value="Auto"/>
+            <Setter Property="Grid.ColumnSpan" Value="6"/>
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="Margin" Value="0,2,2,2" />
+        </Style>
+    </UserControl.Resources>
+    <Grid Height="150" Width="300" Background="{StaticResource lighter}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <Label Content="Add a new location" />
+            <ComboBox DockPanel.Dock="Top"
+                IsEnabled="{Binding IsOrganisationComboBoxEnabled }"
+                SelectedIndex="{Binding SelectedOrganisationIndex}"
+                ItemsSource="{Binding organisationsSource}"
+                ItemTemplate="{StaticResource LocationComboBoxItemTemplate}"
+                />
+            <TextBox DockPanel.Dock="Top" ToolTip="ds"/>
+        </StackPanel>
+        
+        <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Content="save" Grid.Row="2"/>
+                <Button Content="cancel" Grid.Row="2" Grid.Column="1"/>
+            </Grid>
+    </Grid>
+</UserControl>
