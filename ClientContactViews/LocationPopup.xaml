@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ClientContactViews"
         mc:Ignorable="d" 
+        
          >
     
     <UserControl.Resources>
@@ -33,7 +34,21 @@
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
         <StackPanel>
-            <Label Content="Add a new location" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="30"/>
+                </Grid.ColumnDefinitions>
+                <Label Content="Add a new location" />
+                <Button Grid.Column="1" 
+                        Content="x" 
+                        ToolTip="Close" 
+                        Background="Red" 
+                        Command="{Binding Cancel}"/>
+
+
+            </Grid>
+            
             <ComboBox DockPanel.Dock="Top"
                 IsEnabled="{Binding IsOrganisationComboBoxEnabled }"
                 SelectedIndex="{Binding SelectedOrganisationIndex}"
@@ -50,7 +65,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Button Content="save" Grid.Row="2"/>
-                <Button Content="cancel" Grid.Row="2" Grid.Column="1"/>
+                <Button Content="cancel" Grid.Row="2" Grid.Column="1" Command="{Binding Cancel}"/>
             </Grid>
     </Grid>
 </UserControl>

@@ -7,18 +7,30 @@ module LocationPopup=
 
     type Msg = 
         |UpdateModel
+        |Cancel
         
-    type Model = { organisationsList:Organisation seq; locationField:string option}
+    type Model = { organisationsList:Organisation seq
+                   locationField:string option
+                   IsVisible: bool
+                   }
 
-    let init() = {organisationsList = []; locationField = None}
+    let init() = {organisationsList = []
+                  locationField = None
+                  IsVisible=true
+                  }
     
     let update msg model = 
         match msg with
-        |UpdateModel -> model
+        |UpdateModel -> model, Cmd.none
+        |Cancel -> 
+            {model with IsVisible= false}, Cmd.none
     
 
-    let view (msg:Msg) (model:Model) = 
-        [ "location" |> Binding.oneWay (fun m -> "")
+    let locationPopupViewBindings: ViewBinding<Model, Msg> list = 
+        [ 
+            "Cancel" |> Binding.cmd (fun param m -> Cancel)
+            "location" |> Binding.oneWay (fun m -> "")
+            "LocationPopupVisibility" |> Binding.oneWay (fun m -> m.IsVisible)
           ]
 
 

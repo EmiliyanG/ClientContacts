@@ -28,6 +28,8 @@
                     MaxWidth="200" Source=".\res\address-book.png"/>
 
         </Grid>
-        <local:LocationPopup Background="{StaticResource popupBackground}"/>
+        <local:LocationPopup DataContext="{Binding LocationPopup}"
+                             Background="{StaticResource popupBackground}" 
+                             Visibility="{Binding Path=LocationPopupVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" />
     </Grid>
 </Window>
