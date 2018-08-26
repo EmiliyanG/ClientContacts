@@ -38,6 +38,8 @@ module MainWindow =
                 {model with IsAddressBookVisible = false}, Cmd.ofMsg (ContactInfoBoxMsg(ContactInfoBox.Msg.LoadContact(i)))
             | ContactList.Msg.AddNewContact org -> 
                 {model with IsAddressBookVisible = false}, Cmd.ofMsg (ContactInfoBoxMsg(ContactInfoBox.Msg.AddNewContact(org)))
+            | ContactList.Msg.AddNewLocation org -> 
+                model, Cmd.ofMsg (LocationPopupMsg(LocationPopup.Msg.ShowPopup(org)))
             | _ -> 
                 let mapContactList (model, cmd) = model, cmd |> Cmd.map ContactList
                 let m, ms = ContactList.update x (model.Contacts) |> mapContactList
