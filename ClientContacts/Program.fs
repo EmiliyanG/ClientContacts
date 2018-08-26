@@ -17,7 +17,7 @@ let main argv =
     let window = ClientContactViews.MainWindow()
     
     Program.mkProgram MainWindow.init MainWindow.update MainWindow.view
-    |> Program.withErrorHandler (fun (_, ex) -> MessageBox.Show(ex.Message) |> ignore)
+    |> Program.withErrorHandler (fun (_, ex) -> MessageBox.Show( sprintf "%s\n%s" ex.Message ex.StackTrace ) |> ignore)
     //|> Program.withConsoleTrace
     //|> Program.withSubscription (ContactList.getListOfContacts "")
     |> Program.runWindow ( window )

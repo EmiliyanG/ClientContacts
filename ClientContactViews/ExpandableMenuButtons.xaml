@@ -128,7 +128,10 @@
             </Grid>
         </Button>
         <Button x:Name="button1" Style="{StaticResource menuBtn}"
-                Opacity="0" ToolTip="Add New Location">
+                Opacity="0" ToolTip="Add New Location"
+                Command="{Binding Path=DataContext.AddNewLocation, ElementName=ListView}"
+                CommandParameter="{Binding Path=DataContext.Name, RelativeSource={RelativeSource AncestorType={x:Type GroupItem}}}"
+                >
             <Grid >
                 <Image Source="res/map.png"/>
             </Grid>

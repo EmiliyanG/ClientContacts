@@ -14,8 +14,8 @@
         <SolidColorBrush x:Key="medium" Color="#423075"/>
         <SolidColorBrush x:Key="dark" Color="#14073A"/>
         <SolidColorBrush x:Key="darker" Color="#000000"/>
-        <DataTemplate x:Key="LocationComboBoxItemTemplate">
-            <Label Content="{Binding locationName}"/>
+        <DataTemplate x:Key="OrganisationComboBoxItemTemplate">
+            <Label Content="{Binding organisationName}"/>
         </DataTemplate>
         
         <Style TargetType="ComboBox" >
@@ -53,9 +53,9 @@
                 IsEnabled="{Binding IsOrganisationComboBoxEnabled }"
                 SelectedIndex="{Binding SelectedOrganisationIndex}"
                 ItemsSource="{Binding organisationsSource}"
-                ItemTemplate="{StaticResource LocationComboBoxItemTemplate}"
+                ItemTemplate="{StaticResource OrganisationComboBoxItemTemplate}"
                 />
-            <TextBox DockPanel.Dock="Top" ToolTip="ds"/>
+            <TextBox DockPanel.Dock="Top" ToolTip="ds" Text="{Binding LocationText, Mode=TwoWay}"/>
         </StackPanel>
         
         <Grid Grid.Row="1">

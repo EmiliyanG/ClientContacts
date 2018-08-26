@@ -34,6 +34,7 @@ module ContactList =
         |FilterDisabled of bool
         |FilterAdmins of bool
         |AddNewContact of OrganisationName
+        |AddNewLocation of OrganisationName
         //|UpdateContact of Guid * Contact.Msg
     
     type Filters = {includeDisabledContacts: bool; showAdminsOnly: bool }
@@ -89,6 +90,9 @@ module ContactList =
             //this message will be elevated 1 level up 
             failwith <| sprintf "this message should have been caught 1 level up. Msg: UpdateContactInfo(%d)" id
             model, Cmd.none
+        |AddNewLocation org -> 
+            failwith <| sprintf "The message AddNewLocation(%A) should have been intercepted 1 level up" org
+            model, Cmd.none
         | AddNewContact(organisationName)-> 
             //this message will be elevated 1 level up 
             failwith <| sprintf "this message should have been caught 1 level up. Msg: AddNewContact(%s)" organisationName.getData
@@ -137,6 +141,7 @@ module ContactList =
                                               let ic = isChecked :?> bool //downcast the isChecked object to bool
                                               FilterAdmins(ic) )
          "AddNewContact" |> Binding.cmd (fun param m -> AddNewContact(OrganisationName(string param)))
+         "AddNewLocation" |> Binding.cmd (fun param m -> AddNewLocation(OrganisationName(string param)))
         ]
 
 
