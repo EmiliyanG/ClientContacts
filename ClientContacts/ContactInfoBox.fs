@@ -299,7 +299,7 @@ module ContactInfoBox =
                                                                          organisationId = match orgIndexFromList with 
                                                                                           |Some index -> Seq.item index organisationlist
                                                                                                          |> fun v -> v.id
-                                                                                          |None -> -1 }) ) 
+                                                                                          |None -> info.organisationId }) ) 
                  }, match model.contactInfo with 
                     | Some info -> Cmd.ofMsg (LoadLocationsList(OrganisationId(info.organisationId)))
                     | None -> Cmd.none
