@@ -1,6 +1,6 @@
 ﻿namespace ClientContacts
 
-module ContactInfoBoxValidator =
+module Validator =
     
     open System.Text.RegularExpressions
     open DebugUtils
@@ -15,14 +15,8 @@ module ContactInfoBoxValidator =
     |Phone
     |Email
     |Comments
-        member this.ToString =
-            match this with 
-            |Email -> "email"
-            |Phone -> "telephone"
-            |ContactName -> "contact name"
-            |Comments -> "comments"
 
-    type ValidationError = {message: string; fieldName: TextBox}
+    type ContactInfoBoxValidationError = {message: string; fieldName: TextBox}
 
     type Result<'TSuccess,'TFailure> = 
     | Success of 'TSuccess
@@ -37,19 +31,19 @@ module ContactInfoBoxValidator =
     let (>>>) f1 f2 =
         f1 >> bind f2
 
-    let isFieldValueLongerThanLimit (field:TextBox) limit (str:string) = 
+    let isFieldValueLongerThanLimit limit (str:string) = 
         match str.Length <= limit with 
         |true -> Success str
-        |false -> Failure (sprintf "The value in the %s field cannot exceed more than %d characters." (field.ToString)  limit)
+        |false -> Failure (sprintf "Must be less than %d characters." limit)
 
-    let doesFieldContainBlankSpacesOnly (field:TextBox) (str:string) =
+    let doesFieldContainBlankSpacesOnly (str:string) =
         match Regex.IsMatch(str, emptyStringRegex, RegexOptions.IgnoreCase) with
-        |true -> Failure ( sprintf "The %s field cannot be empty" (field.ToString) )
+        |true -> Failure ( "Must contain at least 1 non-space character." )
         |false -> Success str
     
-    let isFieldEmpty (field:TextBox) (str:string) =
+    let isFieldEmpty (str:string) =
         match str.Length with
-        |0 -> Failure ( sprintf "The %s field cannot be empty" (field.ToString) )
+        |0 -> Failure ("Cannot be empty.")
         |_ -> Success str
 
     let doesEmailMatchRegex str = 
@@ -58,20 +52,26 @@ module ContactInfoBoxValidator =
         |false -> Failure "The email is not valid."
     
     let validateEmail= 
-        isFieldValueLongerThanLimit Email 250
+        isFieldValueLongerThanLimit 250
         >>> doesEmailMatchRegex
 
     let validateContactName =
-        isFieldValueLongerThanLimit ContactName 250
-        >>> doesFieldContainBlankSpacesOnly ContactName
-        >>> isFieldEmpty ContactName
+        isFieldValueLongerThanLimit 250
+        >>> doesFieldContainBlankSpacesOnly
+        >>> isFieldEmpty
 
     let validateTelephone =
-        isFieldValueLongerThanLimit Phone 250
+        isFieldValueLongerThanLimit 250
 
     let validateComments =
-        isFieldValueLongerThanLimit Comments 2000
+        isFieldValueLongerThanLimit 2000
     
+    let validateLocation =
+        isFieldEmpty
+        >>> doesFieldContainBlankSpacesOnly
+        >>> isFieldValueLongerThanLimit 250
+
+
     let getValidationFunction =
         function 
         |Email -> validateEmail
@@ -96,7 +96,7 @@ module ContactInfoBoxValidator =
                 |None -> ""
             )
 
-    let addValidationError (errors:ValidationError list option) e =
+    let addValidationError (errors:ContactInfoBoxValidationError list option) e =
         e::match errors with 
            |Some e -> e
            |None -> []

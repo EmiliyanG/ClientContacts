@@ -12,7 +12,7 @@ module ContactInfoBox =
     open Contact
     open System.Windows.Forms
     open System.Windows
-    open ContactInfoBoxValidator
+    open Validator
     open ContactInfoBoxBindingsManager
     
 
@@ -70,7 +70,7 @@ module ContactInfoBox =
     let DEFAULT_ORGANISATION_ID = 0
 
     type Model = { mode: ContactInfoBoxMode
-                   validationErrors: ValidationError list option
+                   validationErrors: ContactInfoBoxValidationError list option
                    loading: bool; loaded:bool
                    contactInfo: ContactInfo option
                    contactInfoSnapshot: ContactInfo option
@@ -198,7 +198,6 @@ module ContactInfoBox =
         | UpdateContactInfo (q, d)-> 
             match model.loadContactRequest with 
             | Some r when r.latestRequest = d -> 
-            
                 match q with 
                 |Some info -> 
                     
@@ -284,9 +283,9 @@ module ContactInfoBox =
             match model.loadOrganisationsList with 
             | Some request when request.latestRequest = timeStamp -> 
                 
-
                 let orgIndexFromList = Option.map (fun v -> getOrganisationComboBoxIndexByName organisationlist v) org
                 
+
                 {model with LoadLocationsList= None; 
                             organisationComboBox= 
                                 OrganisationComboBox(organisationlist,

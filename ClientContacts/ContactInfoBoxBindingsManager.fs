@@ -1,7 +1,7 @@
 ﻿namespace ClientContacts
 
 module ContactInfoBoxBindingsManager =
-    open ContactInfoBoxValidator
+    open Validator
 
     type ContactInfoBoxMode = 
         |EditMode
