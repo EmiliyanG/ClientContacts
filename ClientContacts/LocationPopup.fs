@@ -7,6 +7,8 @@ module LocationPopup=
     open ElmishUtils
     open System.Threading
     open MySQLConnection
+    open Validator
+    open DebugUtils
 
     type Msg = 
         |ShowPopup of OrganisationName
@@ -15,26 +17,32 @@ module LocationPopup=
         |LoadOrganisationsFailure of exn
         |ChangeLocation of string
         |Cancel
+        |TrySaving
+        |SavedSuccessfully
+        |FailureWhileSaving of exn
         
     type Model = { organisationsList:Organisation seq
                    loadOrganisationsList: AsyncRequest option
+                   validation: string option
                    isOrganisationComboBoxEnabled: bool
                    selectedOrganisationIndex: int
-                   locationField:string option
                    IsVisible: bool
                    LocationInput: string
                    }
 
     let init() = {organisationsList = []
                   loadOrganisationsList= None
+                  validation=None
                   selectedOrganisationIndex= -1
                   isOrganisationComboBoxEnabled=true
-                  locationField = None
                   IsVisible=false
                   LocationInput = ""
                   }
     let getOrganisationComboBoxIndexByName (organisations:seq<Organisation> ) (org:OrganisationName) = 
         organisations |> Seq.findIndex( fun organisation-> organisation.organisationName = org.getData)
+
+    let getOrganisationByName (organisations:seq<Organisation> ) (org:OrganisationName) = 
+        organisations |> Seq.find( fun organisation-> organisation.organisationName = org.getData)
 
     let update (msg:Msg) (model:Model) = 
         match msg with
@@ -43,10 +51,7 @@ module LocationPopup=
         | LoadOrganisationsList(org) -> 
             
             let d = newDate()
-            match model.loadOrganisationsList with
-            | Some request -> 
-                request.cancelSource.Cancel()
-            | _-> ()
+            model.loadOrganisationsList |> cancelRequest 
             let src = new CancellationTokenSource()
             {model with loadOrganisationsList=Some {latestRequest = d; cancelSource = src} }, 
             ofAsync (getOrganisations d) 
@@ -63,7 +68,31 @@ module LocationPopup=
             failwith  <| sprintf "Failed loading list of organisations with the following exception: %A" exn
         |Cancel -> 
             {model with IsVisible= false}, Cmd.none
+        |TrySaving -> 
+            
+            match validateLocation model.LocationInput with 
+            |Success e-> 
+
+                let org = Seq.item (model.selectedOrganisationIndex) (model.organisationsList)
+                let l = {id= -1; locationName=(model.LocationInput); organisationId= org.id}
+                debug "started saving"
+                {model with validation = None}, 
+                Cmd.ofAsync (insertLocation)
+                            l
+                            (fun a -> SavedSuccessfully)
+                            (fun e -> FailureWhileSaving e)
+            | Failure msg -> 
+                debug msg
+                {model with validation = Some msg}, 
+                Cmd.none
+        |SavedSuccessfully -> 
+            {model with IsVisible= false}, 
+            Cmd.none
+        |FailureWhileSaving e-> 
+            failwith <| sprintf "%s\n%s" e.Message e.StackTrace
+            model, Cmd.none
         |ChangeLocation v -> 
+            debug <| sprintf "changing location %s" v
             {model with LocationInput = v}, Cmd.none
 
     
@@ -77,6 +106,7 @@ module LocationPopup=
             "IsOrganisationComboBoxEnabled" |> Binding.oneWay (fun m -> m.isOrganisationComboBoxEnabled)
             "organisationsSource" |> Binding.oneWay (fun m -> m.organisationsList)
             "SelectedOrganisationIndex" |> Binding.oneWay (fun m-> m.selectedOrganisationIndex)
+            "Save" |> Binding.cmd(fun param m-> TrySaving)
           ]
 
 

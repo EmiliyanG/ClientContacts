@@ -64,7 +64,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Button Content="save" Grid.Row="2"/>
+            <Button Content="save" Grid.Row="2" Command="{Binding Save}"/>
                 <Button Content="cancel" Grid.Row="2" Grid.Column="1" Command="{Binding Cancel}"/>
             </Grid>
     </Grid>

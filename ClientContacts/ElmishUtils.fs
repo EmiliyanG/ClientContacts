@@ -28,3 +28,8 @@ module ElmishUtils =
     
    let newDate() = DateTime.Now
 
+   let cancelRequest request = 
+       match request with
+           | Some r -> 
+               r.cancelSource.Cancel()
+           | _-> ()
