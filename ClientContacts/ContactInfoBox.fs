@@ -153,6 +153,7 @@ module ContactInfoBox =
 
 
     let update (msg:Msg) (model:Model) = 
+        
         match msg with
         |AddNewContact org -> 
             match allowedToLoadNewContact model.mode with 
@@ -206,12 +207,13 @@ module ContactInfoBox =
                                 loadContactRequest= None
                                 }, 
                                 match info.organisationId, model.contactInfo  with
-                                | orgId, Some info when orgId = info.organisationId -> 
+                                | orgId, Some i when orgId = i.organisationId -> 
                                     //no need to query the database if the list of locations for the given organisation is already loaded
                                     //Update the Location ComboBox index only
-                                    Cmd.ofMsg (UpdateLocationComboBoxIndex(model.contactInfo
-                                                  |> Option.bind (fun info-> info.locationId 
-                                                                             |> Option.bind (fun lid -> getLocationComboBoxIndex model.locationComboBox.getLocationsList lid)))
+                                    Cmd.ofMsg (UpdateLocationComboBoxIndex(  info.locationId 
+                                                                             |> Option.bind (
+                                                                                fun lid -> 
+                                                                                    getLocationComboBoxIndex model.locationComboBox.getLocationsList lid))
                                     )
                                 | _ ->
                                     Cmd.ofMsg (LoadOrganisationsList(None))
@@ -220,18 +222,33 @@ module ContactInfoBox =
             | _ -> model, Cmd.none
 
         | UpdateLocationComboBoxIndex (index)-> 
-            {model with locationComboBox = 
-                        LocationComboBox( model.locationComboBox.getLocationsList,index)}, Cmd.none
+
+            let location = 
+                index |> 
+                Option.bind(
+                    fun i ->  
+                        model.locationComboBox.getLocationsList
+                        |> Option.map(
+                            fun locationList -> 
+                                Seq.item i locationList
+                                ))
+            
+            {model with locationComboBox = LocationComboBox(model.locationComboBox.getLocationsList,index)
+                        contactInfo= 
+                            model.contactInfo 
+                            |> Option.map(
+                                fun info-> 
+                                    {info with locationId= location |> Option.map(fun l-> l.id)}
+                                )}, Cmd.none
         | UpdateOrganisationComboBoxIndex (index)-> 
 
             let org = Seq.item index model.organisationComboBox.getOrganisationsList
             {model with organisationComboBox = OrganisationComboBox( model.organisationComboBox.getOrganisationsList,index);
                         contactInfo= 
                                     (model.contactInfo 
-                                    |> Option.bind(
+                                    |> Option.map(
                                         fun info-> 
-                                            Some {info with organisationId=org.id; 
-                                                            locationId=None})
+                                            {info with organisationId=org.id})
                                     )
                         
                         }, 
@@ -425,7 +442,7 @@ module ContactInfoBox =
          "IsAdminBtnEnabled"|> isEnabledBinding
          "IsDisabledBtnEnabled"|> isEnabledBinding
          "locationsSource" |> Binding.oneWayMap (fun m -> m.locationComboBox.getLocationsList) (fun v -> v |> function |Some l -> l |None-> null)      
-         "SelectedLocationIndex" |> Binding.twoWay (fun m ->  m.locationComboBox.getSelectedLocationIndex |> intFromOptionOrDefault <| -1) //getter
+         "SelectedLocationIndex" |> Binding.twoWay (fun m -> m.locationComboBox.getSelectedLocationIndex |> intFromOptionOrDefault <| -1) //getter
                                                    (fun index m-> UpdateLocationComboBoxIndex(Some(int index))) //setter
          
          "organisationsSource" |> Binding.oneWay (fun m -> m.organisationComboBox.getOrganisationsList)
