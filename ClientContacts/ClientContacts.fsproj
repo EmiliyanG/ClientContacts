@@ -58,6 +58,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
+    <Compile Include="SQLTypes.fs" />
     <Compile Include="DebugUtils.fs" />
     <Compile Include="Contact.fs" />
     <Compile Include="ElmishUtils.fs" />

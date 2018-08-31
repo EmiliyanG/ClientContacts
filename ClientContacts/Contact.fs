@@ -4,6 +4,7 @@ module Contact =
     open Elmish
     open Elmish.WPF
     open System
+    open SQLTypes
 
     type Msg = 
         |UpdateModel
@@ -12,6 +13,15 @@ module Contact =
 
     let init() = {IsUsedAsLoadingButton = true; id = 0 ; ContactName = ""; IsDisabled = false; IsAdmin=false; organisationName=""; organisationId=0; locationName=""}
     
+    let castSQLContactToContactModel (c:Contact) = 
+        {IsUsedAsLoadingButton=false; id = c.id ;
+        ContactName = c.ContactName; 
+        IsDisabled = c.IsDisabled; 
+        IsAdmin=c.IsAdmin; 
+        organisationName=c.organisationName;
+        organisationId = c.organisationId;
+        locationName = c.locationName} 
+
     let update msg model = 
         match msg with
         |UpdateModel -> model
