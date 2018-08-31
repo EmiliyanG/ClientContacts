@@ -21,6 +21,19 @@ module Contact =
         organisationName=c.organisationName;
         organisationId = c.organisationId;
         locationName = c.locationName} 
+    
+    let castContactInfoToContactModel (c:ContactInfo) (o:OrganisationName) (l:Location option) = 
+        {IsUsedAsLoadingButton=false; id = c.id ;
+        ContactName = c.ContactName; 
+        IsDisabled = c.IsDisabled; 
+        IsAdmin=c.IsAdmin; 
+        organisationName=o.getData;
+        organisationId = c.organisationId;
+        locationName = 
+            match l with 
+            |Some l -> l.locationName
+            |None -> null
+            } 
 
     let update msg model = 
         match msg with

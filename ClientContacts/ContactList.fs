@@ -28,6 +28,7 @@ module ContactList =
     type Msg = 
         |SearchContacts of string * Offset * Limit
         |UpdateContacts of Contact.Model list * DateTime
+        |UpdateIndividualContact of ContactInfo * OrganisationName * Location option
         |SearchFailure
         |UpdateContactInfo of int 
         |LoadMoreResults
@@ -85,6 +86,18 @@ module ContactList =
 
             | _ -> model, Cmd.none
 
+        |UpdateIndividualContact (info,o,l) -> 
+            
+            let newList =
+                model.contactList
+                |> Seq.map (
+                    fun c -> 
+                        match c.id with 
+                        | i when i = info.id -> Contact.castContactInfoToContactModel info o l
+                        |_ -> c)
+                |> List.ofSeq
+                                
+            {model with contactList = newList},Cmd.none
         | SearchFailure ->  model, Cmd.none
         | UpdateContactInfo(id)-> 
             //this message will be elevated 1 level up 

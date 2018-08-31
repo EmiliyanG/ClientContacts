@@ -45,9 +45,13 @@ module MainWindow =
                 let m, ms = ContactList.update x (model.Contacts) |> mapContactList
                 { model with Contacts = m }, ms //Cmd.map ContactList ms
         | ContactInfoBoxMsg x -> 
-            let mapContactList (model, cmd) = model, cmd |> Cmd.map ContactInfoBoxMsg
-            let m, msg = ContactInfoBox.update x (model.ContactInfoBox) |> mapContactList 
-            {model with ContactInfoBox = m}, msg
+            match x with 
+            |ContactInfoBox.Msg.SaveContactInfoChangesSuccess(i,o,l) -> 
+                model, Cmd.ofMsg(ContactList(ContactList.Msg.UpdateIndividualContact(i,o,l)))
+            |_ ->
+                let mapContactList (model, cmd) = model, cmd |> Cmd.map ContactInfoBoxMsg
+                let m, msg = ContactInfoBox.update x (model.ContactInfoBox) |> mapContactList 
+                {model with ContactInfoBox = m}, msg
         | LocationPopupMsg x -> 
             let mapLocationPopupMsg (model, cmd) = model, cmd |> Cmd.map LocationPopupMsg
             let m, msg = LocationPopup.update x (model.LocationPopup) |> mapLocationPopupMsg

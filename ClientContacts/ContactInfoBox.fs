@@ -64,8 +64,10 @@ module ContactInfoBox =
         |EnterEditMode
         |CancelChanges 
         |SaveContactInfoChanges
+        |InsertContactInfoRecordSuccess
+        |SaveContactInfoChangesSuccess of ContactInfo * OrganisationName * Location option
         |SaveContactInfoChangesFailure
-        |SaveContactInfoChangesSuccess
+        |InsertContactInfoRecordFailure
     [<Literal>]
     let DEFAULT_ORGANISATION_ID = 0
 
@@ -352,12 +354,28 @@ module ContactInfoBox =
                                 info
                                 (fun param -> 
                                      match param with 
-                                     |1 -> SaveContactInfoChangesSuccess
+                                     |1 -> 
+                                          let l = 
+                                              model.locationComboBox.getLocationsList
+                                              |> Option.bind( 
+                                                  fun locationList-> 
+                                                      model.locationComboBox.getSelectedLocationIndex
+                                                      |> Option.map(fun lid -> 
+                                                          Seq.item lid locationList))
+                                          let o = 
+                                              Seq.item model.organisationComboBox.getSelectedOrganisationIndex
+                                                       model.organisationComboBox.getOrganisationsList
+                                          SaveContactInfoChangesSuccess(info,OrganisationName(o.organisationName),l)
                                      |_ ->failwith "Could not update or insert a contact in the database"
                                           SaveContactInfoChangesFailure)
                                 (fun exn -> SaveContactInfoChangesFailure)
                 |None -> Cmd.none
-        |SaveContactInfoChangesFailure |SaveContactInfoChangesSuccess -> model, Cmd.none
+        |SaveContactInfoChangesSuccess(info,o,l) -> 
+            failwith <| sprintf "the SaveContactInfoChangesSuccess(%A) should have been intercepted 1 level up" info
+            model, Cmd.none
+        |SaveContactInfoChangesFailure 
+        |InsertContactInfoRecordSuccess 
+        |InsertContactInfoRecordFailure -> model, Cmd.none
         |UpdateContactInfoPhone(value) ->
             validateContactInfoTextField model Phone value
             |>  updateContactInfoField <| (fun info -> {info with telephone = optionFromString value}), Cmd.none
