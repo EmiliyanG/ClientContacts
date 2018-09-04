@@ -207,18 +207,7 @@ module ContactInfoBox =
                     {model with loading = false; loaded = true; 
                                 contactInfo = Some info
                                 loadContactRequest= None
-                                }, 
-                                match info.organisationId, model.contactInfo  with
-                                | orgId, Some i when orgId = i.organisationId -> 
-                                    //no need to query the database if the list of locations for the given organisation is already loaded
-                                    //Update the Location ComboBox index only
-                                    Cmd.ofMsg (UpdateLocationComboBoxIndex(  info.locationId 
-                                                                             |> Option.bind (
-                                                                                fun lid -> 
-                                                                                    getLocationComboBoxIndex model.locationComboBox.getLocationsList lid))
-                                    )
-                                | _ ->
-                                    Cmd.ofMsg (LoadOrganisationsList(None))
+                                }, Cmd.ofMsg (LoadOrganisationsList(None))
                 |_ ->
                     {model with loading = false; loaded = true}, Cmd.none
             | _ -> model, Cmd.none
