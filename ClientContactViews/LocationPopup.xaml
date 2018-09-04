@@ -50,7 +50,7 @@
         <TextBox    Grid.Row="2"
                     ToolTip="ds" 
                     Text="{Binding LocationText, Mode=TwoWay}"
-                    Style="{StaticResource defaultTextBoxStyle}"/>
+                    Style="{StaticResource defaultTextBoxStyle}" Margin="2"/>
         <Label Grid.Row="3" Content="{Binding locationValidations}"/>
         
         <Grid Grid.Row="4">
