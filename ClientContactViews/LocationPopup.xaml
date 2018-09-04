@@ -5,28 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ClientContactViews"
         mc:Ignorable="d" 
-        
          >
-    
     <UserControl.Resources>
-        <SolidColorBrush x:Key="lighter" Color="#FEFEFF"/>
-        <SolidColorBrush x:Key="light" Color="#897BAF"/>
-        <SolidColorBrush x:Key="medium" Color="#423075"/>
-        <SolidColorBrush x:Key="dark" Color="#14073A"/>
-        <SolidColorBrush x:Key="darker" Color="#000000"/>
-        <DataTemplate x:Key="OrganisationComboBoxItemTemplate">
-            <Label Content="{Binding organisationName}"/>
-        </DataTemplate>
-        
-        <Style TargetType="ComboBox" >
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="VerticalAlignment" Value="Stretch"/>
-            <Setter Property="Height" Value="Auto"/>
-            <Setter Property="Width" Value="Auto"/>
-            <Setter Property="Grid.ColumnSpan" Value="6"/>
-            <Setter Property="Padding" Value="4" />
-            <Setter Property="Margin" Value="0,2,2,2" />
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="res\styles\Colours.xaml"/>
+                <ResourceDictionary Source="res\styles\DefaultStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <DataTemplate x:Key="OrganisationComboBoxItemTemplate">
+                <Label Content="{Binding organisationName}"/>
+            </DataTemplate>
+        </ResourceDictionary>
     </UserControl.Resources>
     <Grid Height="150" Width="300" Background="{StaticResource lighter}">
         <Grid.RowDefinitions>
@@ -49,13 +39,18 @@
 
             </Grid>
             
-            <ComboBox DockPanel.Dock="Top"
+            <ComboBox 
+                DockPanel.Dock="Top"
                 IsEnabled="{Binding IsOrganisationComboBoxEnabled }"
                 SelectedIndex="{Binding SelectedOrganisationIndex}"
                 ItemsSource="{Binding organisationsSource}"
                 ItemTemplate="{StaticResource OrganisationComboBoxItemTemplate}"
+                Style="{StaticResource defaultComboBoxStyle}"
                 />
-            <TextBox DockPanel.Dock="Top" ToolTip="ds" Text="{Binding LocationText, Mode=TwoWay}"/>
+            <TextBox DockPanel.Dock="Top" 
+                     ToolTip="ds" 
+                     Text="{Binding LocationText, Mode=TwoWay}"
+                     Style="{StaticResource defaultTextBoxStyle}"/>
         </StackPanel>
         
         <Grid Grid.Row="1">
