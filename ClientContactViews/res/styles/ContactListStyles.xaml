@@ -4,13 +4,12 @@
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     xmlns:b="clr-namespace:ClientContactViews"
                     xmlns:local="clr-namespace:ClientContactViews">
-    <SolidColorBrush x:Key="lighter" Color="#FEFEFF"/>
-    <SolidColorBrush x:Key="light" Color="#897BAF"/>
-    <SolidColorBrush x:Key="medium" Color="#423075"/>
-    <SolidColorBrush x:Key="dark" Color="#14073A"/>
-    <SolidColorBrush x:Key="darker" Color="#000000"/>
-    <SolidColorBrush x:Key="listBoxItemBackground" Color="#e6e6ef"/>
-    <SolidColorBrush x:Key="expanderBackground" Color="#d0d0e8"/>
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Colours.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    
+    
     <local:MyNullVisibilityConverter x:Key="NullToVisibilityConverter"/>
     <local:MarginConverter x:Key="NullToMarginConverter"/>
     <local:CollectionViewGroupToVisibilityConverter x:Key="CollectionViewGroupToVisibilityConverter"/>

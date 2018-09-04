@@ -11,103 +11,10 @@
              d:DesignHeight="400" d:DesignWidth="400">
 
     <UserControl.Resources>
-        <SolidColorBrush x:Key="lighter" Color="#FEFEFF"/>
-        <SolidColorBrush x:Key="light" Color="#897BAF"/>
-        <SolidColorBrush x:Key="medium" Color="#423075"/>
-        <SolidColorBrush x:Key="dark" Color="#14073A"/>
-        <SolidColorBrush x:Key="darker" Color="#000000"/>
-        <SolidColorBrush x:Key="readOnlyTextBoxBackground" Color="#e6e6ef"/>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <local:BoolToVisibilityColapsedConverter x:Key="BoolToVisibilityColapsedConverter"/>
-
-        <Style TargetType="{x:Type Button}" x:Key="ImageButtonStyle">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <ContentPresenter/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
-        </Style>
-
-        <DataTemplate x:Key="LocationComboBoxItemTemplate">
-            <Label Content="{Binding locationName}"/>
-        </DataTemplate>
         
-        <DataTemplate x:Key="OrganisationComboBoxItemTemplate">
-            <Label Content="{Binding organisationName}"/>
-        </DataTemplate>
-        
-        <Style TargetType="ComboBox" >
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="VerticalAlignment" Value="Stretch"/>
-            <Setter Property="Height" Value="Auto"/>
-            <Setter Property="Width" Value="Auto"/>
-            <Setter Property="Grid.ColumnSpan" Value="6"/>
-            <Setter Property="Grid.Column" Value="1"/>
-            <Setter Property="Padding" Value="4" />
-            <Setter Property="Margin" Value="0,2,2,2" />
-        </Style>
-        
-        
-        <Style x:Key="textBox" TargetType="{x:Type TextBox}">
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="VerticalAlignment" Value="Stretch"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-            <Setter Property="Height" Value="Auto"/>
-            <Setter Property="Width" Value="Auto"/>
-            <Setter Property="Grid.ColumnSpan" Value="6"/>
-            <Setter Property="Grid.Column" Value="1"/>
-            <Setter Property="Padding" Value="4" />
-            <Setter Property="Margin" Value="0,2,2,2" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="BorderBrush" Value="{StaticResource darker}"/>
+        <ResourceDictionary Source="res\styles\ContactInfoBoxStyles.xaml"/>
             
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border Name="Bd" BorderThickness="{TemplateBinding BorderThickness}" 
-                                             BorderBrush="{TemplateBinding BorderBrush}" 
-                                             Background="{TemplateBinding Background}" 
-                                             SnapsToDevicePixels="true">
-                            <Grid>
-                                <ScrollViewer Name="PART_ContentHost" Background="{TemplateBinding Background}" 
-                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                            </Grid>
-
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsReadOnly" Value="True">
-                                <Setter Property="Background" Value="{StaticResource readOnlyTextBoxBackground}"  />
-                                <Setter Property="Foreground" Value="Black"  />
-                                <Setter Property="BorderThickness" Value="1"/>
-                                <Setter Property="BorderBrush" Value="Transparent" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-
-        </Style>
-
-
-        <Style x:Key="image" TargetType="Image">
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Stretch" Value="Uniform"/>
-            <Setter Property="Width" Value="20"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="Visibility" Value="{Binding loaded , Converter={StaticResource BooleanToVisibilityConverter} }" />
-        </Style>
-
-        <Style x:Key="banner" TargetType="Image">
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Stretch" Value="UniformToFill"/>
-            <Setter Property="Margin" Value="5"/>
-        </Style>
-
+        
     </UserControl.Resources>
     <Grid>
         <local:InfoBoxLoading Visibility="{Binding loading , Converter={StaticResource BooleanToVisibilityConverter} }"/>
@@ -176,6 +83,7 @@
                               SelectedIndex="{Binding SelectedOrganisationIndex}"
                               ItemsSource="{Binding organisationsSource}"
                               ItemTemplate="{StaticResource OrganisationComboBoxItemTemplate}"
+                              Style="{StaticResource ComboBox}"
                               />
                     <!--<local:ContactInfoTextBox Grid.Column="1" x:Name="organisation" IsReadOnly="{Binding IsOrganisationReadOnly}" Text="{Binding organisation}" Style="{StaticResource textBox}"/>
                 -->
@@ -192,6 +100,7 @@
                               SelectedIndex="{Binding SelectedLocationIndex}"
                               ItemsSource="{Binding locationsSource}"
                               ItemTemplate="{StaticResource LocationComboBoxItemTemplate}"
+                              Style="{StaticResource ComboBox}"
                     />
 
                 </Grid>

@@ -1,0 +1,16 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:b="clr-namespace:ClientContactViews"
+                    xmlns:local="clr-namespace:ClientContactViews">
+
+    <SolidColorBrush x:Key="lighter" Color="#FEFEFF"/>
+    <SolidColorBrush x:Key="light" Color="#897BAF"/>
+    <SolidColorBrush x:Key="medium" Color="#423075"/>
+    <SolidColorBrush x:Key="dark" Color="#14073A"/>
+    <SolidColorBrush x:Key="darker" Color="#000000"/>
+    <SolidColorBrush x:Key="readOnlyTextBoxBackground" Color="#e6e6ef"/>
+    <SolidColorBrush x:Key="listBoxItemBackground" Color="#e6e6ef"/>
+    <SolidColorBrush x:Key="expanderBackground" Color="#d0d0e8"/>
+</ResourceDictionary>
