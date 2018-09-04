@@ -51,6 +51,7 @@
                      ToolTip="ds" 
                      Text="{Binding LocationText, Mode=TwoWay}"
                      Style="{StaticResource defaultTextBoxStyle}"/>
+            <Label Content="{Binding locationValidations}"/>
         </StackPanel>
         
         <Grid Grid.Row="1">

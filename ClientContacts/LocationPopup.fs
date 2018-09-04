@@ -34,7 +34,7 @@ module LocationPopup=
                   loadOrganisationsList= None
                   validation=None
                   selectedOrganisationIndex= -1
-                  isOrganisationComboBoxEnabled=true
+                  isOrganisationComboBoxEnabled=false
                   IsVisible=false
                   LocationInput = ""
                   }
@@ -107,6 +107,12 @@ module LocationPopup=
             "organisationsSource" |> Binding.oneWay (fun m -> m.organisationsList)
             "SelectedOrganisationIndex" |> Binding.oneWay (fun m-> m.selectedOrganisationIndex)
             "Save" |> Binding.cmd(fun param m-> TrySaving)
+            "locationValidations" |> Binding.oneWayMap 
+                                                (fun m-> m.validation) 
+                                                (fun v -> 
+                                                    match v with
+                                                    | Some o -> o
+                                                    | None -> "")
           ]
 
 
