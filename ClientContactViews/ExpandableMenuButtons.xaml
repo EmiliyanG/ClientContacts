@@ -9,99 +9,109 @@
              d:DesignHeight="50" d:DesignWidth="300">
 
     <Grid.Resources>
-        <SolidColorBrush x:Key="lighter" Color="#FEFEFF"/>
-        <SolidColorBrush x:Key="light" Color="#897BAF"/>
-        <SolidColorBrush x:Key="medium" Color="#423075"/>
-        <SolidColorBrush x:Key="dark" Color="#14073A"/>
-        <SolidColorBrush x:Key="darker" Color="#000000"/>
-        <sys:Double x:Key="buttonWidth">50</sys:Double>
-        <sys:Double x:Key="pannelWidth">100</sys:Double>
-        <KeyTime x:Key="shrinkContentBeginTime">0:0:0.0</KeyTime>
-        <KeyTime x:Key="shrinkContentEndTime">0:0:0.2</KeyTime>
-        <KeyTime x:Key="expandContentBeginTime">0:0:0.0</KeyTime>
-        <KeyTime x:Key="expandContentEndTime">0:0:0.2</KeyTime>
-        <Storyboard x:Key="shrinkContent" FillBehavior="HoldEnd">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="button1">
-                <EasingDoubleKeyFrame KeyTime="{StaticResource shrinkContentBeginTime}" Value="0"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="button">
-                <EasingDoubleKeyFrame KeyTime="{StaticResource shrinkContentBeginTime}" Value="0"/>
-            </DoubleAnimationUsingKeyFrames>
-
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="Toggle">
-                <EasingDoubleKeyFrame KeyTime="{StaticResource shrinkContentBeginTime}" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
-            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="Toggle">
-                <DiscreteObjectKeyFrame KeyTime="{StaticResource shrinkContentBeginTime}" Value="{x:Static Visibility.Visible}"/>
-            </ObjectAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="Toggle">
-                <EasingDoubleKeyFrame KeyTime="{StaticResource shrinkContentBeginTime}" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="{StaticResource shrinkContentEndTime}" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="stackPanel">
-                <EasingDoubleKeyFrame KeyTime="{StaticResource shrinkContentEndTime}" Value="{StaticResource buttonWidth}"/>
-            </DoubleAnimationUsingKeyFrames>
-        </Storyboard>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="res\styles\Colours.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        
+            
+            
+            <sys:Double x:Key="buttonWidth">50</sys:Double>
+            <sys:Double x:Key="pannelWidth">150</sys:Double>
+            <KeyTime x:Key="shrinkContentBeginTime">0:0:0.0</KeyTime>
+            <KeyTime x:Key="shrinkContentEndTime">0:0:0.2</KeyTime>
+            <KeyTime x:Key="expandContentBeginTime">0:0:0.0</KeyTime>
+            <KeyTime x:Key="expandContentEndTime">0:0:0.2</KeyTime>
+            <Storyboard x:Key="shrinkContent" FillBehavior="HoldEnd">
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="button1">
+                    <EasingDoubleKeyFrame KeyTime="{StaticResource shrinkContentBeginTime}" Value="0"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="button">
+                    <EasingDoubleKeyFrame KeyTime="{StaticResource shrinkContentBeginTime}" Value="0"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="button2">
+                    <EasingDoubleKeyFrame KeyTime="{StaticResource shrinkContentBeginTime}" Value="0"/>
+                </DoubleAnimationUsingKeyFrames>
+                
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="Toggle">
+                    <EasingDoubleKeyFrame KeyTime="{StaticResource shrinkContentBeginTime}" Value="1"/>
+                </DoubleAnimationUsingKeyFrames>
+                <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="Toggle">
+                    <DiscreteObjectKeyFrame KeyTime="{StaticResource shrinkContentBeginTime}" Value="{x:Static Visibility.Visible}"/>
+                </ObjectAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="Toggle">
+                    <EasingDoubleKeyFrame KeyTime="{StaticResource shrinkContentBeginTime}" Value="0"/>
+                    <SplineDoubleKeyFrame KeyTime="{StaticResource shrinkContentEndTime}" Value="1"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="stackPanel">
+                    <EasingDoubleKeyFrame KeyTime="{StaticResource shrinkContentEndTime}" Value="{StaticResource buttonWidth}"/>
+                </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
         
         
-        <Storyboard x:Key="expandContent" FillBehavior="HoldEnd">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="button1">
-                <SplineDoubleKeyFrame KeyTime="{StaticResource expandContentBeginTime}" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="{StaticResource expandContentEndTime}" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="button">
-                <SplineDoubleKeyFrame KeyTime="{StaticResource expandContentBeginTime}" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="{StaticResource expandContentEndTime}" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
+            <Storyboard x:Key="expandContent" FillBehavior="HoldEnd">
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="button1">
+                    <SplineDoubleKeyFrame KeyTime="{StaticResource expandContentBeginTime}" Value="0"/>
+                    <SplineDoubleKeyFrame KeyTime="{StaticResource expandContentEndTime}" Value="1"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="button">
+                    <SplineDoubleKeyFrame KeyTime="{StaticResource expandContentBeginTime}" Value="0"/>
+                    <SplineDoubleKeyFrame KeyTime="{StaticResource expandContentEndTime}" Value="1"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="button2">
+                    <SplineDoubleKeyFrame KeyTime="{StaticResource expandContentBeginTime}" Value="0"/>
+                    <SplineDoubleKeyFrame KeyTime="{StaticResource expandContentEndTime}" Value="1"/>
+                </DoubleAnimationUsingKeyFrames>
+                
+                <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="Toggle">
+                    <DiscreteObjectKeyFrame KeyTime="{StaticResource expandContentEndTime}" Value="{x:Static Visibility.Collapsed}"/>
+                </ObjectAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="Toggle">
+                    <EasingDoubleKeyFrame KeyTime="{StaticResource expandContentBeginTime}" Value="1"/>
+                    <SplineDoubleKeyFrame KeyTime="{StaticResource expandContentEndTime}" Value="0"/>
+                </DoubleAnimationUsingKeyFrames>
 
-            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="Toggle">
-                <DiscreteObjectKeyFrame KeyTime="{StaticResource expandContentEndTime}" Value="{x:Static Visibility.Collapsed}"/>
-            </ObjectAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="Toggle">
-                <EasingDoubleKeyFrame KeyTime="{StaticResource expandContentBeginTime}" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="{StaticResource expandContentEndTime}" Value="0"/>
-            </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="stackPanel">
+                    <SplineDoubleKeyFrame KeyTime="{StaticResource expandContentEndTime}" Value="{StaticResource pannelWidth}"/>
+                </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+            <Style TargetType="Image">
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Stretch" Value="Uniform"/>
+                <Setter Property="Margin" Value="5"/>
+                <Setter Property="Width" Value="20"/>
+            </Style>
+            <Style TargetType="Button" x:Key="menuBtn">
+                <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                <Setter Property="Width" Value="{StaticResource buttonWidth}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Background" Value="{StaticResource lighter}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd" Background="{TemplateBinding Background}">
 
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="stackPanel">
-                <SplineDoubleKeyFrame KeyTime="{StaticResource expandContentEndTime}" Value="{StaticResource pannelWidth}"/>
-            </DoubleAnimationUsingKeyFrames>
-        </Storyboard>
-        <Style TargetType="Image">
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Stretch" Value="Uniform"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="Width" Value="20"/>
-        </Style>
-        <Style TargetType="Button" x:Key="menuBtn">
-            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-            <Setter Property="Width" Value="{StaticResource buttonWidth}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Background" Value="{StaticResource lighter}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}">
-
-                            <Grid  >
-                                <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
-                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
-                            </Grid>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="{StaticResource light}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Storyboard x:Key="Storyboard1">
-            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="Toggle">
-                <DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="{x:Static Visibility.Hidden}"/>
-            </ObjectAnimationUsingKeyFrames>
-        </Storyboard>
+                                <Grid  >
+                                    <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="{StaticResource light}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Storyboard x:Key="Storyboard1">
+                <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="Toggle">
+                    <DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="{x:Static Visibility.Hidden}"/>
+                </ObjectAnimationUsingKeyFrames>
+            </Storyboard>
+        </ResourceDictionary>
     </Grid.Resources>
 
     <Grid.Triggers>
@@ -127,6 +137,17 @@
                 <Image Source="res/menu-bars.png"/>
             </Grid>
         </Button>
+
+        <Button x:Name="button2" Style="{StaticResource menuBtn}"
+                Opacity="0" ToolTip="Edit Organisation"
+                Command="{Binding Path=DataContext.EditOrganisation, ElementName=ListView}"
+                CommandParameter="{Binding Path=DataContext.Name, RelativeSource={RelativeSource AncestorType={x:Type GroupItem}}}"
+                >
+            <Grid >
+                <Image Source="res/edit.png"/>
+            </Grid>
+        </Button>
+        
         <Button x:Name="button1" Style="{StaticResource menuBtn}"
                 Opacity="0" ToolTip="Add New Location"
                 Command="{Binding Path=DataContext.AddNewLocation, ElementName=ListView}"
