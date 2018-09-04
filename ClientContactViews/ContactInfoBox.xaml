@@ -67,7 +67,7 @@
 
             <Image  Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="0"
                     Grid.RowSpan="2" Width="60" Style="{StaticResource image}" ToolTip="Contact Name" Source=".\res\user.png"/>
-            <TextBox Grid.Row="1" x:Name="contactName" IsReadOnly="{Binding IsContactNameReadOnly}" Grid.Column="2" Grid.ColumnSpan="5" Text="{Binding contactName}" Style="{StaticResource textBox}"/>
+            <TextBox Grid.Row="1" x:Name="contactName" IsReadOnly="{Binding IsContactNameReadOnly}" Grid.Column="2" Grid.ColumnSpan="5" Text="{Binding contactName}" Style="{StaticResource customTextBox}"/>
 
             <DockPanel Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="7">
                 <Label DockPanel.Dock="Top" Content="{Binding ContactNameValidationsText}" Visibility="{Binding ContactNameValidationsVisible, Converter={StaticResource BoolToVisibilityColapsedConverter}}" />
@@ -85,7 +85,7 @@
                               ItemTemplate="{StaticResource OrganisationComboBoxItemTemplate}"
                               Style="{StaticResource ComboBox}"
                               />
-                    <!--<local:ContactInfoTextBox Grid.Column="1" x:Name="organisation" IsReadOnly="{Binding IsOrganisationReadOnly}" Text="{Binding organisation}" Style="{StaticResource textBox}"/>
+                    <!--<local:ContactInfoTextBox Grid.Column="1" x:Name="organisation" IsReadOnly="{Binding IsOrganisationReadOnly}" Text="{Binding organisation}" Style="{StaticResource customTextBox}"/>
                 -->
                 </Grid>
 
@@ -110,7 +110,7 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Image  Grid.Column="0" Style="{StaticResource image}" ToolTip="Phone Number" Source=".\res\phone.png"/>
-                    <TextBox Grid.Column="1" x:Name="phone" IsReadOnly="{Binding IsPhoneReadOnly}" Text="{Binding phone, Mode=TwoWay}" Style="{StaticResource textBox}"/>
+                    <TextBox Grid.Column="1" x:Name="phone" IsReadOnly="{Binding IsPhoneReadOnly}" Text="{Binding phone, Mode=TwoWay}" Style="{StaticResource customTextBox}"/>
                 </Grid>
                 <Label DockPanel.Dock="Top" Content="{Binding PhoneValidationsText}" Visibility="{Binding PhoneValidationsVisible, Converter={StaticResource BoolToVisibilityColapsedConverter}}" />
                 <Grid DockPanel.Dock="Top" Height="40">
@@ -119,7 +119,7 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Image  Grid.Column="0" Style="{StaticResource image}" ToolTip="Email Address" Source=".\res\email.png"/>
-                    <TextBox x:Name="email" IsReadOnly="{Binding IsEmailReadOnly}" Text="{Binding email,ValidatesOnNotifyDataErrors=True}" Style="{StaticResource textBox}"/>
+                    <TextBox x:Name="email" IsReadOnly="{Binding IsEmailReadOnly}" Text="{Binding email,ValidatesOnNotifyDataErrors=True}" Style="{StaticResource customTextBox}"/>
 
                 </Grid>
                 <Label DockPanel.Dock="Top" Content="{Binding EmailValidationsText}" Visibility="{Binding EmailValidationsVisible, Converter={StaticResource BoolToVisibilityColapsedConverter}}" />
@@ -131,7 +131,7 @@
                     <Image  Grid.Column="0" Style="{StaticResource image}" ToolTip="Additional Notes Or Comments" Source=".\res\comment.png"/>
                     <ScrollViewer Grid.Column="1" Height="100"
                           VerticalScrollBarVisibility="Auto" Margin="0,1,1,1">
-                        <TextBox x:Name="comments" IsReadOnly="{Binding AreCommentsReadOnly}" AcceptsReturn="True" Text="{Binding Comments}" TextWrapping="Wrap" SpellCheck.IsEnabled="True" Margin="0" VerticalContentAlignment="Top" Style="{StaticResource textBox}"/>
+                        <TextBox x:Name="comments" IsReadOnly="{Binding AreCommentsReadOnly}" AcceptsReturn="True" Text="{Binding Comments}" TextWrapping="Wrap" SpellCheck.IsEnabled="True" Margin="0" VerticalContentAlignment="Top" Style="{StaticResource customTextBox}"/>
                     </ScrollViewer>
                 </Grid>
                 <Label DockPanel.Dock="Bottom" Content="{Binding CommentsValidationsText}"   Visibility="{Binding CommentsValidationsVisible, Converter={StaticResource BoolToVisibilityColapsedConverter}}"/>
