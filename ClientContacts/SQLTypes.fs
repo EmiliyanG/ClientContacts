@@ -33,3 +33,9 @@ module SQLTypes =
         member this.getData = 
              match this with
              | OrganisationName s -> s
+     
+     type LocationName =
+        |LocationName of string
+        member this.getData = 
+             match this with
+             | LocationName s -> s

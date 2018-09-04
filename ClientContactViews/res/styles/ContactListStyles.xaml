@@ -7,13 +7,22 @@
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="Colours.xaml"/>
+        <ResourceDictionary Source="DefaultStyles.xaml"/>
     </ResourceDictionary.MergedDictionaries>
     
     
     <local:MyNullVisibilityConverter x:Key="NullToVisibilityConverter"/>
     <local:MarginConverter x:Key="NullToMarginConverter"/>
     <local:CollectionViewGroupToVisibilityConverter x:Key="CollectionViewGroupToVisibilityConverter"/>
-    
+    <local:CollectionViewGroupToNegatedVisibilityConverter x:Key="CollectionViewGroupToNegatedVisibilityConverter"/>
+
+    <Style TargetType="Image" x:Key="ImageBtn-Image">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Stretch" Value="Uniform"/>
+        <Setter Property="Margin" Value="5"/>
+        <Setter Property="Width" Value="20"/>
+    </Style>
     <Style x:Key="toggleBtn1" TargetType="ToggleButton">
         <Setter Property="IsChecked" Value="{Binding Path=IsExpanded,Mode=TwoWay,
                                     RelativeSource={RelativeSource TemplatedParent}}"/>
@@ -102,7 +111,20 @@
                                     Grid.Column="1" 
                                     HorizontalAlignment="Right"
                                     Visibility="{Binding Path=. ,Converter={StaticResource CollectionViewGroupToVisibilityConverter}}"/>
-                                
+                                <Button x:Name="button" 
+                                        Style="{StaticResource defaultImageBtnStyle}"
+                                        Width="50"
+                                        ToolTip="Edit Location"
+                                        Grid.Column="1" 
+                                        HorizontalAlignment="Right"
+                                        Visibility="{Binding Path=. ,Converter={StaticResource CollectionViewGroupToNegatedVisibilityConverter}}"
+                                        Command="{Binding Path=DataContext.EditLocation, ElementName=ListView}"
+                                        CommandParameter="{Binding Path=DataContext.Name, RelativeSource={RelativeSource AncestorType={x:Type GroupItem}}}"
+                                        >
+                                    <Grid>
+                                        <Image Source="../edit.png" Style="{StaticResource ImageBtn-Image}"/>
+                                    </Grid>
+                                </Button>
                             </Grid>
                         </Border>
                         <ContentPresenter Grid.Row="1" Margin="{Binding Name, Converter={StaticResource NullToMarginConverter}}"/>
