@@ -21,40 +21,39 @@
     <Grid Height="150" Width="300" Background="{StaticResource lighter}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <StackPanel>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="30"/>
-                </Grid.ColumnDefinitions>
-                <Label Content="Add a new location" />
-                <Button Grid.Column="1" 
-                        Content="x" 
-                        ToolTip="Close" 
-                        Background="Red" 
-                        Command="{Binding Cancel}"/>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="30"/>
+            </Grid.ColumnDefinitions>
+            <Label Content="Add a new location" />
+            <Button Grid.Column="1" 
+                    Content="x" 
+                    ToolTip="Close" 
+                    Background="Red" 
+                    Command="{Binding Cancel}"/>
+        </Grid>
 
-
-            </Grid>
-            
-            <ComboBox 
-                DockPanel.Dock="Top"
-                IsEnabled="{Binding IsOrganisationComboBoxEnabled }"
-                SelectedIndex="{Binding SelectedOrganisationIndex}"
-                ItemsSource="{Binding organisationsSource}"
-                ItemTemplate="{StaticResource OrganisationComboBoxItemTemplate}"
-                Style="{StaticResource defaultComboBoxStyle}"
-                />
-            <TextBox DockPanel.Dock="Top" 
-                     ToolTip="ds" 
-                     Text="{Binding LocationText, Mode=TwoWay}"
-                     Style="{StaticResource defaultTextBoxStyle}"/>
-            <Label Content="{Binding locationValidations}"/>
-        </StackPanel>
+        <ComboBox Grid.Row="1"
+            DockPanel.Dock="Top"
+            IsEnabled="{Binding IsOrganisationComboBoxEnabled }"
+            SelectedIndex="{Binding SelectedOrganisationIndex}"
+            ItemsSource="{Binding organisationsSource}"
+            ItemTemplate="{StaticResource OrganisationComboBoxItemTemplate}"
+            Style="{StaticResource defaultComboBoxStyle}" Margin="2"
+            />
+        <TextBox    Grid.Row="2"
+                    ToolTip="ds" 
+                    Text="{Binding LocationText, Mode=TwoWay}"
+                    Style="{StaticResource defaultTextBoxStyle}"/>
+        <Label Grid.Row="3" Content="{Binding locationValidations}"/>
         
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="4">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
