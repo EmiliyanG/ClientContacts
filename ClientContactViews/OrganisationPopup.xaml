@@ -27,7 +27,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="30"/>
             </Grid.ColumnDefinitions>
-            <Label Content="{Binding Title}" />
+            <Label Content="{Binding Title}" VerticalContentAlignment="Center"/>
             <Button Grid.Column="1" 
                     Content="x" 
                     ToolTip="Close" 

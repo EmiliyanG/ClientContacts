@@ -31,7 +31,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="30"/>
             </Grid.ColumnDefinitions>
-            <Label Content="Add a new location" />
+            <Label Content="Add a new location" VerticalContentAlignment="Center"/>
             <Button Grid.Column="1" 
                     Content="x" 
                     ToolTip="Close" 
