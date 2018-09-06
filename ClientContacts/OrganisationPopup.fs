@@ -19,12 +19,14 @@ module OrganisationPopup=
         |UpdateOrganisationInput of string
         |Cancel
         |TrySaving
-        |SavedSuccessfully
+        |SavedSuccessfully of Organisation
+        |UpdateContactsWithEditedOrganisationName of oldName : OrganisationName *  newName: OrganisationName 
         |FailureWhileSaving of exn
         
     type Model = { 
                    isVisible: bool
                    mode: Mode
+                   organisationNameSnapshot: OrganisationName
                    OrganisationInput: Organisation
                    validation: string option
                    }
@@ -32,6 +34,7 @@ module OrganisationPopup=
     let init() = {
                   isVisible=false
                   mode= Mode.EditOrganisation
+                  organisationNameSnapshot=OrganisationName("")
                   OrganisationInput = {id= -1; organisationName=""}
                   validation= None
                   }
@@ -52,6 +55,7 @@ module OrganisationPopup=
             {model with 
                    isVisible=true
                    OrganisationInput = org
+                   organisationNameSnapshot = OrganisationName <| org.organisationName
                    mode=Mode.EditOrganisation
                 }, Cmd.none
         |Cancel -> 
@@ -64,18 +68,23 @@ module OrganisationPopup=
                 {model with validation = None}, 
                 Cmd.ofAsync (updateOrInsertOrganisation)
                             model.OrganisationInput
-                            (fun a -> SavedSuccessfully)
+                            (fun a -> SavedSuccessfully model.OrganisationInput)
                             (fun e -> FailureWhileSaving e)
             | Failure msg -> 
                 {model with validation = Some msg}, 
                 Cmd.none
-        |SavedSuccessfully -> 
+        |SavedSuccessfully org-> 
             {model with isVisible= false}, 
-            Cmd.none
+            match org.id with 
+            | -1 -> Cmd.none
+            | x -> Cmd.ofMsg (UpdateContactsWithEditedOrganisationName(model.organisationNameSnapshot,OrganisationName(org.organisationName)))
         |FailureWhileSaving e-> 
             failwith <| sprintf "%s\n%s" e.Message e.StackTrace
             model, Cmd.none
-            
+        |UpdateContactsWithEditedOrganisationName(old, newName)-> 
+            //this message should be intercepted 1 level up
+            failwith <| sprintf "This message should have been caught 1 level up: UpdateContactsWithEditedOrganisationName(%A, %A)" old newName
+            model, Cmd.none
 
     
 

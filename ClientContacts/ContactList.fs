@@ -29,6 +29,7 @@ module ContactList =
         |SearchContacts of string * Offset * Limit
         |UpdateContacts of Contact.Model list * DateTime
         |UpdateIndividualContact of ContactInfo * OrganisationName * Location option
+        |UpdateContactsWithEditedOrganisationName of oldName: OrganisationName * newName: OrganisationName
         |SearchFailure
         |UpdateContactInfo of int 
         |LoadMoreResults
@@ -92,14 +93,23 @@ module ContactList =
             
             let newList =
                 model.contactList
-                |> Seq.map (
+                |> List.map (
                     fun c -> 
                         match c.id with 
                         | i when i = info.id -> Contact.castContactInfoToContactModel info o l
                         |_ -> c)
-                |> List.ofSeq
-                                
+                        
             {model with contactList = newList},Cmd.none
+        |UpdateContactsWithEditedOrganisationName (oldName, newName) -> 
+            let newList =
+                model.contactList
+                |> List.map(
+                    fun c -> 
+                        match c.organisationName with 
+                        | n when n = oldName.getData -> {c with organisationName = newName.getData}
+                        |_ -> c)
+                    
+            {model with contactList = newList}, Cmd.none
         | SearchFailure ->  model, Cmd.none
         | UpdateContactInfo(id)-> 
             //this message will be elevated 1 level up 

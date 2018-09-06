@@ -62,9 +62,13 @@ module MainWindow =
             let m, msg = LocationPopup.update x (model.LocationPopup) |> mapLocationPopupMsg
             {model with LocationPopup = m}, msg
         | OrganisationPopupMsg x -> 
-            let mapOrganisationPopupMsg (model, cmd) = model, cmd |> Cmd.map OrganisationPopupMsg
-            let m, msg = OrganisationPopup.update x (model.OrganisationPopup) |> mapOrganisationPopupMsg
-            {model with OrganisationPopup = m}, msg
+            match x with 
+            |OrganisationPopup.Msg.UpdateContactsWithEditedOrganisationName(a,b) -> 
+                model, Cmd.ofMsg(ContactList(ContactList.Msg.UpdateContactsWithEditedOrganisationName(a,b)))
+            |_ -> 
+                let mapOrganisationPopupMsg (model, cmd) = model, cmd |> Cmd.map OrganisationPopupMsg
+                let m, msg = OrganisationPopup.update x (model.OrganisationPopup) |> mapOrganisationPopupMsg
+                {model with OrganisationPopup = m}, msg
 
             
 
