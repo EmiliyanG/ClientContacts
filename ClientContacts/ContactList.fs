@@ -36,7 +36,7 @@ module ContactList =
         |FilterAdmins of bool
         |AddNewContact of OrganisationName
         |AddNewLocation of OrganisationName
-        |EditOrganisation of OrganisationName
+        |EditOrganisation of Organisation
         |EditLocation of LocationName
         //|UpdateContact of Guid * Contact.Msg
     
@@ -112,9 +112,9 @@ module ContactList =
             //this message will be elevated 1 level up 
             failwith <| sprintf "this message should have been caught 1 level up. Msg: AddNewContact(%s)" organisationName.getData
             model, Cmd.none
-        |EditOrganisation(organisationName)-> 
+        |EditOrganisation(org)-> 
             //this message will be elevated 1 level up 
-            failwith <| sprintf "this message should have been caught 1 level up. Msg: EditOrganisation(%s)" organisationName.getData
+            failwith <| sprintf "this message should have been caught 1 level up. Msg: EditOrganisation(%A)" org
             model, Cmd.none
         |EditLocation(locationName) -> 
             //this message will be elevated 1 level up 
@@ -145,6 +145,11 @@ module ContactList =
             match expected, actual with 
             |e, a when e = a -> true
             |_-> false
+        
+        let getOrganisationByName (orgName:OrganisationName) (contacts:Contact.Model list)=
+            let c = List.find (fun (c:Contact.Model) -> c.organisationName = orgName.getData) contacts  
+            {id= c.organisationId; organisationName= c.organisationName}
+            
 
         ["ContactItems" |> Binding.oneWayMap (fun m -> m) (fun v-> filterContacts v)
          "SearchBar" |> Binding.twoWay (fun m -> m.search) (fun s m -> SearchContacts(s,Offset(0),Limit(QUERY_LIMIT)) )
@@ -165,7 +170,13 @@ module ContactList =
                                               FilterAdmins(ic) )
          "AddNewContact" |> Binding.cmd (fun param m -> AddNewContact(OrganisationName(string param)))
          "AddNewLocation" |> Binding.cmd (fun param m -> AddNewLocation(OrganisationName(string param)))
-         "EditOrganisation" |> Binding.cmd (fun param m -> EditOrganisation(OrganisationName(string param)))       
+         "EditOrganisation" |> 
+            Binding.cmd (
+                fun param m -> 
+                    OrganisationName(string param)
+                    |> getOrganisationByName <| m.contactList
+                    |> EditOrganisation
+                    )       
          "EditLocation" |> Binding.cmd (fun param m -> EditLocation(LocationName(string param)))
         ]
 

@@ -13,17 +13,20 @@ module MainWindow =
         |ContactList of ContactList.Msg 
         |ContactInfoBoxMsg of ContactInfoBox.Msg
         |LocationPopupMsg of LocationPopup.Msg
+        |OrganisationPopupMsg of OrganisationPopup.Msg
 
 
     type Model = {Contacts: ContactList.Model ; 
                   ContactInfoBox: ContactInfoBox.Model; 
                   LocationPopup: LocationPopup.Model
+                  OrganisationPopup: OrganisationPopup.Model
                   IsAddressBookVisible: bool
                   }
 
     let init() = { Contacts = ContactList.init() 
                    ContactInfoBox=ContactInfoBox.init() 
                    LocationPopup=LocationPopup.init()
+                   OrganisationPopup=OrganisationPopup.init()
                    IsAddressBookVisible = true 
                    }, 
                   Cmd.ofMsg (ContactList( ContactList.Msg.SearchContacts("", Offset(0), Limit(QUERY_LIMIT) ))) //load list of contacts when window is loaded
@@ -40,6 +43,8 @@ module MainWindow =
                 {model with IsAddressBookVisible = false}, Cmd.ofMsg (ContactInfoBoxMsg(ContactInfoBox.Msg.AddNewContact(org)))
             | ContactList.Msg.AddNewLocation org -> 
                 model, Cmd.ofMsg (LocationPopupMsg(LocationPopup.Msg.ShowPopup(org)))
+            | ContactList.Msg.EditOrganisation org -> 
+                model, Cmd.ofMsg (OrganisationPopupMsg(OrganisationPopup.Msg.EditOrganisation(org)))
             | _ -> 
                 let mapContactList (model, cmd) = model, cmd |> Cmd.map ContactList
                 let m, ms = ContactList.update x (model.Contacts) |> mapContactList
@@ -56,6 +61,10 @@ module MainWindow =
             let mapLocationPopupMsg (model, cmd) = model, cmd |> Cmd.map LocationPopupMsg
             let m, msg = LocationPopup.update x (model.LocationPopup) |> mapLocationPopupMsg
             {model with LocationPopup = m}, msg
+        | OrganisationPopupMsg x -> 
+            let mapOrganisationPopupMsg (model, cmd) = model, cmd |> Cmd.map OrganisationPopupMsg
+            let m, msg = OrganisationPopup.update x (model.OrganisationPopup) |> mapOrganisationPopupMsg
+            {model with OrganisationPopup = m}, msg
 
             
 
@@ -66,7 +75,7 @@ module MainWindow =
          "ContactInfoBox" |> Binding.model (fun m -> m.ContactInfoBox) (ContactInfoBox.ContactInfoBoxViewBindings) ContactInfoBoxMsg
          "AddressBook" |> Binding.oneWay (fun m -> m.IsAddressBookVisible)
          "LocationPopup"  |> Binding.model (fun m -> m.LocationPopup) (LocationPopup.locationPopupViewBindings) LocationPopupMsg
-         
+         "OrganisationPopup" |> Binding.model (fun m -> m.OrganisationPopup) (OrganisationPopup.organisationPopupViewBindings) OrganisationPopupMsg
         ]
 
 

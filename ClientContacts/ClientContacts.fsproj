@@ -66,6 +66,7 @@
     <Compile Include="ContactList.fs" />
     <Compile Include="Validator.fs" />
     <Compile Include="ContactInfoBoxBindingsManager.fs" />
+    <Compile Include="OrganisationPopup.fs" />
     <Compile Include="LocationPopup.fs" />
     <Compile Include="ContactInfoBox.fs" />
     <Compile Include="MainWindow.fs" />

@@ -31,5 +31,8 @@
         <local:LocationPopup DataContext="{Binding LocationPopup}"
                              Background="{StaticResource popupBackground}" 
                              Visibility="{Binding Path=LocationPopupVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <local:OrganisationPopup DataContext="{Binding OrganisationPopup}"
+                             Background="{StaticResource popupBackground}" 
+                             Visibility="{Binding Path=OrganisationPopupVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" />
     </Grid>
 </Window>
