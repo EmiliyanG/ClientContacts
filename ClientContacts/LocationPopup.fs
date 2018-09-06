@@ -75,14 +75,12 @@ module LocationPopup=
 
                 let org = Seq.item (model.selectedOrganisationIndex) (model.organisationsList)
                 let l = {id= -1; locationName=(model.LocationInput); organisationId= org.id}
-                debug "started saving"
                 {model with validation = None}, 
                 Cmd.ofAsync (insertLocation)
                             l
                             (fun a -> SavedSuccessfully)
                             (fun e -> FailureWhileSaving e)
             | Failure msg -> 
-                debug msg
                 {model with validation = Some msg}, 
                 Cmd.none
         |SavedSuccessfully -> 
@@ -92,7 +90,6 @@ module LocationPopup=
             failwith <| sprintf "%s\n%s" e.Message e.StackTrace
             model, Cmd.none
         |ChangeLocation v -> 
-            debug <| sprintf "changing location %s" v
             {model with LocationInput = v}, Cmd.none
 
     
