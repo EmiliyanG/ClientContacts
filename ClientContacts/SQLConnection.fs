@@ -57,6 +57,20 @@ module SQLQueries =
         ((Select isnull(max(id)+1, 1) from Location),@locationName, @organisationId)
         """
     [<Literal>]
+    let InsertOrganisationQuery = 
+        """
+        Insert into Organisation(Id, Name)
+        Values
+        ((Select isnull(max(id)+1, 1) from Organisation),@organisationName)
+        """
+    [<Literal>]
+    let UpdateOrganisationQuery = 
+        """
+        Update Organisation set name = @organisationName
+        where id = @id
+        """
+        
+    [<Literal>]
     let OrganisationLocationsQuery =
         """
         Select id, Name as locationName, organisationId from Location
@@ -178,6 +192,27 @@ module MySQLConnection =
             conn.Close()
             return affectedRows
         }
+    
+    let private insertOrganisation (org:Organisation)=
+        async{
+            use conn = openConnection() 
+            let affectedRows =conn.Execute (InsertOrganisationQuery,org)
+            conn.Close()
+            return affectedRows
+        }
+    let private updateOrganisation (org:Organisation)=
+        async{
+            use conn = openConnection() 
+            let affectedRows =conn.Execute (UpdateOrganisationQuery,org)
+            conn.Close()
+            return affectedRows
+        }
+    ///will insert a new organisation if the organisation id is set to -1
+    let updateOrInsertOrganisation (org:Organisation) = 
+        match org.id with 
+        | -1 -> insertOrganisation org
+        |_ -> updateOrganisation org
+    
 
     ///return Async task to load list of contacts from the database
     let getListOfContacts searchString (dateTriggered:DateTime) limit offset =

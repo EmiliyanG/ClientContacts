@@ -71,6 +71,10 @@ module Validator =
         >>> doesFieldContainBlankSpacesOnly
         >>> isFieldValueLongerThanLimit 250
 
+    let validateOrganisation =
+        isFieldEmpty
+        >>> doesFieldContainBlankSpacesOnly
+        >>> isFieldValueLongerThanLimit 250
 
     let getValidationFunction =
         function 

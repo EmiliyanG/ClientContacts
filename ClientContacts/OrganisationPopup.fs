@@ -18,7 +18,9 @@ module OrganisationPopup=
         |EditOrganisation of Organisation
         |UpdateOrganisationInput of string
         |Cancel
-        |Save
+        |TrySaving
+        |SavedSuccessfully
+        |FailureWhileSaving of exn
         
     type Model = { 
                    isVisible: bool
@@ -42,7 +44,6 @@ module OrganisationPopup=
 
     let update (msg:Msg) (model:Model) = 
         match msg with
-        
         |UpdateOrganisationInput v-> 
             {model with 
                    OrganisationInput={model.OrganisationInput 
@@ -55,8 +56,26 @@ module OrganisationPopup=
                 }, Cmd.none
         |Cancel -> 
             {model with isVisible = false}, Cmd.none
-        |Save -> 
+        |TrySaving -> 
+            match validateOrganisation model.OrganisationInput.organisationName with 
+            |Success e-> 
+
+                
+                {model with validation = None}, 
+                Cmd.ofAsync (updateOrInsertOrganisation)
+                            model.OrganisationInput
+                            (fun a -> SavedSuccessfully)
+                            (fun e -> FailureWhileSaving e)
+            | Failure msg -> 
+                {model with validation = Some msg}, 
+                Cmd.none
+        |SavedSuccessfully -> 
+            {model with isVisible= false}, 
+            Cmd.none
+        |FailureWhileSaving e-> 
+            failwith <| sprintf "%s\n%s" e.Message e.StackTrace
             model, Cmd.none
+            
 
     
 
@@ -66,7 +85,7 @@ module OrganisationPopup=
             "Title" |> Binding.oneWayMap (fun m -> m.mode) 
                                          (fun v -> getTitleFromMode v)
             "Cancel" |> Binding.cmd (fun m param -> Cancel)
-            "Save" |> Binding.cmd (fun m param -> Save)
+            "Save" |> Binding.cmd (fun m param -> TrySaving)
             "OrganisationText" |> Binding.twoWay (fun m -> m.OrganisationInput.organisationName)
                                                  (fun v m -> UpdateOrganisationInput(string v) )
             "OrganisationValidations" |> Binding.oneWayMap 
