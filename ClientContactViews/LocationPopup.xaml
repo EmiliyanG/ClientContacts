@@ -18,7 +18,7 @@
             </DataTemplate>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid Height="150" Width="300" Background="{StaticResource lighter}">
+    <Grid Height="190" Width="300" Background="{StaticResource lighter}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
