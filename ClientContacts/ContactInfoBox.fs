@@ -326,7 +326,14 @@ module ContactInfoBox =
             {model with mode=EditMode
                         contactInfoSnapshot=model.contactInfo
                         locationComboBoxSnapshot=model.locationComboBox
-                        organisationComboBoxSnapshot=model.organisationComboBox}, Cmd.none
+                        organisationComboBoxSnapshot=model.organisationComboBox}, 
+                        model.contactInfo
+                        |> Option.map(fun info -> info.organisationId)
+                        |> fun i -> 
+                            match i with 
+                            |Some orgId -> 
+                                Cmd.ofMsg(LoadLocationsList(OrganisationId(orgId)))
+                            |None -> Cmd.none
         | CancelChanges-> 
             let loaded = 
                 match model.contactInfoSnapshot with 
