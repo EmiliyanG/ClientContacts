@@ -42,7 +42,7 @@ module MainWindow =
             | ContactList.Msg.AddNewContact org -> 
                 {model with IsAddressBookVisible = false}, Cmd.ofMsg (ContactInfoBoxMsg(ContactInfoBox.Msg.AddNewContact(org)))
             | ContactList.Msg.AddNewLocation org -> 
-                model, Cmd.ofMsg (LocationPopupMsg(LocationPopup.Msg.ShowPopup(org)))
+                model, Cmd.ofMsg (LocationPopupMsg(LocationPopup.Msg.AddNewLocation(org)))
             | ContactList.Msg.EditOrganisation org -> 
                 model, Cmd.ofMsg (OrganisationPopupMsg(OrganisationPopup.Msg.EditOrganisation(org)))
             | _ -> 

@@ -10,8 +10,13 @@ module LocationPopup=
     open Validator
     open DebugUtils
 
+    type Mode = 
+        |EditLocation
+        |AddNewLocation
+
     type Msg = 
-        |ShowPopup of OrganisationName
+        |EditExistingLocation of Location
+        |AddNewLocation of OrganisationName
         |LoadOrganisationsList of OrganisationName
         |UpdateOrganisationsList of Organisation seq * DateTime * OrganisationName
         |LoadOrganisationsFailure of exn
@@ -21,22 +26,28 @@ module LocationPopup=
         |SavedSuccessfully
         |FailureWhileSaving of exn
         
-    type Model = { organisationsList:Organisation seq
+    type Model = { 
+                   mode:Mode
+                   organisationsList:Organisation seq
                    loadOrganisationsList: AsyncRequest option
                    validation: string option
                    isOrganisationComboBoxEnabled: bool
                    selectedOrganisationIndex: int
                    IsVisible: bool
-                   LocationInput: string
+                   LocationNameSnapshot: string
+                   LocationInput:Location
                    }
 
-    let init() = {organisationsList = []
+    let init() = {
+                  mode=Mode.AddNewLocation
+                  organisationsList = []
                   loadOrganisationsList= None
                   validation=None
                   selectedOrganisationIndex= -1
                   isOrganisationComboBoxEnabled=false
                   IsVisible=false
-                  LocationInput = ""
+                  LocationNameSnapshot = ""
+                  LocationInput={id= -1; locationName=""; organisationId= -1}
                   }
     let getOrganisationComboBoxIndexByName (organisations:seq<Organisation> ) (org:OrganisationName) = 
         organisations |> Seq.findIndex( fun organisation-> organisation.organisationName = org.getData)
@@ -46,8 +57,16 @@ module LocationPopup=
 
     let update (msg:Msg) (model:Model) = 
         match msg with
-        |ShowPopup org -> 
-            {init() with IsVisible= true}, Cmd.ofMsg (LoadOrganisationsList org)
+        |EditExistingLocation l -> 
+            {model with 
+                LocationInput = l
+                LocationNameSnapshot = l.locationName
+            }, Cmd.none
+        |AddNewLocation org -> 
+            {init() with 
+                    IsVisible= true
+                    mode=Mode.AddNewLocation
+            }, Cmd.ofMsg (LoadOrganisationsList org)
         | LoadOrganisationsList(org) -> 
             
             let d = newDate()
@@ -70,14 +89,12 @@ module LocationPopup=
             {model with IsVisible= false}, Cmd.none
         |TrySaving -> 
             
-            match validateLocation model.LocationInput with 
+            match validateLocation model.LocationInput.locationName with 
             |Success e-> 
 
-                let org = Seq.item (model.selectedOrganisationIndex) (model.organisationsList)
-                let l = {id= -1; locationName=(model.LocationInput); organisationId= org.id}
                 {model with validation = None}, 
                 Cmd.ofAsync (insertLocation)
-                            l
+                            model.LocationInput
                             (fun a -> SavedSuccessfully)
                             (fun e -> FailureWhileSaving e)
             | Failure msg -> 
@@ -90,7 +107,7 @@ module LocationPopup=
             failwith <| sprintf "%s\n%s" e.Message e.StackTrace
             model, Cmd.none
         |ChangeLocation v -> 
-            {model with LocationInput = v}, Cmd.none
+            {model with LocationInput = {model.LocationInput with locationName=v} }, Cmd.none
 
     
 
@@ -98,7 +115,7 @@ module LocationPopup=
         [ 
             "Cancel" |> Binding.cmd (fun param m -> Cancel)
             "LocationPopupVisibility" |> Binding.oneWay (fun m -> m.IsVisible)
-            "LocationText" |> Binding.twoWay (fun m -> m.LocationInput) 
+            "LocationText" |> Binding.twoWay (fun m -> m.LocationInput.locationName) 
                                              (fun v m -> ChangeLocation <| string v)
             "IsOrganisationComboBoxEnabled" |> Binding.oneWay (fun m -> m.isOrganisationComboBoxEnabled)
             "organisationsSource" |> Binding.oneWay (fun m -> m.organisationsList)
