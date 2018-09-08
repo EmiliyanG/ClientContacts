@@ -77,6 +77,13 @@ module MainWindow =
                 {model with LocationPopup = m}, msg
         | OrganisationPopupMsg x -> 
             match x with 
+            |OrganisationPopup.Msg.RefreshContactList -> 
+                model, 
+                Cmd.ofMsg(
+                    ContactList(
+                        ContactList.Msg.SearchContacts(
+                            model.Contacts.search,Offset(0), model.Contacts.limit
+                            )))
             |OrganisationPopup.Msg.UpdateContactsWithEditedOrganisationName(a,b) -> 
                 model, Cmd.ofMsg(ContactList(ContactList.Msg.UpdateContactsWithEditedOrganisationName(a,b)))
             |_ -> 

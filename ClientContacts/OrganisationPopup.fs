@@ -15,6 +15,7 @@ module OrganisationPopup=
         |AddNewOrganisation
 
     type Msg = 
+        |RefreshContactList
         |AddNewOrganisation
         |EditOrganisation of Organisation
         |UpdateOrganisationInput of string
@@ -48,6 +49,9 @@ module OrganisationPopup=
 
     let update (msg:Msg) (model:Model) = 
         match msg with
+        |RefreshContactList -> 
+            failwith <| sprintf "this message should have been caught 1 level up: RefreshContactList"
+            model, Cmd.none
         |UpdateOrganisationInput v-> 
             {model with 
                    OrganisationInput={model.OrganisationInput 
@@ -81,7 +85,7 @@ module OrganisationPopup=
         |SavedSuccessfully org-> 
             {model with isVisible= false}, 
             match org.id with 
-            | -1 -> Cmd.none
+            | -1 -> Cmd.ofMsg (RefreshContactList)
             | x -> Cmd.ofMsg (UpdateContactsWithEditedOrganisationName(model.organisationNameSnapshot,OrganisationName(org.organisationName)))
         |FailureWhileSaving e-> 
             failwith <| sprintf "%s\n%s" e.Message e.StackTrace
