@@ -93,7 +93,8 @@
     <Grid>
         <Label Content="This organisation does not have any contacts yet." 
                Visibility="{Binding id,Converter={StaticResource IntToVisibilityConverter}}"
-               VerticalContentAlignment="Center"/>
+               VerticalContentAlignment="Center"
+               Margin="10,0,0,0"/>
         <Button  Grid.Column="0" Background="Transparent" HorizontalContentAlignment="Left" Content="{Binding ContactName}" 
                  Command="{Binding Path=DataContext.UpdateContactInfo, ElementName=ListView}" 
                  CommandParameter="{Binding id}"
