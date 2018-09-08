@@ -14,6 +14,7 @@ module MainWindow =
         |ContactInfoBoxMsg of ContactInfoBox.Msg
         |LocationPopupMsg of LocationPopup.Msg
         |OrganisationPopupMsg of OrganisationPopup.Msg
+        |AddNewOrganisation
 
 
     type Model = {Contacts: ContactList.Model ; 
@@ -51,6 +52,8 @@ module MainWindow =
                 let mapContactList (model, cmd) = model, cmd |> Cmd.map ContactList
                 let m, ms = ContactList.update x (model.Contacts) |> mapContactList
                 { model with Contacts = m }, ms //Cmd.map ContactList ms
+        |AddNewOrganisation -> 
+             model, Cmd.ofMsg(OrganisationPopupMsg(OrganisationPopup.Msg.AddNewOrganisation))
         | ContactInfoBoxMsg x -> 
             match x with 
             |ContactInfoBox.Msg.SaveContactInfoChangesSuccess(i,o,l) -> 
@@ -88,6 +91,7 @@ module MainWindow =
          "AddressBook" |> Binding.oneWay (fun m -> m.IsAddressBookVisible)
          "LocationPopup"  |> Binding.model (fun m -> m.LocationPopup) (LocationPopup.locationPopupViewBindings) LocationPopupMsg
          "OrganisationPopup" |> Binding.model (fun m -> m.OrganisationPopup) (OrganisationPopup.organisationPopupViewBindings) OrganisationPopupMsg
+         "AddNewOrganisation" |> Binding.cmd(fun param m -> AddNewOrganisation)
         ]
 
 

@@ -15,6 +15,7 @@ module OrganisationPopup=
         |AddNewOrganisation
 
     type Msg = 
+        |AddNewOrganisation
         |EditOrganisation of Organisation
         |UpdateOrganisationInput of string
         |Cancel
@@ -42,7 +43,7 @@ module OrganisationPopup=
     let getTitleFromMode(x:Mode)=
         match x with 
         |Mode.EditOrganisation -> "Edit Organisation"
-        |AddNewOrganisation -> "Add New Organisation"
+        |Mode.AddNewOrganisation -> "Add New Organisation"
 
 
     let update (msg:Msg) (model:Model) = 
@@ -51,6 +52,10 @@ module OrganisationPopup=
             {model with 
                    OrganisationInput={model.OrganisationInput 
                                       with organisationName=v}}, Cmd.none
+        |AddNewOrganisation -> 
+            {init() with 
+                isVisible=true
+                mode = Mode.AddNewOrganisation}, Cmd.none
         |EditOrganisation org -> 
             {model with 
                    isVisible=true
