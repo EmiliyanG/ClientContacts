@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using SharedTypes;
 
 namespace ClientContactViews
 {
@@ -19,7 +20,17 @@ namespace ClientContactViews
             }
             else
             {
-                return (String)value == "" ? Visibility.Collapsed : Visibility.Visible;
+
+                Entity e = (Entity)value;
+                if(e.name is null)
+                {
+                    return Visibility.Collapsed;
+                }
+                else
+                {
+                    return e.name == "" ? Visibility.Collapsed : Visibility.Visible;
+                }
+                
             }
             
         }

@@ -9,7 +9,7 @@ module SQLQueries =
     let ListContacts = 
         //WAITFOR DELAY '00:00:10';
         """
-        Select c.id, ContactName, IsDisabled, IsAdmin, o.name as organisationName, o.id as organisationId, l.name as locationName
+        Select c.id, ContactName, IsDisabled, IsAdmin, o.name as organisationName, o.id as organisationId, l.name as locationName, l.id as locationId
         from Contact c
         inner join Organisation o on o.id = c.organisationId
 		left join Location l on l.id = c.locationId
@@ -55,6 +55,13 @@ module SQLQueries =
         Insert into Location(Id, Name, organisationId)
         Values
         ((Select isnull(max(id)+1, 1) from Location),@locationName, @organisationId)
+        """
+    [<Literal>]
+    let UpdateLocationQuery = 
+        """
+        Update Location 
+		set Name = @locationName
+		where id= @id
         """
     [<Literal>]
     let InsertOrganisationQuery = 
@@ -185,14 +192,27 @@ module MySQLConnection =
         | -1 -> insertContactInfo contactInfo
         |_ -> updateContactInfo contactInfo
     
-    let insertLocation (location:Location)=
+    let private insertLocation (location:Location)=
         async{
             use conn = openConnection() 
             let affectedRows =conn.Execute (InsertLocationQuery,location)
             conn.Close()
             return affectedRows
         }
+    let private updateLocation (location:Location)=
+        async{
+            use conn = openConnection() 
+            let affectedRows =conn.Execute (UpdateLocationQuery,location)
+            conn.Close()
+            return affectedRows
+        }
     
+    ///will insert a new location if the location id is set to -1
+    let updateOrInsertLocation (l:Location) = 
+        match l.id with 
+        | -1 -> insertLocation l
+        |_ -> updateLocation l
+
     let private insertOrganisation (org:Organisation)=
         async{
             use conn = openConnection() 

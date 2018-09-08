@@ -1,6 +1,6 @@
 ﻿namespace ClientContacts
 module SQLTypes = 
-    type Contact = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool; organisationName: string; organisationId: int; locationName: string}
+    type Contact = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool; organisationName: string; organisationId: int; locationName: string; locationId: int}
     type ListContactsParams = {searchPattern: string; Limit: int; Offset: int}
     
     type ContactInfo = {id: int; ContactName: string; IsDisabled: bool; IsAdmin: bool; email: string option; 

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientContactViews", "Clien
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ClientContacts", "ClientContacts\ClientContacts.fsproj", "{CB82E9CA-BC1B-4C4A-AF9C-46F52763BC86}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SharedTypes", "SharedTypes\SharedTypes.fsproj", "{1B7DA7B0-7393-4612-AF69-645ED547A2F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{CB82E9CA-BC1B-4C4A-AF9C-46F52763BC86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB82E9CA-BC1B-4C4A-AF9C-46F52763BC86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CB82E9CA-BC1B-4C4A-AF9C-46F52763BC86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B7DA7B0-7393-4612-AF69-645ED547A2F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B7DA7B0-7393-4612-AF69-645ED547A2F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B7DA7B0-7393-4612-AF69-645ED547A2F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B7DA7B0-7393-4612-AF69-645ED547A2F7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

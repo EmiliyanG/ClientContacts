@@ -60,7 +60,7 @@
     </Style>
     <Style x:Key="expanderButton" TargetType="Button" >
         <Setter Property="Content" 
-                Value="{Binding Path=Name}"/>
+                Value="{Binding Path=Name.name}"/>
         <Setter Property="Grid.ColumnSpan" Value="2"/>
         <Setter Property="Background" Value="{StaticResource lighter}"/>
         <Setter Property="BorderThickness" Value="5,0,0,0" />
@@ -233,8 +233,8 @@
     <CollectionViewSource x:Key="listSource" Source="{Binding ContactItems}"  >
 
         <CollectionViewSource.GroupDescriptions>
-            <PropertyGroupDescription  PropertyName="organisationName"/>
-            <PropertyGroupDescription  PropertyName="locationName" />
+            <PropertyGroupDescription  PropertyName="organisation"/>
+            <PropertyGroupDescription  PropertyName="location" />
         </CollectionViewSource.GroupDescriptions>
     </CollectionViewSource>
 </ResourceDictionary>

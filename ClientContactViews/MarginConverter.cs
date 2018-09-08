@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using SharedTypes;
 
 namespace ClientContactViews
 {
@@ -21,9 +22,15 @@ namespace ClientContactViews
             }
             else
             {
-                return (String)value == ""
-                                           ? new Thickness(0, 0, 0, bottomMargin)
-                                           : new Thickness(leftMargin, 0, 0, bottomMargin);
+                Entity e = (Entity)value;
+                if(e.name == null)
+                {
+                    return new Thickness(0, 0, 0, bottomMargin);
+                }
+                else 
+                return e.name == ""
+                                    ? new Thickness(0, 0, 0, bottomMargin)
+                                    : new Thickness(leftMargin, 0, 0, bottomMargin);
             }
 
 

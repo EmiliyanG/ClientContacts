@@ -12,6 +12,7 @@ module ContactList =
     open SQLTypes
     open System.Windows.Forms
     open DebugUtils
+    open SharedTypes
     
     [<Literal>] 
     let QUERY_LIMIT = 50
@@ -28,17 +29,17 @@ module ContactList =
     type Msg = 
         |SearchContacts of string * Offset * Limit
         |UpdateContacts of Contact.Model list * DateTime
-        |UpdateIndividualContact of ContactInfo * OrganisationName * Location option
+        |UpdateIndividualContact of ContactInfo * Organisation * Location option
         |UpdateContactsWithEditedOrganisationName of oldName: OrganisationName * newName: OrganisationName
         |SearchFailure
         |UpdateContactInfo of int 
         |LoadMoreResults
         |FilterDisabled of bool
         |FilterAdmins of bool
-        |AddNewContact of OrganisationName
-        |AddNewLocation of OrganisationName
+        |AddNewContact of Organisation
+        |AddNewLocation of Organisation
         |EditOrganisation of Organisation
-        |EditLocation of LocationName
+        |EditLocation of Location
         //|UpdateContact of Guid * Contact.Msg
     
     type Filters = {includeDisabledContacts: bool; showAdminsOnly: bool }
@@ -77,6 +78,7 @@ module ContactList =
         | UpdateContacts (q, d)-> 
             match model.loadContactsRequest, model.offset with 
             | Some request, Offset(0) when request.latestRequest = d -> //new request made - update all results
+                
                 {model with status=(match q with
                                    | [] -> NoResults
                                    | _ -> Loaded);
@@ -105,8 +107,8 @@ module ContactList =
                 model.contactList
                 |> List.map(
                     fun c -> 
-                        match c.organisationName with 
-                        | n when n = oldName.getData -> {c with organisationName = newName.getData}
+                        match c.organisation.name with 
+                        | n when n = oldName.getData -> {c with organisation = {c.organisation with name = newName.getData}}
                         |_ -> c)
                     
             {model with contactList = newList}, Cmd.none
@@ -118,17 +120,17 @@ module ContactList =
         |AddNewLocation org -> 
             failwith <| sprintf "The message AddNewLocation(%A) should have been intercepted 1 level up" org
             model, Cmd.none
-        | AddNewContact(organisationName)-> 
+        | AddNewContact(org)-> 
             //this message will be elevated 1 level up 
-            failwith <| sprintf "this message should have been caught 1 level up. Msg: AddNewContact(%s)" organisationName.getData
+            failwith <| sprintf "this message should have been caught 1 level up. Msg: AddNewContact(%A)" org
             model, Cmd.none
         |EditOrganisation(org)-> 
             //this message will be elevated 1 level up 
             failwith <| sprintf "this message should have been caught 1 level up. Msg: EditOrganisation(%A)" org
             model, Cmd.none
-        |EditLocation(locationName) -> 
+        |EditLocation(location) -> 
             //this message will be elevated 1 level up 
-            failwith <| sprintf "this message should have been caught 1 level up. Msg: EditLocation(%s)" locationName.getData
+            failwith <| sprintf "this message should have been caught 1 level up. Msg: EditLocation(%A)" location
             model, Cmd.none
         | LoadMoreResults -> 
             {model with loadBtnStatus = DisplayLoadingBar}, Cmd.ofMsg (SearchContacts(model.search,Offset(model.offset.getData + QUERY_LIMIT), Limit(QUERY_LIMIT))) 
@@ -156,11 +158,26 @@ module ContactList =
             |e, a when e = a -> true
             |_-> false
         
-        let getOrganisationByName (orgName:OrganisationName) (contacts:Contact.Model list)=
-            let c = List.find (fun (c:Contact.Model) -> c.organisationName = orgName.getData) contacts  
-            {id= c.organisationId; organisationName= c.organisationName}
+        //let getOrganisationByName (orgName:OrganisationName) (contacts:Contact.Model list)=
+        //    let c = List.find (fun (c:Contact.Model) -> c.organisationName = orgName.getData) contacts  
+        //    {id= c.organisationId; organisationName= c.organisationName}
             
-
+        let getOrganisationFromEntity (param:obj)=
+            let e = param :?> Entity
+            match e.entityType with 
+            | Organisation -> {id=e.id; organisationName=e.name}
+            | _ -> 
+                failwith <| sprintf "expected Entity of type Organisation but here have:%A" e
+            
+        let getLocationFromEntity (param:obj) (m:Model)=
+            let e = param :?> Entity
+            match e.entityType with 
+            | Location -> 
+                let c = List.find (fun (c:Contact.Model) -> c.location.id = e.id) m.contactList
+                {id=e.id; locationName=e.name; organisationId= c.organisation.id}
+            | _ -> 
+                failwith <| sprintf "expected Entity of type Location but here have:%A" e
+            
         ["ContactItems" |> Binding.oneWayMap (fun m -> m) (fun v-> filterContacts v)
          "SearchBar" |> Binding.twoWay (fun m -> m.search) (fun s m -> SearchContacts(s,Offset(0),Limit(QUERY_LIMIT)) )
          "UpdateContactInfo" |> Binding.cmd (fun p m -> 
@@ -178,16 +195,23 @@ module ContactList =
          "FilterAdmins" |> Binding.cmd (fun isChecked m -> 
                                               let ic = isChecked :?> bool //downcast the isChecked object to bool
                                               FilterAdmins(ic) )
-         "AddNewContact" |> Binding.cmd (fun param m -> AddNewContact(OrganisationName(string param)))
-         "AddNewLocation" |> Binding.cmd (fun param m -> AddNewLocation(OrganisationName(string param)))
+         "AddNewContact" |> Binding.cmd (fun param m -> 
+                                             getOrganisationFromEntity param
+                                             |> AddNewContact)
+         "AddNewLocation" |> Binding.cmd (fun param m -> 
+                                             getOrganisationFromEntity param
+                                             |> AddNewLocation)
          "EditOrganisation" |> 
             Binding.cmd (
                 fun param m -> 
-                    OrganisationName(string param)
-                    |> getOrganisationByName <| m.contactList
+                    let org = param :?> Entity
+                    if org.entityType = Location then failwith "expected entity of type Organisation"
+                    {id=org.id; organisationName= org.name}
                     |> EditOrganisation
                     )       
-         "EditLocation" |> Binding.cmd (fun param m -> EditLocation(LocationName(string param)))
+         "EditLocation" |> Binding.cmd (fun param m -> 
+                                            getLocationFromEntity param m
+                                            |> EditLocation )
         ]
 
 

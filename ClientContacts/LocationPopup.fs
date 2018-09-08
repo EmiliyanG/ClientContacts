@@ -16,9 +16,9 @@ module LocationPopup=
 
     type Msg = 
         |EditExistingLocation of Location
-        |AddNewLocation of OrganisationName
-        |LoadOrganisationsList of OrganisationName
-        |UpdateOrganisationsList of Organisation seq * DateTime * OrganisationName
+        |AddNewLocation of Organisation
+        |LoadOrganisationsList of Organisation
+        |UpdateOrganisationsList of Organisation seq * DateTime * Organisation
         |LoadOrganisationsFailure of exn
         |ChangeLocation of string
         |Cancel
@@ -49,8 +49,8 @@ module LocationPopup=
                   LocationNameSnapshot = ""
                   LocationInput={id= -1; locationName=""; organisationId= -1}
                   }
-    let getOrganisationComboBoxIndexByName (organisations:seq<Organisation> ) (org:OrganisationName) = 
-        organisations |> Seq.findIndex( fun organisation-> organisation.organisationName = org.getData)
+    let getOrganisationComboBoxIndexByName (organisations:seq<Organisation> ) (org:Organisation) = 
+        organisations |> Seq.findIndex( fun organisation-> organisation.id = org.id)
 
     let getOrganisationByName (organisations:seq<Organisation> ) (org:OrganisationName) = 
         organisations |> Seq.find( fun organisation-> organisation.organisationName = org.getData)
@@ -58,14 +58,19 @@ module LocationPopup=
     let update (msg:Msg) (model:Model) = 
         match msg with
         |EditExistingLocation l -> 
+            let org = {id = l.organisationId; organisationName=""}
             {model with 
+                IsVisible = true
+                mode = Mode.EditLocation
                 LocationInput = l
                 LocationNameSnapshot = l.locationName
-            }, Cmd.none
+            }, Cmd.ofMsg (LoadOrganisationsList (org))
         |AddNewLocation org -> 
-            {init() with 
+            let m = init()
+            {m with 
                     IsVisible= true
                     mode=Mode.AddNewLocation
+                    LocationInput = {m.LocationInput with organisationId = org.id}
             }, Cmd.ofMsg (LoadOrganisationsList org)
         | LoadOrganisationsList(org) -> 
             
@@ -77,11 +82,11 @@ module LocationPopup=
                     (src.Token) 
                     (fun (organisationList,t) -> UpdateOrganisationsList (organisationList ,t, org))  //request success
                     (fun exn -> LoadOrganisationsFailure exn) //request failure
-        |UpdateOrganisationsList (orgList, d, orgName) -> 
+        |UpdateOrganisationsList (orgList, d, org) -> 
             match model.loadOrganisationsList with 
             | Some r when r.latestRequest = d -> 
                 {model with organisationsList = orgList
-                            selectedOrganisationIndex = getOrganisationComboBoxIndexByName orgList orgName}, Cmd.none
+                            selectedOrganisationIndex = getOrganisationComboBoxIndexByName orgList org}, Cmd.none
             | _ -> model, Cmd.none
         |LoadOrganisationsFailure e-> 
             failwith  <| sprintf "Failed loading list of organisations with the following exception: %A" exn
@@ -93,7 +98,7 @@ module LocationPopup=
             |Success e-> 
 
                 {model with validation = None}, 
-                Cmd.ofAsync (insertLocation)
+                Cmd.ofAsync (updateOrInsertLocation)
                             model.LocationInput
                             (fun a -> SavedSuccessfully)
                             (fun e -> FailureWhileSaving e)

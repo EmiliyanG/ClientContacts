@@ -5,35 +5,54 @@ module Contact =
     open Elmish.WPF
     open System
     open SQLTypes
+    open SharedTypes
 
     type Msg = 
         |UpdateModel
         
-    type Model = { IsUsedAsLoadingButton:bool; id:int ; ContactName: string; IsDisabled: bool; IsAdmin: bool; organisationName:string; organisationId: int; locationName:string}
+    type Model = { IsUsedAsLoadingButton:bool; 
+                   id:int
+                   ContactName: string
+                   IsDisabled: bool
+                   IsAdmin: bool
+                   organisation:Entity
+                   location:Entity}
 
-    let init() = {IsUsedAsLoadingButton = true; id = 0 ; ContactName = ""; IsDisabled = false; IsAdmin=false; organisationName=""; organisationId=0; locationName=""}
+    let init() = {IsUsedAsLoadingButton = true
+                  id = 0
+                  ContactName = ""
+                  IsDisabled = false
+                  IsAdmin=false
+                  organisation={entityType=Organisation; id=0; name=""}
+                  location={entityType=Location; id=0; name=""}}
     
     let castSQLContactToContactModel (c:Contact) = 
-        {IsUsedAsLoadingButton=false; id = c.id ;
-        ContactName = c.ContactName; 
-        IsDisabled = c.IsDisabled; 
-        IsAdmin=c.IsAdmin; 
-        organisationName=c.organisationName;
-        organisationId = c.organisationId;
-        locationName = c.locationName} 
+        {
+        IsUsedAsLoadingButton=false
+        id = c.id
+        ContactName = c.ContactName
+        IsDisabled = c.IsDisabled
+        IsAdmin=c.IsAdmin
+        organisation={entityType=Organisation; id=c.organisationId; name=c.organisationName}
+        location={entityType=Location; id=c.locationId; name=c.locationName}
+        } 
     
-    let castContactInfoToContactModel (c:ContactInfo) (o:OrganisationName) (l:Location option) = 
-        {IsUsedAsLoadingButton=false; id = c.id ;
-        ContactName = c.ContactName; 
-        IsDisabled = c.IsDisabled; 
-        IsAdmin=c.IsAdmin; 
-        organisationName=o.getData;
-        organisationId = c.organisationId;
-        locationName = 
-            match l with 
-            |Some l -> l.locationName
-            |None -> null
-            } 
+    let castContactInfoToContactModel (c:ContactInfo) (o:Organisation) (l:Location option) = 
+        {
+        IsUsedAsLoadingButton=false
+        id = c.id
+        ContactName = c.ContactName
+        IsDisabled = c.IsDisabled
+        IsAdmin=c.IsAdmin
+        organisation={entityType=Organisation; id=o.id; name=o.organisationName}
+        location={entityType=Location
+                  id=match l with 
+                     |Some l -> l.id
+                     |None -> -1
+                  name=match l with 
+                       |Some l -> l.locationName
+                       |None -> null}
+        } 
 
     let update msg model = 
         match msg with

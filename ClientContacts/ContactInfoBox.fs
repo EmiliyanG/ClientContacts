@@ -39,14 +39,14 @@ module ContactInfoBox =
 
 
     type Msg = 
-        |AddNewContact of OrganisationName
+        |AddNewContact of Organisation
         //contact info
         |LoadContact of int
         |UpdateContactInfo of ContactInfo option * DateTime
         |LoadContactFailure
         //organisation combo box
-        |LoadOrganisationsList of OrganisationName option
-        |UpdateOrganisationsList of Organisation seq * DateTime * OrganisationName option
+        |LoadOrganisationsList of Organisation option
+        |UpdateOrganisationsList of Organisation seq * DateTime * Organisation option
         |LoadOrganisationsFailure
         |UpdateOrganisationComboBoxIndex of int
         //location combo box
@@ -65,9 +65,10 @@ module ContactInfoBox =
         |CancelChanges 
         |SaveContactInfoChanges
         |InsertContactInfoRecordSuccess
-        |SaveContactInfoChangesSuccess of ContactInfo * OrganisationName * Location option
+        |SaveContactInfoChangesSuccess of ContactInfo * Organisation * Location option
         |SaveContactInfoChangesFailure
         |InsertContactInfoRecordFailure
+        |ShowAddressBookImage
     [<Literal>]
     let DEFAULT_ORGANISATION_ID = 0
 
@@ -109,8 +110,8 @@ module ContactInfoBox =
     let getOrganisationComboBoxIndexById (organisations:seq<Organisation> ) organisationId = 
         organisations |> Seq.findIndex( fun organisation-> organisation.id = organisationId)
     
-    let getOrganisationComboBoxIndexByName (organisations:seq<Organisation> ) (org:OrganisationName) = 
-        organisations |> Seq.findIndex( fun organisation-> organisation.organisationName = org.getData)
+    let getOrganisationComboBoxIndexByName (organisations:seq<Organisation> ) (org:Organisation) = 
+        organisations |> Seq.findIndex( fun organisation-> organisation.id = org.id)
 
     let getComboBoxItemAtIndex (items:seq<'A> option) index = 
         items  
@@ -155,8 +156,10 @@ module ContactInfoBox =
 
 
     let update (msg:Msg) (model:Model) = 
-        
         match msg with
+        |ShowAddressBookImage -> 
+            failwith <| sprintf "this message should have been caught 1 level up: ShowAddressBookImage"
+            model, Cmd.none
         |AddNewContact org -> 
             match allowedToLoadNewContact model.mode with 
             |true -> 
@@ -232,19 +235,23 @@ module ContactInfoBox =
                                     {info with locationId= location |> Option.map(fun l-> l.id)}
                                 )}, Cmd.none
         | UpdateOrganisationComboBoxIndex (index)-> 
+            
+            match index with 
+            | -1 -> 
+                model, Cmd.none
+            | i -> 
+                let org = Seq.item index model.organisationComboBox.getOrganisationsList
 
-            let org = Seq.item index model.organisationComboBox.getOrganisationsList
-            {model with organisationComboBox = OrganisationComboBox( model.organisationComboBox.getOrganisationsList,index);
-                        contactInfo= 
-                                    (model.contactInfo 
-                                    |> Option.map(
-                                        fun info-> 
-                                            {info with organisationId=org.id})
-                                    )
+                {model with organisationComboBox = OrganisationComboBox( model.organisationComboBox.getOrganisationsList,index);
+                            contactInfo= 
+                                        (model.contactInfo 
+                                        |> Option.map(
+                                            fun info-> 
+                                                {info with organisationId=org.id})
+                                        )
+                            }, 
                         
-                        }, 
-                        
-                        Cmd.ofMsg (LoadLocationsList(OrganisationId(org.id)))
+                            Cmd.ofMsg (LoadLocationsList(OrganisationId(org.id)))
         | LoadOrganisationsList(org) -> 
             
             let d = newDate()
@@ -273,7 +280,7 @@ module ContactInfoBox =
                     (fun _ -> LoadLocationsFailure) //request failure
         | UpdateLocationsList (locationsList ,timeStamp) -> 
             match model.LoadLocationsList with 
-            | Some request when request.latestRequest = timeStamp -> 
+            | Some request when request.latestRequest = timeStamp ->
                 {model with LoadLocationsList= None; 
                             locationComboBox= 
                                 LocationComboBox(locationsList,
@@ -293,8 +300,7 @@ module ContactInfoBox =
                 
                 let orgIndexFromList = Option.map (fun v -> getOrganisationComboBoxIndexByName organisationlist v) org
                 
-
-                {model with LoadLocationsList= None; 
+                {model with loadOrganisationsList= None; 
                             organisationComboBox= 
                                 OrganisationComboBox(organisationlist,
                                     (match model.contactInfo, orgIndexFromList with 
@@ -308,9 +314,10 @@ module ContactInfoBox =
                                                                                           |Some index -> Seq.item index organisationlist
                                                                                                          |> fun v -> v.id
                                                                                           |None -> info.organisationId }) ) 
-                 }, match model.contactInfo with 
-                    | Some info -> Cmd.ofMsg (LoadLocationsList(OrganisationId(info.organisationId)))
-                    | None -> Cmd.none
+                 }, match orgIndexFromList, model.contactInfo with 
+                    |Some i,_ -> Cmd.ofMsg (LoadLocationsList(OrganisationId(i)))
+                    | _, Some info when not (info.organisationId = -1) -> Cmd.ofMsg (LoadLocationsList(OrganisationId(info.organisationId)))
+                    | _, _ -> Cmd.none
             | _ -> model, Cmd.none
 
         | LoadLocationsFailure |LoadOrganisationsFailure |LoadContactFailure -> 
@@ -321,11 +328,20 @@ module ContactInfoBox =
                         locationComboBoxSnapshot=model.locationComboBox
                         organisationComboBoxSnapshot=model.organisationComboBox}, Cmd.none
         | CancelChanges-> 
+            let loaded = 
+                match model.contactInfoSnapshot with 
+                | Some info when info.id = -1-> false
+                | None -> false
+                |_ -> true
             {model with mode=ReadOnlyMode
                         contactInfo=model.contactInfoSnapshot
                         validationErrors=None
                         locationComboBox=model.locationComboBoxSnapshot
-                        organisationComboBox=model.organisationComboBoxSnapshot}, Cmd.none
+                        loaded=loaded 
+                        organisationComboBox=model.organisationComboBoxSnapshot}, 
+            match loaded with 
+            |true -> Cmd.none
+            |false -> Cmd.ofMsg(ShowAddressBookImage)
         | SaveContactInfoChanges-> 
             
             let name = Option.map (fun (info:ContactInfo)-> info.ContactName) model.contactInfo
@@ -354,7 +370,7 @@ module ContactInfoBox =
                                           let o = 
                                               Seq.item model.organisationComboBox.getSelectedOrganisationIndex
                                                        model.organisationComboBox.getOrganisationsList
-                                          SaveContactInfoChangesSuccess(info,OrganisationName(o.organisationName),l)
+                                          SaveContactInfoChangesSuccess(info,o,l)
                                      |_ ->failwith "Could not update or insert a contact in the database"
                                           SaveContactInfoChangesFailure)
                                 (fun exn -> SaveContactInfoChangesFailure)

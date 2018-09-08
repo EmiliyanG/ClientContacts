@@ -101,6 +101,11 @@
       <Project>{1b8ab1f8-34e8-482c-8568-10a53f1dea3a}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\SharedTypes\SharedTypes.fsproj">
+      <Name>SharedTypes</Name>
+      <Project>{1b7da7b0-7393-4612-af69-645ed547a2f7}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

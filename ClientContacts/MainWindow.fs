@@ -43,6 +43,8 @@ module MainWindow =
                 {model with IsAddressBookVisible = false}, Cmd.ofMsg (ContactInfoBoxMsg(ContactInfoBox.Msg.AddNewContact(org)))
             | ContactList.Msg.AddNewLocation org -> 
                 model, Cmd.ofMsg (LocationPopupMsg(LocationPopup.Msg.AddNewLocation(org)))
+            | ContactList.Msg.EditLocation l -> 
+                model, Cmd.ofMsg(LocationPopupMsg(LocationPopup.Msg.EditExistingLocation(l)))
             | ContactList.Msg.EditOrganisation org -> 
                 model, Cmd.ofMsg (OrganisationPopupMsg(OrganisationPopup.Msg.EditOrganisation(org)))
             | _ -> 
@@ -53,6 +55,8 @@ module MainWindow =
             match x with 
             |ContactInfoBox.Msg.SaveContactInfoChangesSuccess(i,o,l) -> 
                 model, Cmd.ofMsg(ContactList(ContactList.Msg.UpdateIndividualContact(i,o,l)))
+            |ContactInfoBox.Msg.ShowAddressBookImage -> 
+                {model with IsAddressBookVisible = true}, Cmd.none
             |_ ->
                 let mapContactList (model, cmd) = model, cmd |> Cmd.map ContactInfoBoxMsg
                 let m, msg = ContactInfoBox.update x (model.ContactInfoBox) |> mapContactList 
