@@ -23,8 +23,8 @@ module Contact =
                   ContactName = ""
                   IsDisabled = false
                   IsAdmin=false
-                  organisation={entityType=Organisation; id=0; name=""}
-                  location={entityType=Location; id=0; name=""}}
+                  organisation={entityType=Organisation; id= -1; name=""}
+                  location={entityType=Location; id= -1; name=""}}
     
     let castSQLContactToContactModel (c:Contact) = 
         {
@@ -34,7 +34,11 @@ module Contact =
         IsDisabled = c.IsDisabled
         IsAdmin=c.IsAdmin
         organisation={entityType=Organisation; id=c.organisationId; name=c.organisationName}
-        location={entityType=Location; id=c.locationId; name=c.locationName}
+        location={entityType=Location
+                  id=match c.locationId with 
+                     | 0 -> -1
+                     | i -> i
+                  name=c.locationName}
         } 
     
     let castContactInfoToContactModel (c:ContactInfo) (o:Organisation) (l:Location option) = 
