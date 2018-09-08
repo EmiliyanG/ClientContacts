@@ -24,8 +24,7 @@
             <Menu Grid.Row="0" Grid.ColumnSpan="3">
                 <MenuItem Header="Add..">
                     <MenuItem Header="Add new organisation" Command="{Binding AddNewOrganisation}"/>
-                    <MenuItem Header="Add new location"/>
-                    <MenuItem Header="Add new contact"/>
+                    
                 </MenuItem>
             </Menu>
             <local:ContactList DataContext="{Binding ContactList}" Grid.Column="0" Grid.Row="1"/>
