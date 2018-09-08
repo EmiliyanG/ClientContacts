@@ -39,7 +39,10 @@ module MainWindow =
         | ContactList x -> 
             match x with 
             | ContactList.Msg.UpdateContactInfo i -> 
-                {model with IsAddressBookVisible = false}, Cmd.ofMsg (ContactInfoBoxMsg(ContactInfoBox.Msg.LoadContact(i)))
+                match i with 
+                |0 -> model, Cmd.none
+                |_ -> 
+                    {model with IsAddressBookVisible = false}, Cmd.ofMsg (ContactInfoBoxMsg(ContactInfoBox.Msg.LoadContact(i)))
             | ContactList.Msg.AddNewContact org -> 
                 {model with IsAddressBookVisible = false}, Cmd.ofMsg (ContactInfoBoxMsg(ContactInfoBox.Msg.AddNewContact(org)))
             | ContactList.Msg.AddNewLocation org -> 
