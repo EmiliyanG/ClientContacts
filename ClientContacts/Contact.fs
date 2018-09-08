@@ -6,6 +6,7 @@ module Contact =
     open System
     open SQLTypes
     open SharedTypes
+    open DebugUtils
 
     type Msg = 
         |UpdateModel
@@ -16,7 +17,8 @@ module Contact =
                    IsDisabled: bool
                    IsAdmin: bool
                    organisation:Entity
-                   location:Entity}
+                   location:Entity
+                   }
 
     let init() = {IsUsedAsLoadingButton = true
                   id = 0
@@ -24,7 +26,8 @@ module Contact =
                   IsDisabled = false
                   IsAdmin=false
                   organisation={entityType=Organisation; id= -1; name=""}
-                  location={entityType=Location; id= -1; name=""}}
+                  location={entityType=Location; id= -1; name=""}
+                  }
     
     let castSQLContactToContactModel (c:Contact) = 
         {
@@ -63,10 +66,18 @@ module Contact =
         |UpdateModel -> model
     
 
-    let view (msg:Msg) (model:Model) = 
-        [ "IsDisabled" |> Binding.oneWay (fun m -> m.IsDisabled)
-          "IsAdmin" |> Binding.oneWay (fun m -> m.IsAdmin)
-          "ContactName" |> Binding.oneWay (fun m -> m.ContactName)
-          "IsUsedAsLoadingButton" |> Binding.oneWay (fun m -> m.IsUsedAsLoadingButton)
-          ]
+    //let view (msg:Msg) (model:Model) = 
+    //    debug "called here"
+    //    [ "IsDisabled" |> Binding.oneWay (fun m -> m.IsDisabled)
+    //      "IsAdmin" |> Binding.oneWay (fun m -> m.IsAdmin)
+    //      "ContactName" |> Binding.oneWayMap
+    //                        (fun m -> m.ContactName, m.displayNoContactsText)
+    //                        (fun (name,displayNoContactsText)-> 
+    //                                            debug <| sprintf "%A" name
+    //                                            match displayNoContactsText with 
+    //                                            |false -> name
+    //                                            |true -> "This organisation does")
+    //      "IsUsedAsLoadingButton" |> Binding.oneWay (fun m -> m.IsUsedAsLoadingButton)
+          
+    //      ]
 
