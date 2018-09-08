@@ -16,7 +16,7 @@
         <SolidColorBrush x:Key="darker" Color="#000000"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <local:BoolToBorderThicknessConverter x:Key="BoolToBorderThicknessConverter" />
-
+        <local:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
         <Style TargetType="Image">
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -91,6 +91,9 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
     <Grid>
+        <Label Content="This organisation does not have any contacts yet." 
+               Visibility="{Binding id,Converter={StaticResource IntToVisibilityConverter}}"
+               VerticalContentAlignment="Center"/>
         <Button  Grid.Column="0" Background="Transparent" HorizontalContentAlignment="Left" Content="{Binding ContactName}" 
                  Command="{Binding Path=DataContext.UpdateContactInfo, ElementName=ListView}" 
                  CommandParameter="{Binding id}"
