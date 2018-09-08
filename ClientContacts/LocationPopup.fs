@@ -23,8 +23,9 @@ module LocationPopup=
         |ChangeLocation of string
         |Cancel
         |TrySaving
-        |SavedSuccessfully
+        |SavedSuccessfully of Location
         |FailureWhileSaving of exn
+        |UpdateContactsWithEditedLocationName of Location
         
     type Model = { 
                    mode:Mode
@@ -100,20 +101,24 @@ module LocationPopup=
                 {model with validation = None}, 
                 Cmd.ofAsync (updateOrInsertLocation)
                             model.LocationInput
-                            (fun a -> SavedSuccessfully)
+                            (fun a -> SavedSuccessfully(model.LocationInput))
                             (fun e -> FailureWhileSaving e)
             | Failure msg -> 
                 {model with validation = Some msg}, 
                 Cmd.none
-        |SavedSuccessfully -> 
+        |SavedSuccessfully l -> 
             {model with IsVisible= false}, 
-            Cmd.none
+            match l.id with 
+            | -1 -> Cmd.none
+            | x -> Cmd.ofMsg (UpdateContactsWithEditedLocationName(l))
         |FailureWhileSaving e-> 
             failwith <| sprintf "%s\n%s" e.Message e.StackTrace
             model, Cmd.none
         |ChangeLocation v -> 
             {model with LocationInput = {model.LocationInput with locationName=v} }, Cmd.none
-
+        |UpdateContactsWithEditedLocationName l -> 
+            failwith <| sprintf "this message should have been caught 1 level up: UpdateContactsWithEditedLocationName(%A)" l
+            model, Cmd.none
     
 
     let locationPopupViewBindings: ViewBinding<Model, Msg> list = 

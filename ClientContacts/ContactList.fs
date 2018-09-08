@@ -30,6 +30,7 @@ module ContactList =
         |SearchContacts of string * Offset * Limit
         |UpdateContacts of Contact.Model list * DateTime
         |UpdateIndividualContact of ContactInfo * Organisation * Location option
+        |UpdateContactsWithEditedLocationName of Location
         |UpdateContactsWithEditedOrganisationName of oldName: OrganisationName * newName: OrganisationName
         |SearchFailure
         |UpdateContactInfo of int 
@@ -101,6 +102,15 @@ module ContactList =
                         | i when i = info.id -> Contact.castContactInfoToContactModel info o l
                         |_ -> c)
                         
+            {model with contactList = newList},Cmd.none
+        |UpdateContactsWithEditedLocationName l -> 
+            let newList =
+                model.contactList
+                |> List.map (
+                    fun c -> 
+                        match c.location with 
+                        | loc when loc.id = l.id -> {c with location = {c.location with name = l.locationName}}
+                        |_ -> c)
             {model with contactList = newList},Cmd.none
         |UpdateContactsWithEditedOrganisationName (oldName, newName) -> 
             let newList =
