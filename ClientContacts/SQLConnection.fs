@@ -10,8 +10,8 @@ module SQLQueries =
         //WAITFOR DELAY '00:00:10';
         """
         Select c.id, ContactName, IsDisabled, IsAdmin, o.name as organisationName, o.id as organisationId, l.name as locationName, l.id as locationId
-        from Contact c
-        inner join Organisation o on o.id = c.organisationId
+        from Organisation o
+        left join Contact c on o.id = c.organisationId
 		left join Location l on l.id = c.locationId
         where ContactName like '%'+@searchPattern+'%' or o.name like '%'+@searchPattern+'%'
         order by o.name, l.name desc, ContactName OFFSET @offset ROWS fetch NEXT @limit ROWS ONLY"""
