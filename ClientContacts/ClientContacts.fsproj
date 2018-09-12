@@ -58,8 +58,9 @@
     <Compile Include="AssemblyInfo.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
-    <Compile Include="SQLTypes.fs" />
     <Compile Include="DebugUtils.fs" />
+    <Compile Include="ConfigManager.fs" />
+    <Compile Include="SQLTypes.fs" />
     <Compile Include="Contact.fs" />
     <Compile Include="ElmishUtils.fs" />
     <Compile Include="SQLConnection.fs" />
@@ -83,6 +84,7 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Numerics" />

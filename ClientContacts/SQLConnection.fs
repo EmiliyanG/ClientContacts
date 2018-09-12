@@ -3,9 +3,6 @@
 
 module SQLQueries = 
     [<Literal>]
-    let ConnectionString = """Server=EMILIYAN;Database=test;Integrated Security=true"""
-    
-    [<Literal>]
     let ListContacts = 
         //WAITFOR DELAY '00:00:10';
         """
@@ -98,6 +95,7 @@ module MySQLConnection =
     open System
     open Elmish
     open DebugUtils
+    open ConfigManager
     
     //copied from stackoverflow https://stackoverflow.com/questions/42797288/dapper-column-to-f-option-property
     //author: Charles Mager
@@ -122,7 +120,7 @@ module MySQLConnection =
     let openConnection() = 
         SqlMapper.AddTypeHandler (OptionHandler<string>())
         SqlMapper.AddTypeHandler (OptionHandler<int>())
-        new SqlConnection(ConnectionString)
+        new SqlConnection(getConnection)
         
         
     let getContacts (conn:SqlConnection) search (l:Limit) (o:Offset) = 
